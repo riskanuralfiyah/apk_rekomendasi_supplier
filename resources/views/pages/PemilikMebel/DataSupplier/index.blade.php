@@ -66,7 +66,7 @@
                             <td>{{ $supplier->alamat }}</td>
                             <td>{{ $supplier->no_telpon }}</td>
                             <td>
-                                <a href="{{ route('penilaiansupplier.pemilikmebel') }}" class="btn btn-success btn-sm">Penilaian</a>
+                                <a href="{{ route('penilaiansupplier.pemilikmebel', $supplier->id) }}" class="btn btn-success btn-sm">Penilaian</a>
                                 <a href="{{ route('edit.datasupplier.pemilikmebel', $supplier->id) }}" class="btn btn-primary btn-sm">
                                     <i class="mdi mdi-pencil text-white"></i>
                                 </a>
@@ -174,17 +174,4 @@
             }
         });
     </script>
-
-    <style>
-        .pagination .page-item.active .page-link {
-            background-color: #4b49ac;
-            border-color: #4b49ac;
-        }
-        .pagination .page-link {
-            color: #4b49ac;
-        }
-        .pagination .page-item.disabled .page-link {
-            color: #6c757d;
-        }
-    </style>
 @endsection

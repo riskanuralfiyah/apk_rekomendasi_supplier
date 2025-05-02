@@ -26,34 +26,10 @@
             </div>
 
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <form method="GET" action="{{ route('datasubkriteria.pemilikmebel', $kriteria->id) }}" id="searchForm" class="d-flex" style="max-width: 300px;">
-                    <div class="input-group">
-                        <input type="text" name="search" id="searchInput" class="form-control" placeholder="Search" value="{{ request('search') }}">
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-secondary" type="submit" id="searchButton">
-                                <i class="mdi mdi-magnify"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <input type="hidden" name="per_page" value="{{ request('per_page', 10) }}">
-                </form>
-
+                <div></div>
                 <a href="{{ route('create.datasubkriteria.pemilikmebel', ['kriteriaId' => $kriteria->id]) }}" class="btn btn-primary">
                     <i class="mdi mdi-plus"></i> Tambah
                 </a>
-            </div>
-
-            <div class="d-flex justify-content-end mb-3">
-                <div>
-                    Show
-                    <select id="showEntries" class="form-control form-control-sm d-inline-block" style="width: auto;" onchange="updatePerPage(this.value)">
-                        <option value="5" {{ request('per_page', 10) == 5 ? 'selected' : '' }}>5</option>
-                        <option value="10" {{ request('per_page', 10) == 10 ? 'selected' : '' }}>10</option>
-                        <option value="20" {{ request('per_page', 10) == 20 ? 'selected' : '' }}>20</option>
-                        <option value="50" {{ request('per_page', 10) == 50 ? 'selected' : '' }}>50</option>
-                    </select>
-                    entries
-                </div>
             </div>
 
             <div class="table-responsive">
@@ -69,7 +45,7 @@
                     <tbody>
                         @foreach($subkriterias as $index => $subkriteria)
                         <tr>
-                            <td>{{ ($subkriterias->currentPage() - 1) * $subkriterias->perPage() + $loop->iteration }}</td>
+                            <td>{{ $loop->iteration }}</td>
                             <td>{{ $subkriteria->nama_subkriteria }}</td>
                             <td>{{ $subkriteria->nilai }}</td>
                             <td>
@@ -86,33 +62,6 @@
                 </table>
             </div>
 
-            <div class="d-flex justify-content-between align-items-center mt-3">
-                <div>
-                    Showing {{ $subkriterias->firstItem() }} to {{ $subkriterias->lastItem() }} of {{ $subkriterias->total() }} entries
-                </div>
-
-                <nav aria-label="Page navigation">
-                    <ul class="pagination pagination-sm mb-0">
-                        @if ($subkriterias->onFirstPage())
-                            <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
-                        @else
-                            <li class="page-item"><a class="page-link" href="{{ $subkriterias->previousPageUrl() }}&per_page={{ request('per_page', 10) }}&search={{ request('search') }}" rel="prev">&laquo;</a></li>
-                        @endif
-
-                        @foreach ($subkriterias->getUrlRange(1, $subkriterias->lastPage()) as $page => $url)
-                            <li class="page-item {{ $page == $subkriterias->currentPage() ? 'active' : '' }}">
-                                <a class="page-link" href="{{ $url }}&per_page={{ request('per_page', 10) }}&search={{ request('search') }}">{{ $page }}</a>
-                            </li>
-                        @endforeach
-
-                        @if ($subkriterias->hasMorePages())
-                            <li class="page-item"><a class="page-link" href="{{ $subkriterias->nextPageUrl() }}&per_page={{ request('per_page', 10) }}&search={{ request('search') }}" rel="next">&raquo;</a></li>
-                        @else
-                            <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
-                        @endif
-                    </ul>
-                </nav>
-            </div>
         </div>
     </div>
 
@@ -144,30 +93,5 @@
             form.action = "{{ url('pemilikmebel/data-subkriteria') }}/" + id;
             modal.show();
         }
-
-        function updatePerPage(value) {
-            const form = document.getElementById('searchForm');
-            form.querySelector('input[name="per_page"]').value = value;
-            form.submit();
-        }
-
-        document.getElementById('searchInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                document.getElementById('searchForm').submit();
-            }
-        });
     </script>
-
-    <style>
-        .pagination .page-item.active .page-link {
-            background-color: #4b49ac;
-            border-color: #4b49ac;
-        }
-        .pagination .page-link {
-            color: #4b49ac;
-        }
-        .pagination .page-item.disabled .page-link {
-            color: #6c757d;
-        }
-    </style>
 @endsection

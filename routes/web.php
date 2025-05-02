@@ -85,15 +85,17 @@ Route::prefix('pemilikmebel')->middleware(['auth', 'role:pemilikmebel'])->group(
             Route::put('/{kriteriaId}/{id}', [DataSubKriteriaController::class, 'update'])->name('update.datasubkriteria.pemilikmebel');
             Route::delete('/{kriteriaId/{subkriteriaId}', [DataSubKriteriaController::class, 'destroy'])->name('delete.datasubkriteria.pemilikmebel');
     });
-    
-    
+
     // Penilaian Supplier
-    Route::prefix('penilaian-supplier')->group(function () {
-        Route::get('/', [PenilaianSupplierController::class, 'index'])->name('penilaiansupplier.pemilikmebel');
-        Route::get('/create', [PenilaianSupplierController::class, 'create'])->name('create.penilaiansupplier.pemilikmebel');
-        Route::get('/edit', [PenilaianSupplierController::class, 'edit'])->name('edit.penilaiansupplier.pemilikmebel');
-        Route::get('/delete', [PenilaianSupplierController::class, 'delete'])->name('delete.penilaiansupplier.pemilikmebel');
-    });
+        Route::prefix('penilaian')->group(function () {
+            Route::get('/{supplierId}', [PenilaianSupplierController::class, 'index'])->name('penilaiansupplier.pemilikmebel');
+            Route::get('/{supplierId}/create', [PenilaianSupplierController::class, 'create'])->name('create.penilaiansupplier.pemilikmebel');
+            Route::post('/{supplierId}', [PenilaianSupplierController::class, 'store'])->name('store.penilaiansupplier.pemilikmebel');
+            Route::get('/{supplierId}/{id}', [PenilaianSupplierController::class, 'show'])->name('show.penilaiansupplier.pemilikmebel');
+            Route::get('/{supplierId}/{id}/edit', [PenilaianSupplierController::class, 'edit'])->name('edit.penilaiansupplier.pemilikmebel');
+            Route::put('/{supplierId}/{id}', [PenilaianSupplierController::class, 'update'])->name('update.penilaiansupplier.pemilikmebel');
+            Route::delete('/{supplierId}/{penilaianId}', [PenilaianSupplierController::class, 'destroy'])->name('destroy.penilaiansupplier.pemilikmebel');
+        });
     
     // Data Perhitungan
     Route::get('/data-perhitungan', [DataPerhitunganController::class, 'index'])->name('dataperhitungan.pemilikmebel');

@@ -174,17 +174,4 @@
             }
         });
     </script>
-
-    <style>
-        .pagination .page-item.active .page-link {
-            background-color: #4b49ac;
-            border-color: #4b49ac;
-        }
-        .pagination .page-link {
-            color: #4b49ac;
-        }
-        .pagination .page-item.disabled .page-link {
-            color: #6c757d;
-        }
-    </style>
 @endsection

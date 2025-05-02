@@ -15,31 +15,14 @@ class DataSubKriteriaController extends Controller
      */
     public function index(Request $request, $kriteriaId)
     {
-        // Ambil parameter dari request
-        $perPage = $request->input('per_page', 10);
-        $searchTerm = $request->input('search', '');
-        
         // Dapatkan data kriteria
         $kriteria = Kriteria::findOrFail($kriteriaId);
-        
-        // Query dasar untuk subkriteria
-        $query = SubKriteria::where('id_kriteria', $kriteriaId);
-        
-        // Jika ada pencarian
-        if (!empty($searchTerm)) {
-            $query->where(function($q) use ($searchTerm) {
-                $q->where('nama_subkriteria', 'like', '%' . $searchTerm . '%');
-            });
-        }
-        
-        // Urutkan berdasarkan yang terbaru dan paginasi
-        $subkriterias = $query->orderBy('created_at', 'desc')
-                            ->paginate($perPage)
-                            ->appends([
-                                'per_page' => $perPage,
-                                'search' => $searchTerm
-                            ]);
-        
+
+        // Ambil semua subkriteria berdasarkan id_kriteria tanpa search dan paginate
+        $subkriterias = SubKriteria::where('id_kriteria', $kriteriaId)
+                            ->orderBy('created_at', 'desc')
+                            ->get();
+
         return view('pages.PemilikMebel.DataSubKriteria.index', compact('kriteria', 'subkriterias'));
     }
 
@@ -125,19 +108,18 @@ class DataSubKriteriaController extends Controller
 
         return redirect()->route('datasubkriteria.pemilikmebel', $kriteriaId)
             ->with('success', 'Data subkriteria berhasil diperbarui');
-
     }
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy($kriteriaId, $subkriteriaId)
-{
-    $subkriteria = SubKriteria::where('id_kriteria', $kriteriaId)
-                            ->findOrFail($subkriteriaId);
-    $subkriteria->delete();
+    {
+        $subkriteria = SubKriteria::where('id_kriteria', $kriteriaId)
+                                ->findOrFail($subkriteriaId);
+        $subkriteria->delete();
 
-    return redirect()->route('datasubkriteria.pemilikmebel', $kriteriaId)
-        ->with('success', 'Data subkriteria berhasil dihapus');
-}
+        return redirect()->route('datasubkriteria.pemilikmebel', $kriteriaId)
+            ->with('success', 'Data subkriteria berhasil dihapus');
+    }
 }

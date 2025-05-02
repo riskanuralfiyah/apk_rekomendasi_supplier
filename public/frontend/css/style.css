@@ -50,6 +50,7 @@ li.nav-item .nav-link.active {
       padding: 5px 0;
       margin: 2px;
   }
+}
 
   /* File: resources/css/frontend/style.css */
 
@@ -108,4 +109,14 @@ li.nav-item .nav-link.active {
 .supplier-detail-card .bg-info-light {
   background-color: rgba(13, 202, 240, 0.1);
 }
+
+.pagination .page-item.active .page-link {
+  background-color: #4b49ac;
+  border-color: #4b49ac;
+}
+.pagination .page-link {
+  color: #4b49ac;
+}
+.pagination .page-item.disabled .page-link {
+  color: #6c757d;
 }

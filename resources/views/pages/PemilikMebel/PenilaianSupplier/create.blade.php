@@ -1,7 +1,7 @@
 @extends('layouts.pemilikmebel')
 
 @section('breadcrumb')
-    <li class="breadcrumb-item"><a href="{{ route('penilaiansupplier.pemilikmebel') }}">Penilaian Supplier</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('penilaiansupplier.pemilikmebel', $supplier->id) }}">Penilaian Supplier</a></li>
     <li class="breadcrumb-item active" aria-current="page">Tambah Penilaian Supplier</li>
 @endsection
 
@@ -9,52 +9,32 @@
 <div class="card">
     <div class="card-body">
         <h3 class="mb-4 font-weight-bold">Form Penilaian Supplier</h3>
-        <form class="forms-sample" onsubmit="event.preventDefault(); handleFormSubmit();">
-            <div class="form-group">
-                <label for="kualitas">Kualitas</label>
-                <select class="form-control" id="kualitas" name="kualitas" required>
-                    <option value="">-- Pilih Kualitas --</option>
-                    <option value="baik">Baik</option>
-                    <option value="cukup">Cukup</option>
-                    <option value="kurang">Kurang</option>
-                </select>
-            </div>
+        
+        <form method="POST" action="{{ route('store.penilaiansupplier.pemilikmebel', $supplier->id) }}">
+            @csrf
 
+            @foreach($kriterias as $kriteria)
             <div class="form-group">
-                <label for="harga">Harga</label>
-                <select class="form-control" id="harga" name="harga" required>
-                    <option value="">-- Pilih Harga --</option>
-                    <option value="murah">Murah</option>
-                    <option value="standar">Standar</option>
-                    <option value="mahal">Mahal</option>
+                <label for="kriteria_{{ $kriteria->id }}">{{ $kriteria->nama_kriteria }}</label>
+                <select class="form-control @error('kriteria.'.$kriteria->id) is-invalid @enderror" 
+                        id="kriteria_{{ $kriteria->id }}" 
+                        name="kriteria[{{ $kriteria->id }}]" required>
+                    <option value="">-- Pilih {{ $kriteria->nama_kriteria }} --</option>
+                    @foreach($kriteria->subkriterias as $subkriteria)
+                        <option value="{{ $subkriteria->id }}" {{ old('kriteria.'.$kriteria->id) == $subkriteria->id ? 'selected' : '' }}>
+                            {{ $subkriteria->nama_subkriteria }} (Nilai: {{ $subkriteria->nilai }})
+                        </option>
+                    @endforeach
                 </select>
+                @error('kriteria.'.$kriteria->id)
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
-
-            <div class="form-group">
-                <label for="pelayanan">Pelayanan</label>
-                <select class="form-control" id="pelayanan" name="pelayanan" required>
-                    <option value="">-- Pilih Pelayanan --</option>
-                    <option value="baik">Baik</option>
-                    <option value="cukup">Cukup</option>
-                    <option value="buruk">Buruk</option>
-                </select>
-            </div>
+            @endforeach
 
             <button type="submit" class="btn btn-primary mr-2">Simpan</button>
-            <a href="{{ route('penilaiansupplier.pemilikmebel') }}" class="btn btn-light">Cancel</a>
+            <a href="{{ route('penilaiansupplier.pemilikmebel', $supplier->id) }}" class="btn btn-light">Cancel</a>
         </form>
     </div>
 </div>
-
-<script>
-    function handleFormSubmit() {
-        // Show success message
-        alert('Penilaian berhasil disimpan!');
-        
-        // Redirect back to penilaian supplier page after 1 second
-        setTimeout(function() {
-            window.location.href = "{{ route('penilaiansupplier.pemilikmebel') }}";
-        }, 1000);
-    }
-</script>
 @endsection

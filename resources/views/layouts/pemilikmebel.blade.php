@@ -169,26 +169,36 @@
             <nav class="sidebar sidebar-offcanvas" id="sidebar">
                 <ul class="nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('dashboard.pemilikmebel') }}">
+                        <a class="nav-link {{ request()->routeIs('dashboard.pemilikmebel') ? 'active' : '' }}"
+                            href="{{ route('dashboard.pemilikmebel') }}">
                             <i class="icon-grid menu-icon"></i>
                             <span class="menu-title">Dashboard</span>
                         </a>
-                    </li>
+                    </li>                    
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('create.datasupplier.pemilikmebel') || request()->routeIs('edit*.datasupplier.pemilikmebel') || request()->routeIs('penilaiansupplier.pemilikmebel') || request()->routeIs('create.penilaiansupplier.pemilikmebel') ? 'active' : '' }}"
+                        <a class="nav-link 
+                            {{ request()->routeIs('datasupplier.pemilikmebel') ||
+                               request()->routeIs('create.datasupplier.pemilikmebel') ||
+                               request()->routeIs('edit.datasupplier.pemilikmebel') ||
+                               request()->routeIs('detail.datasupplier.pemilikmebel') ||
+                               request()->routeIs('penilaiansupplier.pemilikmebel') ||
+                               request()->routeIs('create.penilaiansupplier.pemilikmebel') ||
+                               request()->routeIs('edit.penilaiansupplier.pemilikmebel')
+                               ? 'active' : '' }}" 
                             href="{{ route('datasupplier.pemilikmebel') }}">
                             <i class="mdi mdi-clipboard-outline menu-icon"></i>
                             <span class="menu-title">Data Supplier</span>
                         </a>
                     </li>
+                    
                     <li class="nav-item">
                         <a class="nav-link 
                             {{ request()->routeIs('datakriteria.pemilikmebel') ||
                                request()->routeIs('create.datakriteria.pemilikmebel') ||
-                               request()->routeIs('edit*.datakriteria.pemilikmebel') ||
+                               request()->routeIs('edit.datakriteria.pemilikmebel') ||
                                request()->routeIs('datasubkriteria.pemilikmebel*') ||
                                request()->routeIs('create.datasubkriteria.pemilikmebel') ||
-                               request()->routeIs('edit*.datasubkriteria.pemilikmebel')
+                               request()->routeIs('edit.datasubkriteria.pemilikmebel')
                                ? 'active' : '' }}" 
                             href="{{ route('datakriteria.pemilikmebel') }}">
                             <i class="mdi mdi-clipboard-outline menu-icon"></i>
@@ -196,36 +206,41 @@
                         </a>
                     </li>                    
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('dataperhitungan.pemilikmebel') }}">
+                        <a class="nav-link {{ request()->routeIs('dataperhitungan.pemilikmebel') ? 'active' : '' }}"
+                            href="{{ route('dataperhitungan.pemilikmebel') }}">
                             <i class="icon-bar-graph menu-icon"></i>
                             <span class="menu-title">Data Perhitungan</span>
                         </a>
-                    </li>
+                    </li>                    
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('hasilrekomendasi.pemilikmebel') }}">
+                        <a class="nav-link {{ request()->routeIs('hasilrekomendasi.pemilikmebel') ? 'active' : '' }}"
+                            href="{{ route('hasilrekomendasi.pemilikmebel') }}">
                             <i class="mdi mdi-checkbox-multiple-marked-outline menu-icon"></i>
                             <span class="menu-title">Hasil Rekomendasi</span>
                         </a>
-                    </li>
+                    </li>                    
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('create.databahanbaku.pemilikmebel') || request()->routeIs('edit*.databahanbaku.pemilikmebel') ? 'active' : '' }}"
+                        <a class="nav-link {{ request()->routeIs('databahanbaku.pemilikmebel') || request()->routeIs('create.databahanbaku.pemilikmebel') || request()->routeIs('edit*.databahanbaku.pemilikmebel') ? 'active' : '' }}"
                             href="{{ route('databahanbaku.pemilikmebel') }}">
                             <i class="mdi mdi-clipboard-outline menu-icon"></i>
                             <span class="menu-title">Data Bahan Baku</span>
                         </a>
-                    </li>
+                    </li>                    
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('laporanbahanbaku.pemilikmebel') }}">
+                        <a class="nav-link {{ request()->routeIs('laporanbahanbaku.pemilikmebel') ? 'active' : '' }}"
+                            href="{{ route('laporanbahanbaku.pemilikmebel') }}">
                             <i class="mdi mdi-book-open-page-variant menu-icon"></i>
                             <span class="menu-title">Laporan Bahan Baku</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('kelolapengguna.pemilikmebel') }}">
+                        <a class="nav-link {{ request()->routeIs('kelolapengguna.pemilikmebel') ? 'active' : '' }}"
+                            href="{{ route('kelolapengguna.pemilikmebel') }}">
                             <i class="mdi mdi-account-multiple menu-icon"></i>
                             <span class="menu-title">Kelola Pengguna</span>
                         </a>
                     </li>
+                    
                 </ul>
             </nav>
             <div class="main-panel">
