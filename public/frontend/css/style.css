@@ -1,0 +1,111 @@
+.navbar-toggler {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: transparent !important;
+}
+
+.icon-menu {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: transparent !important;
+}
+
+.breadcrumb {
+  background: none; /* Hilangkan latar belakang */
+  padding: 0; /* Hilangkan padding */
+  margin: 5px 0 0 20px; /* Tambahkan margin kiri */
+  border: none; /* Hilangkan border */
+  box-shadow: none; /* Hilangkan shadow jika ada */
+}
+
+.breadcrumb-item a {
+  color: #4a4ed4; /* Warna teks untuk link */
+  text-decoration: none; /* Hilangkan underline */
+}
+
+.breadcrumb-item.active {
+  color: #6c757d; /* Warna teks untuk item aktif */
+}
+
+/* Jika ada garis pemisah (separator) */
+.breadcrumb-item + .breadcrumb-item::before {
+  content: "/"; /* Separator */
+  color: #6c757d; /* Warna separator */
+  padding: 0 8px; /* Spasi di sekitar separator */
+}
+
+/* Warna teks dan ikon putih ketika menu aktif */
+li.nav-item .nav-link.active .menu-title,
+li.nav-item .nav-link.active .menu-icon {
+    color: white !important; /* Warna teks dan ikon putih */
+}
+
+/* Warna latar belakang ketika menu aktif */
+li.nav-item .nav-link.active {
+    background-color: #4B49AC !important; /* Warna latar belakang */
+
+    .flatpickr-monthSelect-month {
+      padding: 5px 0;
+      margin: 2px;
+  }
+
+  /* File: resources/css/frontend/style.css */
+
+/* Style khusus untuk detail supplier */
+.supplier-detail-card .info-card {
+  display: flex;
+  align-items: flex-start;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  margin-bottom: 12px;
+}
+
+.supplier-detail-card .info-card:hover {
+  background-color: #fff;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  transform: translateY(-2px);
+}
+
+.supplier-detail-card .icon-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15px;
+  flex-shrink: 0;
+}
+
+.supplier-detail-card .info-label {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-bottom: 5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.supplier-detail-card .info-text {
+  font-size: 1rem;
+  margin-bottom: 0;
+  color: #343a40;
+  font-weight: 500;
+}
+
+.supplier-detail-card .bg-primary-light {
+  background-color: rgba(13, 110, 253, 0.1);
+}
+
+.supplier-detail-card .bg-success-light {
+  background-color: rgba(25, 135, 84, 0.1);
+}
+
+.supplier-detail-card .bg-info-light {
+  background-color: rgba(13, 202, 240, 0.1);
+}
+}
