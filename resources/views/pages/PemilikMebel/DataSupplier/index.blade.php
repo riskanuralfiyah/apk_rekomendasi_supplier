@@ -55,6 +55,7 @@
                             <th>Nama Supplier</th>
                             <th>Alamat</th>
                             <th>No. Telepon</th>
+                            <th>Status Penilaian</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -65,6 +66,13 @@
                             <td>{{ $supplier->nama_supplier }}</td>
                             <td>{{ $supplier->alamat }}</td>
                             <td>{{ $supplier->no_telpon }}</td>
+                            <td>
+                                @if($supplier->penilaians_count > 0)
+                                    <span class="badge bg-secondary">Sudah Dinilai</span>
+                                @else
+                                    <span class="badge bg-warning text-dark">Belum Dinilai</span>
+                                @endif
+                            </td>
                             <td>
                                 <a href="{{ route('penilaiansupplier.pemilikmebel', $supplier->id) }}" class="btn btn-success btn-sm">Penilaian</a>
                                 <a href="{{ route('edit.datasupplier.pemilikmebel', $supplier->id) }}" class="btn btn-primary btn-sm">

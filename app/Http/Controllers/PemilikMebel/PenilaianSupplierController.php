@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\PemilikMebel;
 
 use App\Http\Controllers\Controller;
-use App\Models\{Penilaian, Supplier, Kriteria, SubKriteria};
+use App\Models\{Penilaian, Supplier, Kriteria, Subkriteria};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -24,56 +24,102 @@ class PenilaianSupplierController extends Controller
     }
 
     public function create($supplierId)
-    {
+{
+    $supplier = Supplier::findOrFail($supplierId);
+    
+    // Eager load subkriteria yang sudah diurutkan
+    $kriterias = Kriteria::with(['subkriterias' => function($query) {
+        $query->orderBy('nilai', 'desc');
+    }])->get();
+
+    // Filter kriteria yang belum dinilai
+    $existingKriteriaIds = $supplier->penilaians()->pluck('id_kriteria')->toArray();
+    $availableKriterias = $kriterias->reject(fn($kriteria) => in_array($kriteria->id, $existingKriteriaIds));
+
+    if ($availableKriterias->isEmpty()) {
+        return redirect()
+            ->route('penilaiansupplier.pemilikmebel', $supplierId)
+            ->with('warning', 'Supplier sudah memiliki penilaian untuk semua kriteria');
+    }
+
+    return view('pages.PemilikMebel.PenilaianSupplier.create', [
+        'supplier' => $supplier,
+        'kriterias' => $availableKriterias
+    ]);
+}
+
+public function store(Request $request, $supplierId)
+{
+    // Validasi bahwa ada data kriteria yang dikirim
+    $validator = Validator::make($request->all(), [
+        'kriteria' => 'required|array',
+        'kriteria.*' => 'required|exists:subkriterias,id'
+    ]);
+
+    if ($validator->fails()) {
+        return back()
+            ->withErrors($validator)
+            ->withInput();
+    }
+
+    try {
         $supplier = Supplier::findOrFail($supplierId);
-        $kriterias = Kriteria::with('subkriterias')->get();
-        $suppliers = Supplier::all();
+        $errors = [];
 
-        $existingKriteriaIds = $supplier->penilaians()->pluck('id_kriteria')->toArray();
-        $availableKriterias = $kriterias->reject(fn($kriteria) => in_array($kriteria->id, $existingKriteriaIds));
+        // Proses setiap kriteria yang dipilih
+        foreach ($request->kriteria as $kriteriaId => $subkriteriaId) {
+            // Validasi tambahan untuk setiap pasangan kriteria-subkriteria
+            $subkriteria = Subkriteria::where('id', $subkriteriaId)
+                ->where('id_kriteria', $kriteriaId)
+                ->first();
 
-        if ($availableKriterias->isEmpty()) {
-            return redirect()->route('penilaiansupplier.pemilikmebel', $supplierId)
-                ->with('warning', 'Supplier sudah memiliki penilaian untuk semua kriteria');
-        }
+            if (!$subkriteria) {
+                $errors["kriteria.$kriteriaId"] = 'Subkriteria tidak valid untuk kriteria yang dipilih';
+                continue;
+            }
 
-        return view('pages.PemilikMebel.PenilaianSupplier.create', [
-            'supplier' => $supplier,
-            'suppliers' => $suppliers,
-            'kriterias' => $availableKriterias
-        ]);
-    }
+            // Cek apakah kriteria sudah dinilai sebelumnya
+            $exists = Penilaian::where('id_supplier', $supplierId)
+                ->where('id_kriteria', $kriteriaId)
+                ->exists();
 
-    public function store(Request $request, $supplierId)
-    {
-        // Validasi input
-        $validated = $request->validate([
-            'id_kriteria' => 'required|exists:kriterias,id',  // Validasi bahwa id_kriteria ada di tabel kriteria
-            'id_subkriteria' => 'required|exists:subkriterias,id',  // Validasi bahwa id_subkriteria ada di tabel subkriteria
-        ]);
-    
-        try {
-            // Ambil supplier berdasarkan ID
-            $supplier = Supplier::findOrFail($supplierId);
-    
-            // Ambil subkriteria berdasarkan id
-            $subkriteria = SubKriteria::findOrFail($validated['id_subkriteria']);
-    
-            // Simpan penilaian, pastikan nilai_subkriteria disimpan sebagai integer
-            $supplier->penilaians()->create([
-                'id_kriteria' => $validated['id_kriteria'],
-                'id_subkriteria' => $validated['id_subkriteria'],
-                'nilai_subkriteria' => (int) $subkriteria->nilai, // Pastikan nilai disimpan sebagai integer
+            if ($exists) {
+                $errors["kriteria.$kriteriaId"] = 'Kriteria ini sudah dinilai sebelumnya';
+                continue;
+            }
+
+            // Simpan penilaian
+            Penilaian::create([
+                'id_supplier' => $supplier->id,
+                'id_kriteria' => $kriteriaId,
+                'id_subkriteria' => $subkriteriaId,
+                'nilai_subkriteria' => (int) $subkriteria->nilai
             ]);
-    
-            // Redirect atau respons sukses
-            return redirect()->route('penilaiansupplier.pemilikmebel', $supplierId)
-                ->with('success', 'Penilaian berhasil ditambahkan');
-        } catch (\Exception $e) {
-            // Menangani error
-            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
+
+        if (!empty($errors)) {
+            return back()
+                ->withErrors($errors)
+                ->withInput()
+                ->with('warning', 'Beberapa data tidak tersimpan karena masalah validasi');
+        }
+
+        return redirect()
+            ->route('penilaiansupplier.pemilikmebel', $supplierId)
+            ->with('success', 'Penilaian berhasil ditambahkan');
+
+    } catch (\Exception $e) {
+        \Log::error('Error creating penilaian: ' . $e->getMessage(), [
+            'supplier_id' => $supplierId,
+            'input' => $request->all(),
+            'error' => $e->getTraceAsString()
+        ]);
+        
+        return back()
+            ->with('error', 'Terjadi kesalahan saat menyimpan penilaian')
+            ->withInput();
     }
+}
     
     public function show($supplierId, $id)
     {
@@ -88,53 +134,116 @@ class PenilaianSupplierController extends Controller
         ]);
     }
 
-    public function edit($supplierId, $id)
+    public function edit($supplierId)
     {
         $supplier = Supplier::findOrFail($supplierId);
-        $penilaian = $supplier->penilaians()
-                            ->with(['kriteria.subkriterias'])
-                            ->findOrFail($id);
-
+        
+        $penilaians = $supplier->penilaians()
+                        ->with(['kriteria.subkriterias'])
+                        ->get();
+    
+        if ($penilaians->isEmpty()) {
+            return redirect()
+                ->route('penilaiansupplier.pemilikmebel', $supplierId)
+                ->with('warning', 'Belum ada penilaian untuk supplier ini');
+        }
+    
         return view('pages.PemilikMebel.PenilaianSupplier.edit', [
             'supplier' => $supplier,
-            'penilaian' => $penilaian,
-            'subkriterias' => $penilaian->kriteria->subkriterias
+            'penilaians' => $penilaians
         ]);
     }
 
-    public function update(Request $request, $supplierId, $id)
-    {
-        $validated = $request->validate([
-            'id_subkriteria' => 'required|exists:subkriterias,id',
-        ]);
+public function update(Request $request, $supplierId)
+{
+    $validator = Validator::make($request->all(), [
+        'penilaian' => 'required|array',
+        'penilaian.*.id_subkriteria' => 'required|exists:subkriterias,id'
+    ]);
 
+    if ($validator->fails()) {
+        return back()
+            ->withErrors($validator)
+            ->withInput();
+    }
+
+    try {
         $supplier = Supplier::findOrFail($supplierId);
-        $penilaian = $supplier->penilaians()->findOrFail($id);
-        $subkriteria = SubKriteria::findOrFail($validated['id_subkriteria']);
+        $errors = [];
 
-        $penilaian->update([
-            'id_subkriteria' => $validated['id_subkriteria'],
-            'nilai_subkriteria' => $subkriteria->nilai
+        foreach ($request->penilaian as $penilaianId => $data) {
+            $penilaian = Penilaian::where('id', $penilaianId)
+                            ->where('id_supplier', $supplierId)
+                            ->first();
+
+            if (!$penilaian) {
+                $errors["penilaian.$penilaianId"] = 'Penilaian tidak ditemukan';
+                continue;
+            }
+
+            try {
+                $subkriteria = Subkriteria::findOrFail($data['id_subkriteria']);
+            } catch (ModelNotFoundException $e) {
+                $errors["penilaian.$penilaianId"] = 'Subkriteria tidak ditemukan';
+                continue;
+            }
+            
+
+            $penilaian->update([
+                'id_subkriteria' => $data['id_subkriteria'],
+                'nilai_subkriteria' => $subkriteria->nilai
+            ]);
+        }
+
+        if (!empty($errors)) {
+            return back()
+                ->withErrors($errors)
+                ->withInput()
+                ->with('warning', 'Beberapa penilaian gagal diperbarui');
+        }
+
+        return redirect()
+            ->route('penilaiansupplier.pemilikmebel', $supplierId)
+            ->with('success', 'Semua penilaian berhasil diperbarui');
+
+    } catch (\Exception $e) {
+        \Log::error('Error updating penilaian: ' . $e->getMessage(), [
+            'supplier_id' => $supplierId,
+            'input' => $request->all(),
+            'error' => $e->getTraceAsString()
         ]);
+        
+        return back()
+            ->with('error', 'Terjadi kesalahan saat memperbarui penilaian')
+            ->withInput();
+    }
+}
 
+public function destroy($supplierId)
+{
+    // Temukan supplier berdasarkan ID
+    $supplier = Supplier::findOrFail($supplierId);
+
+    // Hapus semua penilaian terkait supplier
+    $penilaians = $supplier->penilaians();
+
+    // Periksa apakah ada penilaian yang terkait dengan supplier ini
+    if ($penilaians->count() == 0) {
         return redirect()->route('penilaiansupplier.pemilikmebel', $supplierId)
-            ->with('success', 'Penilaian berhasil diperbarui');
+            ->with('error', 'Tidak ada penilaian untuk dihapus');
     }
 
-    public function destroy($supplierId, $id)
-    {
-        $supplier = Supplier::findOrFail($supplierId);
-        $penilaian = $supplier->penilaians()->findOrFail($id);
-        
-        $penilaian->delete();
-        
-        return redirect()->route('penilaiansupplier.pemilikmebel', $supplierId)
-            ->with('success', 'Penilaian berhasil dihapus');
-    }
+    // Hapus semua penilaian yang terkait dengan supplier
+    $penilaians->delete();
+
+    return redirect()->route('penilaiansupplier.pemilikmebel', $supplierId)
+        ->with('success', 'Semua penilaian berhasil dihapus');
+}
+
 
     public function getSubkriteria($kriteriaId)
     {
-        $subkriterias = SubKriteria::where('id_kriteria', $kriteriaId)
+        $subkriterias = Subkriteria::where('id_kriteria', $kriteriaId)
                                 ->orderBy('nilai', 'desc')
                                 ->get();
 

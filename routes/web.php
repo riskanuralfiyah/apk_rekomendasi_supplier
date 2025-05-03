@@ -91,10 +91,10 @@ Route::prefix('pemilikmebel')->middleware(['auth', 'role:pemilikmebel'])->group(
             Route::get('/{supplierId}', [PenilaianSupplierController::class, 'index'])->name('penilaiansupplier.pemilikmebel');
             Route::get('/{supplierId}/create', [PenilaianSupplierController::class, 'create'])->name('create.penilaiansupplier.pemilikmebel');
             Route::post('/{supplierId}', [PenilaianSupplierController::class, 'store'])->name('store.penilaiansupplier.pemilikmebel');
+            Route::get('/{supplierId}/edit', [PenilaianSupplierController::class, 'edit'])->name('edit.penilaiansupplier.pemilikmebel');
             Route::get('/{supplierId}/{id}', [PenilaianSupplierController::class, 'show'])->name('show.penilaiansupplier.pemilikmebel');
-            Route::get('/{supplierId}/{id}/edit', [PenilaianSupplierController::class, 'edit'])->name('edit.penilaiansupplier.pemilikmebel');
-            Route::put('/{supplierId}/{id}', [PenilaianSupplierController::class, 'update'])->name('update.penilaiansupplier.pemilikmebel');
-            Route::delete('/{supplierId}/{penilaianId}', [PenilaianSupplierController::class, 'destroy'])->name('destroy.penilaiansupplier.pemilikmebel');
+            Route::put('/{supplierId}', [PenilaianSupplierController::class, 'update'])->name('update.penilaiansupplier.pemilikmebel');
+            Route::delete('/{supplierId}/delete', [PenilaianSupplierController::class, 'destroy'])->name('destroy.penilaiansupplier.pemilikmebel');
         });
     
     // Data Perhitungan

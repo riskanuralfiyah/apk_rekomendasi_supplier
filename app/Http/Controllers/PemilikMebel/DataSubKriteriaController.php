@@ -4,7 +4,7 @@ namespace App\Http\Controllers\PemilikMebel;
 
 use App\Http\Controllers\Controller;
 use App\Models\Kriteria;
-use App\Models\SubKriteria;
+use App\Models\Subkriteria;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 

@@ -63,12 +63,11 @@
             <label class="col-sm-2 col-form-label">Role</label>
             <div class="col-sm-10">
               <input type="text"
-                     class="form-control-plaintext"
-                     readonly
-                     value="{{ ucfirst($user->role) }}">
+                    class="form-control-plaintext"
+                    readonly
+                    value="{{ ucfirst(str_replace(['pemilikmebel', 'karyawan'], ['Pemilik Mebel', 'Karyawan'], $user->role)) }}">
             </div>
           </div>
-
         </form>
       </div>
     </div>

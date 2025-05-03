@@ -27,11 +27,21 @@
                 </div>
             </div>
 
-            <!-- Tombol Tambah Penilaian -->
+            <!-- Tombol Aksi -->
             <div class="d-flex justify-content-end mb-3">
-                <a href="{{ route('create.penilaiansupplier.pemilikmebel', $supplier->id) }}" class="btn btn-primary">
-                    <i class="mdi mdi-plus"></i> Tambah Penilaian
-                </a>
+                @if($penilaians->isEmpty())
+                    <a href="{{ route('create.penilaiansupplier.pemilikmebel', $supplier->id) }}" class="btn btn-primary me-2">
+                        <i class="mdi mdi-plus"></i> Tambah
+                    </a>
+                @else
+                <a href="{{ route('edit.penilaiansupplier.pemilikmebel', $supplier->id) }}" class="btn btn-warning me-2">
+                    <i class="mdi mdi-pencil"></i> Edit
+                </a>                
+                    
+                    <button class="btn btn-danger" onclick="showDeleteModal({{ $penilaians->first()->id }})">
+                        <i class="mdi mdi-delete"></i> Hapus
+                    </button>
+                @endif
             </div>
 
             <!-- Tabel Penilaian -->
@@ -43,7 +53,6 @@
                             <th>Kriteria</th>
                             <th>Subkriteria</th>
                             <th>Nilai</th>
-                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -53,14 +62,6 @@
                             <td>{{ $penilaian->kriteria->nama_kriteria }}</td>
                             <td>{{ $penilaian->subkriteria->nama_subkriteria }}</td>
                             <td>{{ $penilaian->subkriteria->nilai }}</td>
-                            <td>
-                                <a href="{{ route('edit.penilaiansupplier.pemilikmebel', ['supplierId' => $supplier->id, 'id' => $penilaian->id]) }}" class="btn btn-primary btn-sm">
-                                    <i class="mdi mdi-pencil text-white"></i>
-                                </a>
-                                <button class="btn btn-danger btn-sm" onclick="showDeleteModal({{ $penilaian->id }})">
-                                    <i class="mdi mdi-delete"></i>
-                                </button>
-                            </td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -94,7 +95,7 @@
         function showDeleteModal(id) {
             var modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
             var form = document.getElementById('deleteForm');
-            form.action = "{{ url('pemilikmebel/penilaian-supplier') }}/" + id;
+            form.action = "{{ route('destroy.penilaiansupplier.pemilikmebel', $supplier->id) }}";
             modal.show();
         }
     </script>

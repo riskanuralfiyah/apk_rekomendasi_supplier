@@ -18,6 +18,7 @@ class DataSupplierController extends Controller
         
         // Query dasar
         $query = Supplier::query();
+        $query->withCount('penilaians');
         
         // Jika ada pencarian
         if (!empty($searchTerm)) {
