@@ -4,6 +4,8 @@ namespace App\Http\Controllers\PemilikMebel;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\HasilRekomendasi;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class HasilRekomendasiController extends Controller
 {
@@ -12,7 +14,27 @@ class HasilRekomendasiController extends Controller
      */
     public function index()
     {
-        return view('pages.PemilikMebel.HasilRekomendasi.index');
+        // Ambil semua data hasil rekomendasi dari database
+        $hasilRekomendasi = HasilRekomendasi::with('supplier')->get();
+
+        // Kirim data ke view
+        return view('pages.PemilikMebel.HasilRekomendasi.index', [
+            'hasilRekomendasi' => $hasilRekomendasi
+        ]);
+    }
+
+    public function exportToPdf()
+    {
+        // Ambil semua data hasil rekomendasi dari database
+        $hasilRekomendasi = HasilRekomendasi::with('supplier')->get();
+
+        // Generate PDF
+        $pdf = PDF::loadView('pages.PemilikMebel.HasilRekomendasi.pdf', [
+            'hasilRekomendasi' => $hasilRekomendasi
+        ]);
+
+        // Kembalikan PDF untuk di-download
+        return $pdf->download('Laporan Hasil Rekomendasi Supplier.pdf');
     }
 
     /**

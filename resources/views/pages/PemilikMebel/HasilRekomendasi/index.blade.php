@@ -13,7 +13,7 @@
 
             <!-- Tombol Export PDF -->
             <div class="d-flex justify-content-end mb-3">
-                <a href="#" class="btn btn-danger">
+                <a href="{{ route('pdf.hasilrekomendasi.pemilikmebel') }}" class="btn btn-danger">
                     <i class="fas fa-file-pdf"></i> Export PDF
                 </a>
             </div>
@@ -27,28 +27,18 @@
                                 <th>No.</th>
                                 <th>Nama Supplier</th>
                                 <th>Skor Akhir</th>
-                                <th>Ranking</th>
+                                <th>Peringkat</th>
                             </tr>
                         </thead>
                         <tbody>
+                            @foreach($hasilRekomendasi as $item)
                             <tr>
-                                <td>1</td>
-                                <td>Supplier A</td>
-                                <td>1</td>
-                                <td>1</td>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $item->supplier->nama_supplier }}</td>
+                                <td>{{ number_format($item->skor_akhir, 2) }}</td>
+                                <td>{{ $item->peringkat }}</td>
                             </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>Supplier B</td>
-                                <td>0.4</td>
-                                <td>2</td>
-                            </tr>
-                            <tr>
-                                <td>3</td>
-                                <td>Supplier C</td>
-                                <td>0</td>
-                                <td>3</td>
-                            </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>

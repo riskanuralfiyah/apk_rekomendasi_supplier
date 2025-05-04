@@ -83,7 +83,8 @@ Route::prefix('pemilikmebel')->middleware(['auth', 'role:pemilikmebel'])->group(
             Route::get('/{kriteriaId}/{id}', [DataSubKriteriaController::class, 'show'])->name('detail.datasubkriteria.pemilikmebel');
             Route::get('/{kriteriaId}/{id}/edit', [DataSubKriteriaController::class, 'edit'])->name('edit.datasubkriteria.pemilikmebel');
             Route::put('/{kriteriaId}/{id}', [DataSubKriteriaController::class, 'update'])->name('update.datasubkriteria.pemilikmebel');
-            Route::delete('/{kriteriaId/{subkriteriaId}', [DataSubKriteriaController::class, 'destroy'])->name('delete.datasubkriteria.pemilikmebel');
+            Route::delete('/{kriteriaId}/{subkriteriaId}', [DataSubKriteriaController::class, 'destroy'])->name('delete.datasubkriteria.pemilikmebel');
+
     });
 
     // Penilaian Supplier
@@ -98,10 +99,11 @@ Route::prefix('pemilikmebel')->middleware(['auth', 'role:pemilikmebel'])->group(
         });
     
     // Data Perhitungan
-    Route::get('/data-perhitungan', [DataPerhitunganController::class, 'index'])->name('dataperhitungan.pemilikmebel');
+    Route::get('/data-perhitungan', [DataPerhitunganController::class, 'hitung'])->name('dataperhitungan.pemilikmebel');
     
     // Hasil Rekomendasi
     Route::get('/hasil-rekomendasi', [HasilRekomendasiController::class, 'index'])->name('hasilrekomendasi.pemilikmebel');
+    Route::get('/hasil-rekomendasi/pdf', [HasilRekomendasiController::class, 'exportToPdf'])->name('pdf.hasilrekomendasi.pemilikmebel');
     
     // Data Bahan Baku
     Route::get('/data-bahan-baku', [DataBahanBakuPemilikMebelController::class, 'index'])->name('databahanbaku.pemilikmebel');

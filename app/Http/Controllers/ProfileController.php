@@ -17,10 +17,19 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
-        return view('pages.PemilikMebel.KelolaProfile.edit', [
-            'user' => $request->user(),
-        ]);
+        $user = $request->user();
+
+        if ($user->role == 'pemilik') {
+            $view = 'pages.PemilikMebel.KelolaProfile.edit';
+        } elseif ($user->role == 'karyawan') {
+            $view = 'pages.Karyawan.KelolaProfile.edit';
+        } else {
+            abort(403);
+        }
+
+        return view($view, ['user' => $user]);
     }
+
 
     /**
      * Update the user's profile information.

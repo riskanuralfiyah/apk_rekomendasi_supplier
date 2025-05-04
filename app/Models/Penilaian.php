@@ -36,10 +36,4 @@ class Penilaian extends Model
     {
         return $this->belongsTo(Subkriteria::class, 'id_subkriteria');
     }
-
-    // Relasi Penilaian memiliki banyak Perhitungan (jika diperlukan)
-    public function perhitungans()
-    {
-        return $this->hasMany(Perhitungan::class, 'id_penilaian');
-    }
 }

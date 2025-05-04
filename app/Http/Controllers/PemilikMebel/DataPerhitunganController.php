@@ -3,63 +3,118 @@
 namespace App\Http\Controllers\PemilikMebel;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\Supplier;
+use App\Models\Kriteria;
+use App\Models\Penilaian;
+use App\Models\HasilRekomendasi;
+use Illuminate\Support\Facades\DB;
 
 class DataPerhitunganController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function hitung()
     {
-        return view('pages.PemilikMebel.DataPerhitungan.index');
-    }
+        // Ambil semua supplier yang memiliki penilaian
+        $suppliers = Supplier::whereHas('penilaians')->get();
+        $kriterias = Kriteria::with('subkriterias')->get();
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+        // Ambil data penilaian per supplier per kriteria
+        $penilaianData = [];
+        foreach ($suppliers as $supplier) {
+            foreach ($kriterias as $kriteria) {
+                $penilaian = Penilaian::where('id_supplier', $supplier->id)
+                    ->where('id_kriteria', $kriteria->id)
+                    ->first();
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+                if ($penilaian && $penilaian->subkriteria) {
+                    $penilaianData[$supplier->id][$kriteria->id] = $penilaian->subkriteria->nilai;
+                }
+            }
+        }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        // Hitung nilai min & max untuk setiap kriteria
+        $minMax = [];
+        foreach ($kriterias as $kriteria) {
+            $nilaiKriteria = [];
+            foreach ($suppliers as $supplier) {
+                if (isset($penilaianData[$supplier->id][$kriteria->id])) {
+                    $nilaiKriteria[] = $penilaianData[$supplier->id][$kriteria->id];
+                }
+            }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
+            if (!empty($nilaiKriteria)) {
+                $minMax[$kriteria->id] = [
+                    'min' => min($nilaiKriteria),
+                    'max' => max($nilaiKriteria),
+                    'kategori' => $kriteria->kategori,
+                    'bobot' => $kriteria->bobot,
+                ];
+            }
+        }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+        $utilityData = [];
+        $hasil = [];
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        // Hitung utility dan skor akhir setiap supplier
+        foreach ($suppliers as $supplier) {
+            $totalSkor = 0;
+
+            foreach ($kriterias as $kriteria) {
+                if (!isset($penilaianData[$supplier->id][$kriteria->id]) || !isset($minMax[$kriteria->id])) {
+                    continue;
+                }
+
+                $nilai = $penilaianData[$supplier->id][$kriteria->id];
+                $min = $minMax[$kriteria->id]['min'];
+                $max = $minMax[$kriteria->id]['max'];
+                $bobot = $minMax[$kriteria->id]['bobot'];
+                $kategori = $minMax[$kriteria->id]['kategori'];
+
+                // Hindari pembagian 0 jika min == max
+                if ($max == $min) {
+                    $utility = 1;
+                } else {
+                    $utility = ($kategori === 'cost')
+                        ? ($max - $nilai) / ($max - $min)
+                        : ($nilai - $min) / ($max - $min);
+                }
+
+                $utility = round($utility, 2);
+                $utilityData[$supplier->id][$kriteria->id] = $utility;
+                $totalSkor += $utility * $bobot;
+            }
+
+            $hasil[] = [
+                'id_supplier' => $supplier->id,
+                'nama_supplier' => $supplier->nama_supplier,
+                'skor_akhir' => round($totalSkor, 2),
+            ];
+        }
+
+        // Urutkan berdasarkan skor akhir
+        usort($hasil, fn ($a, $b) => $b['skor_akhir'] <=> $a['skor_akhir']);
+
+        // Tambahkan peringkat
+        foreach ($hasil as $index => &$row) {
+            $row['peringkat'] = $index + 1;
+        }
+
+        // Simpan hasil ke database
+        DB::table('hasil_rekomendasis')->truncate();
+        foreach ($hasil as $row) {
+            HasilRekomendasi::create([
+                'id_supplier' => $row['id_supplier'],
+                'skor_akhir' => $row['skor_akhir'],
+                'peringkat' => $row['peringkat'],
+            ]);
+        }
+
+        // Kirim data ke view dengan struktur yang sesuai
+        return view('pages.PemilikMebel.DataPerhitungan.index', [
+            'hasil' => $hasil,
+            'suppliers' => $suppliers,
+            'kriterias' => $kriterias,
+            'penilaianData' => $penilaianData,
+            'utilityData' => $utilityData,
+        ]);
     }
 }

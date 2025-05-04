@@ -24,12 +24,6 @@ class Supplier extends Model
         return $this->hasMany(Penilaian::class, 'id_supplier');
     }
 
-    // relasi: 1 supplier punya banyak perhitungan
-    public function perhitungans()
-    {
-        return $this->hasMany(Perhitungan::class, 'id_supplier');
-    }
-
     // relasi: 1 supplier punya banyak hasil rekomendasi
     public function hasilRekomendasis()
     {
