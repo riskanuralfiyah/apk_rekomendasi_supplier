@@ -162,13 +162,6 @@
     </div>
 
     <script>
-        function showDeleteModal(id) {
-            var modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
-            var form = document.getElementById('deleteForm');
-            form.action = "{{ route('delete.datasupplier.pemilikmebel', '') }}/" + id;
-            modal.show();
-        }
-
         function updatePerPage(value) {
             const form = document.getElementById('searchForm');
             form.querySelector('input[name="per_page"]').value = value;
@@ -182,4 +175,68 @@
             }
         });
     </script>
+
+<script type="text/javascript">
+    function showDeleteModal(id) {
+        const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+        document.getElementById('deleteForm').setAttribute('data-id', id); // simpan ID
+        modal.show();
+    }
+
+    document.getElementById('deleteForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const id = this.getAttribute('data-id');
+    const form = this;
+    const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));  // Mengambil referensi modal
+
+    // Menutup modal sebelum menjalankan ajax request dan menampilkan alert Swal
+    modal.hide();
+
+    $.ajax({
+        url: "{{ url('pemilikmebel/data-supplier') }}/" + id,
+        type: 'POST',
+        data: {
+            _method: 'DELETE',
+            _token: "{{ csrf_token() }}"
+        },
+        success: function(response) {
+            Swal.fire({
+                title: 'Berhasil!',
+                text: 'Data supplier berhasil dihapus.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    location.reload(); // reload halaman untuk merefresh data
+                }
+            });
+        },
+        error: function(xhr) {
+                let message = 'Terjadi kesalahan saat menghapus data.';
+                
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    message = xhr.responseJSON.message;
+                }
+
+                // Menampilkan notifikasi kesalahan setelah modal ditutup
+                Swal.fire({
+                    title: 'Gagal!',
+                    text: message,
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    willClose: () => {
+                        // Refresh atau aktifkan ulang tombol setelah Swal ditutup
+                        const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+                        modal.show();  // Menunjukkan kembali modal setelah Swal ditutup
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        location.reload(); 
+                    }
+                });
+            }
+    });
+});
+</script>
 @endsection

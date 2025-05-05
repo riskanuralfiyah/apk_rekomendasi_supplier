@@ -88,10 +88,58 @@
 
     <script>
         function showDeleteModal(id) {
-            var modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
-            var form = document.getElementById('deleteForm');
-            form.action = "{{ url('pemilikmebel/data-subkriteria') }}/" + id;
-            modal.show();
+        var modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+        var form = document.getElementById('deleteForm');
+        form.action = "{{ url('pemilikmebel/data-subkriteria') }}/{{ $kriteria->id }}/" + id;
+        modal.show();
         }
     </script>
+
+<script type="text/javascript">
+    function showDeleteModal(id) {
+        const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+        document.getElementById('deleteForm').setAttribute('data-id', id); // simpan ID
+        modal.show();
+    }
+
+    document.getElementById('deleteForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const id = this.getAttribute('data-id');
+    const form = this;
+    const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));  // Mengambil referensi modal
+
+    // Menutup modal sebelum menjalankan ajax request dan menampilkan alert Swal
+    modal.hide();
+
+    $.ajax({
+        url: "{{ url('pemilikmebel/data-subkriteria') }}/{{ $kriteria->id }}/" + id,
+        type: 'POST',
+        data: {
+            _method: 'DELETE',
+            _token: "{{ csrf_token() }}"
+        },
+        success: function(response) {
+            Swal.fire({
+                title: 'Berhasil!',
+                text: 'Data subkriteria berhasil dihapus.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    location.reload(); // reload halaman untuk merefresh data
+                }
+            });
+        },
+        error: function(xhr) {
+            Swal.fire({
+                title: 'Gagal!',
+                text: 'Terjadi kesalahan saat menghapus data.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+    });
+});
+</script>
 @endsection

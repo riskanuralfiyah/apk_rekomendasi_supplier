@@ -25,6 +25,7 @@
   <!-- inject:css -->
   <link rel="stylesheet" href="{{ asset('frontend/css/vertical-layout-light/style.css') }}">
   <link rel="stylesheet" href="{{ asset('frontend/css/style.css') }}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
   <!-- endinject -->
 
   <link rel="shortcut icon" href="{{ asset('image/logo-mini.png') }}" />
@@ -49,6 +50,8 @@
   <script src="{{ asset('frontend/js/template.js') }}"></script>
   <script src="{{ asset('frontend/js/settings.js') }}"></script>
   <script src="{{ asset('frontend/js/todolist.js') }}"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <!-- endinject -->
 </head>
 

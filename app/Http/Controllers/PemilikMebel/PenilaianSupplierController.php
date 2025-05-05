@@ -24,29 +24,41 @@ class PenilaianSupplierController extends Controller
     }
 
     public function create($supplierId)
-{
-    $supplier = Supplier::findOrFail($supplierId);
+    {
+        $supplier = Supplier::findOrFail($supplierId);
+        
+        // Cek apakah kriteria dan subkriteria sudah ada
+        $kriterias = Kriteria::with(['subkriterias' => function($query) {
+            $query->orderBy('nilai', 'desc');
+        }])->get();
     
-    // Eager load subkriteria yang sudah diurutkan
-    $kriterias = Kriteria::with(['subkriterias' => function($query) {
-        $query->orderBy('nilai', 'desc');
-    }])->get();
-
-    // Filter kriteria yang belum dinilai
-    $existingKriteriaIds = $supplier->penilaians()->pluck('id_kriteria')->toArray();
-    $availableKriterias = $kriterias->reject(fn($kriteria) => in_array($kriteria->id, $existingKriteriaIds));
-
-    if ($availableKriterias->isEmpty()) {
-        return redirect()
-            ->route('penilaiansupplier.pemilikmebel', $supplierId)
-            ->with('warning', 'Supplier sudah memiliki penilaian untuk semua kriteria');
+        // Filter kriteria yang belum memiliki subkriteria atau subkriteria yang belum ada
+        $availableKriterias = $kriterias->filter(function($kriteria) {
+            return $kriteria->subkriterias->isNotEmpty();
+        });
+    
+        if ($availableKriterias->isEmpty()) {
+            return redirect()
+                ->route('penilaiansupplier.pemilikmebel', $supplierId)
+                ->with('warning', 'Data kriteria dan subkriteria belum lengkap, tidak bisa melakukan penilaian');
+        }
+    
+        // Filter kriteria yang belum dinilai
+        $existingKriteriaIds = $supplier->penilaians()->pluck('id_kriteria')->toArray();
+        $availableKriterias = $availableKriterias->reject(fn($kriteria) => in_array($kriteria->id, $existingKriteriaIds));
+    
+        if ($availableKriterias->isEmpty()) {
+            return redirect()
+                ->route('penilaiansupplier.pemilikmebel', $supplierId)
+                ->with('warning', 'Supplier sudah memiliki penilaian untuk semua kriteria');
+        }
+    
+        return view('pages.PemilikMebel.PenilaianSupplier.create', [
+            'supplier' => $supplier,
+            'kriterias' => $availableKriterias
+        ]);
     }
-
-    return view('pages.PemilikMebel.PenilaianSupplier.create', [
-        'supplier' => $supplier,
-        'kriterias' => $availableKriterias
-    ]);
-}
+    
 
 public function store(Request $request, $supplierId)
 {

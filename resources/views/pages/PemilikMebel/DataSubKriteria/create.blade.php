@@ -28,14 +28,14 @@
         <!-- Judul Halaman Form Data Sub Kriteria -->
         <h3 class="mb-4 font-weight-bold">Form Data Subkriteria</h3>
         
-        <form method="POST" action="{{ route('store.datasubkriteria.pemilikmebel', $kriteria->id) }}">
+        <form method="POST" action="{{ route('store.datasubkriteria.pemilikmebel', $kriteria->id) }}" id="add-form">
             @csrf
             
             <div class="form-group">
                 <label for="nama_subkriteria">Nama Subkriteria</label>
                 <input type="text" class="form-control @error('nama_subkriteria') is-invalid @enderror" 
                        id="nama_subkriteria" name="nama_subkriteria" 
-                       placeholder="Nama Subkriteria" value="{{ old('nama_subkriteria') }}" required>
+                       placeholder="Nama Subkriteria" value="{{ old('nama_subkriteria') }}">
                 @error('nama_subkriteria')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -47,7 +47,7 @@
                        id="nilai" name="nilai" 
                        value="{{ old('nilai') }}" 
                        placeholder="Nilai Subkriteria" 
-                       min="1" step="1" required>
+                       min="1" step="1">
                 <small class="form-text text-muted">
                   Benefit = Nilai besar lebih baik, Cost = Nilai kecil lebih baik.
                 </small>
@@ -73,4 +73,59 @@
         }
     });
 </script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#add-form').submit(function(e) {
+            e.preventDefault();
+            var form = $(this);
+            var formData = new FormData(this);
+  
+            // Clear previous error messages
+            $('.is-invalid').removeClass('is-invalid');
+            $('.invalid-feedback').remove();
+  
+            $.ajax({
+                url: form.attr('action'),
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    Swal.fire({
+                        title: "Berhasil!",
+                        text: "Data subkriteria berhasil ditambahkan",
+                        icon: "success",
+                        confirmButtonText: "OK"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "{{ route('datasubkriteria.pemilikmebel', $kriteria->id) }}";
+                        }
+                    });
+                },
+                error: function(xhr, status, error) {
+                    var errors = xhr.responseJSON.errors;
+                    
+                    // Display validation errors
+                    $.each(errors, function(key, value) {
+                        var input = $('[name="' + key + '"]');
+                        input.addClass('is-invalid');
+                        input.after('<div class="invalid-feedback">' + value[0] + '</div>');
+                    });
+  
+                    // Show general error message
+                    Swal.fire({
+                        title: "Gagal!",
+                        text: "Terdapat kesalahan dalam pengisian form",
+                        icon: "error",
+                        confirmButtonText: "OK"
+                    });
+                }
+            });
+        });
+    });
+  </script>
 @endsection

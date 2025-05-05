@@ -24,10 +24,4 @@ class Subkriteria extends Model
     {
         return $this->hasMany(Penilaian::class, 'id_subkriteria');
     }
-
-    // Relasi Subkriteria memiliki banyak Perhitungan
-    public function perhitungans()
-    {
-        return $this->hasMany(Perhitungan::class, 'id_subkriteria');
-    }
 }

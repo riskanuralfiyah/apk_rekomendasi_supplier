@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="{{ asset('frontend/vendors/ti-icons/css/themify-icons.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('frontend/js/select.dataTables.min.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <!-- End plugin css for this page -->
 
     <!-- inject:css -->
@@ -50,6 +51,8 @@
     <script src="{{ asset('frontend/js/template.js') }}"></script>
     <script src="{{ asset('frontend/js/settings.js') }}"></script>
     <script src="{{ asset('frontend/js/todolist.js') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- endinject -->
 </head>
 

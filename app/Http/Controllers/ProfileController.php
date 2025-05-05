@@ -19,7 +19,7 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        if ($user->role == 'pemilik') {
+        if ($user->role == 'pemilikmebel') {
             $view = 'pages.PemilikMebel.KelolaProfile.edit';
         } elseif ($user->role == 'karyawan') {
             $view = 'pages.Karyawan.KelolaProfile.edit';

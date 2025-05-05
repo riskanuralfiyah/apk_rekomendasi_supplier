@@ -88,7 +88,7 @@
 <body>
     <div class="header">
         <h1>LAPORAN HASIL REKOMENDASI SUPPLIER</h1>
-        <p>Sistem Rekomendasi Pemilihan Supplier</p>
+        {{-- <p>Sistem Rekomendasi Pemilihan Supplier</p> --}}
     </div>
 
     <div class="info-box">

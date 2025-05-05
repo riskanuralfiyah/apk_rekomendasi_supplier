@@ -109,10 +109,21 @@ class DataSupplierController extends Controller
 
     public function destroy($id)
     {
-        $supplier = Supplier::findOrFail($id);
+        // Menarik data supplier beserta count dari penilaian
+        $supplier = Supplier::withCount(['penilaians'])->findOrFail($id);
+
+        // Cek jika supplier berelasi dengan penilaian
+        if ($supplier->penilaians_count > 0) {
+            return response()->json([
+                'message' => 'Tidak bisa menghapus supplier karena masih memiliki penilaian terkait.'
+            ], 400); // Status 400 (Bad Request)
+        }
+
+        // Hapus supplier jika tidak ada relasi yang terdeteksi
         $supplier->delete();
 
-        return redirect()->route('datasupplier.pemilikmebel')
-            ->with('success', 'Data supplier berhasil dihapus');
+        return response()->json([
+            'message' => 'Data supplier berhasil dihapus.'
+        ]);
     }
 }

@@ -95,7 +95,7 @@ Route::prefix('pemilikmebel')->middleware(['auth', 'role:pemilikmebel'])->group(
             Route::get('/{supplierId}/edit', [PenilaianSupplierController::class, 'edit'])->name('edit.penilaiansupplier.pemilikmebel');
             Route::get('/{supplierId}/{id}', [PenilaianSupplierController::class, 'show'])->name('show.penilaiansupplier.pemilikmebel');
             Route::put('/{supplierId}', [PenilaianSupplierController::class, 'update'])->name('update.penilaiansupplier.pemilikmebel');
-            Route::delete('/{supplierId}/delete', [PenilaianSupplierController::class, 'destroy'])->name('destroy.penilaiansupplier.pemilikmebel');
+            Route::delete('/{supplierId}', [PenilaianSupplierController::class, 'destroy'])->name('destroy.penilaiansupplier.pemilikmebel');
         });
     
     // Data Perhitungan
@@ -129,8 +129,11 @@ Route::prefix('karyawan')->middleware(['auth', 'role:karyawan'])->group(function
     Route::prefix('data-bahan-baku')->group(function () {
         Route::get('/', [DataBahanBakuKaryawanController::class, 'index'])->name('databahanbaku.karyawan');
         Route::get('/create', [DataBahanBakuKaryawanController::class, 'create'])->name('create.databahanbaku.karyawan');
-        Route::get('/edit', [DataBahanBakuKaryawanController::class, 'edit'])->name('edit.databahanbaku.karyawan');
-        Route::get('/delete', [DataBahanBakuKaryawanController::class, 'delete'])->name('delete.databahanbaku.karyawan');
+        Route::post('/', [DataBahanBakuKaryawanController::class, 'store'])->name('store.databahanbaku.karyawan');
+        Route::get('/{id}', [DataBahanBakuKaryawanController::class, 'show'])->name('detail.databahanbaku.karyawan');
+        Route::get('/{id}/edit', [DataBahanBakuKaryawanController::class, 'edit'])->name('edit.databahanbaku.karyawan');
+        Route::put('/{id}', [DataBahanBakuKaryawanController::class, 'update'])->name('update.databahanbaku.karyawan');
+        Route::delete('/{id}', [DataBahanBakuKaryawanController::class, 'destroy'])->name('delete.databahanbaku.karyawan');
     });
     
     // Stok Masuk

@@ -3,78 +3,112 @@
 namespace App\Http\Controllers\Karyawan;
 
 use App\Http\Controllers\Controller;
+use App\Models\BahanBaku;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class DataBahanBakuKaryawanController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        return view('pages.Karyawan.DataBahanBaku.index');
+        $perPage = $request->input('per_page', 10);
+        $searchTerm = $request->input('search', '');
+
+        $query = BahanBaku::query();
+
+        if (!empty($searchTerm)) {
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('nama_bahan_baku', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('satuan', 'like', '%' . $searchTerm . '%');
+            });
+        }
+
+        $bahanbakus = $query->orderBy('created_at', 'desc')
+            ->paginate($perPage)
+            ->appends([
+                'per_page' => $perPage,
+                'search' => $searchTerm,
+            ]);
+
+        return view('pages.Karyawan.DataBahanBaku.index', compact('bahanbakus'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return view('pages.Karyawan.DataBahanBaku.create');
     }
 
-    public function edit()
+    public function store(Request $request)
     {
-        // Data statis (contoh)
-        $bahanbaku = (object) [
-            'id' => 1, // ID bahan baku
-            'nama' => 'Kayu Jati', 
-            'satuan' => 'm³', 
-            'stokMinimum' => '10', 
-            'jumlahStok' => '85',
-        ];
+        $validator = Validator::make($request->all(), [
+            'nama_bahan_baku' => 'required|string|max:100',
+            'satuan' => 'required|string|max:20',
+            'stok_minimum' => 'required|integer|min:0',
+            'jumlah_stok' => 'required|integer|min:0',
+        ]);
 
-        // Tampilkan view edit dengan data statis
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        BahanBaku::create([
+            'nama_bahan_baku' => $request->nama_bahan_baku,
+            'satuan' => $request->satuan,
+            'stok_minimum' => $request->stok_minimum,
+            'jumlah_stok' => $request->jumlah_stok,
+        ]);
+
+        return redirect()->route('databahanbaku.karyawan')
+            ->with('success', 'Data bahan baku berhasil ditambahkan');
+    }
+
+    public function show($id)
+    {
+        $bahanbaku = BahanBaku::findOrFail($id);
+        return view('pages.Karyawan.DataBahanBaku.detail', compact('bahanbaku'));
+    }
+
+    public function edit($id)
+    {
+        $bahanbaku = BahanBaku::findOrFail($id);
         return view('pages.Karyawan.DataBahanBaku.edit', compact('bahanbaku'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function update(Request $request, $id)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'nama_bahan_baku' => 'required|string|max:100',
+            'satuan' => 'required|string|max:20',
+            'stok_minimum' => 'required|integer|min:0',
+            'jumlah_stok' => 'required|integer|min:0',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $bahanbaku = BahanBaku::findOrFail($id);
+        $bahanbaku->update([
+            'nama_bahan_baku' => $request->nama_bahan_baku,
+            'satuan' => $request->satuan,
+            'stok_minimum' => $request->stok_minimum,
+            'jumlah_stok' => $request->jumlah_stok,
+        ]);
+
+        return redirect()->route('databahanbaku.karyawan')
+            ->with('success', 'Data bahan baku berhasil diperbarui');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function destroy($id)
     {
-        //
-    }
+        $bahanbaku = BahanBaku::findOrFail($id);
+        $bahanbaku->delete();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    // public function edit(string $id)
-    // {
-    //     //
-    // }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect()->route('databahanbaku.karyawan')
+            ->with('success', 'Data bahan baku berhasil dihapus');
     }
 }

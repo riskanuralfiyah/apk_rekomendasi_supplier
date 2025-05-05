@@ -152,10 +152,28 @@ class DataKriteriaController extends Controller
      */
     public function destroy($id)
     {
-        $kriteria = Kriteria::findOrFail($id);
+        // Menarik data kriteria beserta count dari subkriterias dan relasi dengan penilaian
+        $kriteria = Kriteria::withCount(['subkriterias', 'penilaians'])->findOrFail($id);
+
+        // Cek jika kriteria memiliki subkriteria
+        if ($kriteria->subkriterias_count > 0) {
+            return response()->json([
+                'message' => 'Tidak bisa menghapus kriteria karena masih memiliki subkriteria terkait.'
+            ], 400); // Status 400 (Bad Request)
+        }
+
+        // Cek jika kriteria berelasi dengan penilaian
+        if ($kriteria->penilaians_count > 0) {
+            return response()->json([
+                'message' => 'Tidak bisa menghapus kriteria karena masih memiliki penilaian terkait.'
+            ], 400); // Status 400 (Bad Request)
+        }
+
+        // Hapus kriteria jika tidak ada relasi yang terdeteksi
         $kriteria->delete();
 
-        return redirect()->route('datakriteria.pemilikmebel')
-            ->with('success', 'Data kriteria berhasil dihapus');
+        return response()->json([
+            'message' => 'Data kriteria berhasil dihapus.'
+        ]);
     }
 }
