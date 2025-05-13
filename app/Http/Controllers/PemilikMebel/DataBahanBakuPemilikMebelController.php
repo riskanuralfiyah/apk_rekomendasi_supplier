@@ -4,15 +4,35 @@ namespace App\Http\Controllers\PemilikMebel;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\BahanBaku;
 
 class DataBahanBakuPemilikMebelController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('pages.PemilikMebel.DataBahanBaku.index');
+        $perPage = $request->input('per_page', 10);
+        $searchTerm = $request->input('search', '');
+
+        $query = BahanBaku::query();
+
+        if (!empty($searchTerm)) {
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('nama_bahan_baku', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('satuan', 'like', '%' . $searchTerm . '%');
+            });
+        }
+
+        $bahanbakus = $query->orderBy('created_at', 'desc')
+            ->paginate($perPage)
+            ->appends([
+                'per_page' => $perPage,
+                'search' => $searchTerm,
+            ]);
+
+        return view('pages.PemilikMebel.DataBahanBaku.index', compact('bahanbakus'));
     }
 
     /**

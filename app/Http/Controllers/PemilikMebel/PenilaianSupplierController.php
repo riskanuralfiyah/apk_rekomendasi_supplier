@@ -13,13 +13,25 @@ class PenilaianSupplierController extends Controller
     {
         $supplier = Supplier::findOrFail($supplierId);
 
+    // cek apakah ada data kriteria dan subkriteria
+    $jumlahKriteria = Kriteria::count();
+    $jumlahSubkriteria = Subkriteria::count();
+
+    if ($jumlahKriteria == 0 || $jumlahSubkriteria == 0) {
+        return redirect()
+            ->back()
+            ->with('error', 'Harap lengkapi data kriteria dan subkriteria terlebih dahulu sebelum melakukan penilaian.');
+    }
+
         $query = $supplier->penilaians()->with(['kriteria', 'subkriteria']);
 
         $penilaians = $query->orderBy('created_at', 'desc')->get();
 
         return view('pages.PemilikMebel.PenilaianSupplier.index', [
             'supplier' => $supplier,
-            'penilaians' => $penilaians
+            'penilaians' => $penilaians,
+            'jumlahKriteria' => $jumlahKriteria,
+            'jumlahSubkriteria' => $jumlahSubkriteria
         ]);
     }
 

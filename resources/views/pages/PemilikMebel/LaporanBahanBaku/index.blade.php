@@ -10,34 +10,18 @@
             <h3 class="mb-3 font-weight-bold">Laporan Stok Bahan Baku</h3>
 
             <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-                <!-- Search Input -->
-                <div class="input-group mb-2" style="max-width: 300px;">
-                    <input type="text" id="searchInput" class="form-control" placeholder="Search">
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="button" id="searchButton">
-                            <i class="mdi mdi-magnify"></i>
-                        </button>
-                    </div>
+                <!-- Filter Button -->
+                <div>
+                    <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#filterModal">
+                        <i class="mdi mdi-filter mr-1"></i> Filter
+                    </button>
                 </div>
 
-                <!-- Right-aligned elements -->
-                <div class="d-flex flex-column align-items-end">
-                    <!-- Export Button -->
-                    <button class="btn btn-danger mb-2">
+                <!-- Export Button -->
+                <div>
+                    <button class="btn btn-danger btn-sm">
                         <i class="fas fa-file-pdf mr-1"></i> Export PDF
                     </button>
-                    
-                    <!-- Show Entries - Now below Export -->
-                    <div class="form-inline">
-                        <label class="mr-2">Show</label>
-                        <select class="form-control form-control-sm">
-                            <option>5</option>
-                            <option>10</option>
-                            <option>20</option>
-                            <option>50</option>
-                        </select>
-                        <span class="ml-2">entries</span>
-                    </div>
                 </div>
             </div>
 
@@ -46,115 +30,116 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>No.</th>
-                            <th>Bulan</th>
-                            <th>Nama Bahan Baku</th>
-                            <th>Satuan</th>
-                            <th>Stok Awal</th>
-                            <th>Total Stok Masuk</th>
-                            <th>Total Stok Keluar</th>
-                            <th>Sisa Stok</th>
-                            <th>Keterangan</th>
+                            <th width="5%">No.</th>
+                            <th width="15%">Periode</th>
+                            <th>Bahan Baku</th>
+                            <th width="10%">Satuan</th>
+                            <th width="10%">Stok Awal</th>
+                            <th width="12%">Stok Masuk</th>
+                            <th width="12%">Stok Keluar</th>
+                            <th width="10%">Sisa Stok</th>
+                            <th width="15%">Status</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Januari 2025</td>
-                            <td>Kayu Jati</td>
-                            <td>m³</td>
-                            <td>30</td>
-                            <td>50</td>
-                            <td>35</td>
-                            <td>45</td>
-                            <td>Aman</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Januari 2025</td>
-                            <td>Kayu Mahoni</td>
-                            <td>m³</td>
-                            <td>5</td>
-                            <td>40</td>
-                            <td>35</td>
-                            <td>10</td>
-                            <td>Perlu restock</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>Januari 2025</td>
-                            <td>Kayu Keruing</td>
-                            <td>m³</td>
-                            <td>28</td>
-                            <td>50</td>
-                            <td>10</td>
-                            <td>68</td>
-                            <td>Aman</td>
-                        </tr>
-                        <tr>
-                            <td>4</td>
-                            <td>Februari 2025</td>
-                            <td>Kayu Merbau</td>
-                            <td>m³</td>
-                            <td>10</td>
-                            <td>20</td>
-                            <td>24</td>
-                            <td>6</td>
-                            <td>Perlu restock</td>
-                        </tr>
-                        <tr>
-                            <td>5</td>
-                            <td>Februari 2025</td>
-                            <td>Kayu Mahogani</td>
-                            <td>m³</td>
-                            <td>45</td>
-                            <td>25</td>
-                            <td>8</td>
-                            <td>62</td>
-                            <td>Aman</td>
-                        </tr>
+                        @php
+                            $namaBulan = [
+                                1 => 'Januari',
+                                2 => 'Februari',
+                                3 => 'Maret',
+                                4 => 'April',
+                                5 => 'Mei',
+                                6 => 'Juni',
+                                7 => 'Juli',
+                                8 => 'Agustus',
+                                9 => 'September',
+                                10 => 'Oktober',
+                                11 => 'November',
+                                12 => 'Desember',
+                            ];
+                        @endphp
+                        @foreach ($laporans as $index => $laporan)
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td>{{ $namaBulan[$laporan->bulan] }} {{ $laporan->tahun }}</td>
+                                <td>{{ $laporan->bahanBaku->nama_bahan_baku }}</td>
+                                <td class="text-center">{{ $laporan->satuan }}</td>
+                                <td class="text-right">{{ $laporan->stok_awal }}</td>
+                                <td class="text-right">{{ $laporan->total_stok_masuk }}</td>
+                                <td class="text-right">{{ $laporan->total_stok_keluar }}</td>
+                                <td class="text-right font-weight-bold">{{ $laporan->sisa_stok }}</td>
+                                <td>
+                                    <span class="badge badge-{{ $laporan->sisa_stok <= 10 ? 'danger' : 'success' }}">
+                                        {{ $laporan->sisa_stok <= 10 ? 'Kritis' : 'Aman' }}
+                                    </span>
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
 
-            <!-- Pagination -->
+            <!-- Pagination and Entries Info -->
             <div class="d-flex justify-content-between align-items-center mt-3">
-                <div>
-                    Showing 1 to 5 of 5 entries
+                <div class="text-muted">
+                    Menampilkan {{ $laporans->count() }} entri
                 </div>
-                <nav>
-                    <ul class="pagination pagination-sm mb-0">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#" tabindex="-1">Previous</a>
-                        </li>
-                        <li class="page-item active">
-                            <a class="page-link" href="#">1</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="#">Next</a>
-                        </li>
-                    </ul>
-                </nav>
+                {{ $laporans->links() }}
             </div>
         </div>
     </div>
 
+    <!-- Filter Modal -->
+    <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="filterModalLabel">Filter Laporan</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="filterForm">
+                        <div class="form-group">
+                            <label for="modalMonthFilter">Bulan</label>
+                            <select class="form-control" id="modalMonthFilter">
+                                <option value="1">Januari</option>
+                                <option value="2">Februari</option>
+                                <option value="3">Maret</option>
+                                <option value="4">April</option>
+                                <option value="5">Mei</option>
+                                <option value="6">Juni</option>
+                                <option value="7">Juli</option>
+                                <option value="8">Agustus</option>
+                                <option value="9">September</option>
+                                <option value="10">Oktober</option>
+                                <option value="11">November</option>
+                                <option value="12">Desember</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="modalYearFilter">Tahun</label>
+                            <input type="number" class="form-control" id="modalYearFilter" value="{{ now()->year }}">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-primary" onclick="filterLaporan()">Terapkan Filter</button>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@section('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Search button functionality
-            document.getElementById('searchButton').addEventListener('click', function() {
-                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-                const rows = document.querySelectorAll('tbody tr');
-                
-                rows.forEach(row => {
-                    const text = row.textContent.toLowerCase();
-                    if (text.includes(searchTerm)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            });
-        });
+        function filterLaporan() {
+            const bulan = document.getElementById('modalMonthFilter').value;
+            const tahun = document.getElementById('modalYearFilter').value;
+
+            window.location.href = `/laporan-bahan-baku?bulan=${bulan}&tahun=${tahun}`;
+        }
     </script>
 @endsection

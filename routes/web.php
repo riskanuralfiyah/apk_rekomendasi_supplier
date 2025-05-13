@@ -109,8 +109,12 @@ Route::prefix('pemilikmebel')->middleware(['auth', 'role:pemilikmebel'])->group(
     Route::get('/data-bahan-baku', [DataBahanBakuPemilikMebelController::class, 'index'])->name('databahanbaku.pemilikmebel');
     
     // Laporan Bahan Baku
-    Route::get('/laporan-stok', [LaporanBahanBakuController::class, 'index'])->name('laporanbahanbaku.pemilikmebel');
-    
+    Route::prefix('laporan-bahan-baku')->group(function () {
+        Route::get('/', [LaporanBahanBakuController::class, 'index'])->name('laporanbahanbaku.pemilikmebel');
+        Route::get('/create', [LaporanBahanBakuController::class, 'store'])->name('store.laporanbahanbaku.pemilikmebel');
+        Route::get('/show', [LaporanBahanBakuController::class, 'show'])->name('show.laporanbahanbaku.pemilikmebel');
+        Route::get('/rekap', [LaporanBahanBakuController::class, 'rekap'])->name('rekap.laporanbahanbaku.pemilikmebel');
+    });
     // Kelola Pengguna
     Route::prefix('data-pengguna')->group(function () {
         Route::get('/', [KelolaPenggunaController::class, 'index'])->name('kelolapengguna.pemilikmebel');
@@ -140,16 +144,22 @@ Route::prefix('karyawan')->middleware(['auth', 'role:karyawan'])->group(function
     Route::prefix('stok-masuk')->group(function () {
         Route::get('/', [StokMasukController::class, 'index'])->name('stokmasuk.karyawan');
         Route::get('/create', [StokMasukController::class, 'create'])->name('create.stokmasuk.karyawan');
-        Route::get('/edit', [StokMasukController::class, 'edit'])->name('edit.stokmasuk.karyawan');
-        Route::get('/delete', [StokMasukController::class, 'delete'])->name('delete.stokmasuk.karyawan');
+        Route::post('/', [StokMasukController::class, 'store'])->name('store.stokmasuk.karyawan');
+        Route::get('/{id}', [StokMasukController::class, 'show'])->name('detail.stokmasuk.karyawan');
+        Route::get('/{id}/edit', [StokMasukController::class, 'edit'])->name('edit.stokmasuk.karyawan');
+        Route::put('/{id}', [StokMasukController::class, 'update'])->name('update.stokmasuk.karyawan');
+        Route::delete('/{id}', [StokMasukController::class, 'destroy'])->name('delete.stokmasuk.karyawan');
     });
     
     // Stok Keluar
     Route::prefix('stok-keluar')->group(function () {
         Route::get('/', [StokKeluarController::class, 'index'])->name('stokkeluar.karyawan');
         Route::get('/create', [StokKeluarController::class, 'create'])->name('create.stokkeluar.karyawan');
-        Route::get('/edit', [StokKeluarController::class, 'edit'])->name('edit.stokkeluar.karyawan');
-        Route::get('/delete', [StokKeluarController::class, 'delete'])->name('delete.stokkeluar.karyawan');
+        Route::post('/', [StokKeluarController::class, 'store'])->name('store.stokkeluar.karyawan');
+        Route::get('/{id}', [StokKeluarController::class, 'show'])->name('detail.stokkeluar.karyawan');
+        Route::get('/{id}/edit', [StokKeluarController::class, 'edit'])->name('edit.stokkeluar.karyawan');
+        Route::put('/{id}', [StokKeluarController::class, 'update'])->name('update.stokkeluar.karyawan');
+        Route::delete('/{id}', [StokKeluarController::class, 'destroy'])->name('delete.stokkeluar.karyawan');
     });
 });
 

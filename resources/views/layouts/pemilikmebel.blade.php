@@ -223,7 +223,7 @@
                         </a>
                     </li>                    
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('databahanbaku.pemilikmebel') || request()->routeIs('create.databahanbaku.pemilikmebel') || request()->routeIs('edit*.databahanbaku.pemilikmebel') ? 'active' : '' }}"
+                        <a class="nav-link {{ request()->routeIs('databahanbaku.pemilikmebel') ? 'active' : '' }}"
                             href="{{ route('databahanbaku.pemilikmebel') }}">
                             <i class="mdi mdi-clipboard-outline menu-icon"></i>
                             <span class="menu-title">Data Bahan Baku</span>

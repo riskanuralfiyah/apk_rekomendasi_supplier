@@ -73,12 +73,12 @@
               success: function(response) {
                   Swal.fire({
                       title: "Berhasil!",
-                      text: "Data kriteria berhasil diperbarui",
+                      text: "Data subkriteria berhasil diperbarui",
                       icon: "success",
                       confirmButtonText: "OK"
                   }).then((result) => {
                       if (result.isConfirmed) {
-                          window.location.href = "{{ route('datakriteria.pemilikmebel', $subkriteria->kriteria->id) }}";
+                          window.location.href = "{{ route('datasubkriteria.pemilikmebel', $subkriteria->kriteria->id) }}";
                       }
                   });
               },

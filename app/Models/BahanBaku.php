@@ -17,4 +17,14 @@ class BahanBaku extends Model
         'stok_minimum',
         'jumlah_stok',
     ];
+
+    public function stokMasuks()
+    {
+        return $this->hasMany(StokMasuk::class, 'id_bahan_baku');
+    }
+
+    public function stokKeluars()
+    {
+        return $this->hasMany(StokKeluar::class, 'id_bahan_baku');
+    }
 }
