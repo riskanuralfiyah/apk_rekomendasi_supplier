@@ -51,6 +51,7 @@
                             <th>Satuan</th>
                             <th>Stok Minimum</th>
                             <th>Jumlah Stok</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -61,6 +62,11 @@
                             <td>{{ $bahanbaku->satuan }}</td>
                             <td>{{ $bahanbaku->stok_minimum }}</td>
                             <td>{{ $bahanbaku->jumlah_stok }}</td>
+                            <td>
+                                <span class="badge badge-{{ $bahanbaku->jumlah_stok <= 10 ? 'danger' : 'success' }}">
+                                    {{ $bahanbaku->jumlah_stok <= 10 ? 'Kritis' : 'Aman' }}
+                                </span>
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>

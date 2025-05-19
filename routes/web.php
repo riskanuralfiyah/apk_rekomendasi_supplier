@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\NotifikasiController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\PemilikMebel\DashboardPemilikMebelController;
@@ -45,6 +46,9 @@ Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('l
 Route::get('/otp-verifikasi', [AuthenticatedSessionController::class, 'showOtpForm'])->name('auth.otp.form');
 // proses submit OTP
 Route::post('/otp-verifikasi', [AuthenticatedSessionController::class, 'verifyOtp'])->name('auth.otp.verify');
+
+Route::get('/notifikasi', [NotifikasiController::class, 'index'])->name('notifikasi.index');
+Route::post('/notifikasi/mark-toasted', [NotifikasiController::class, 'markToasted'])->name('notifikasi.marktoasted');
 
 
 // ROUTE UNTUK PEMILIK MEBEL (TANPA MIDDLEWARE ROLE)
@@ -111,9 +115,8 @@ Route::prefix('pemilikmebel')->middleware(['auth', 'role:pemilikmebel'])->group(
     // Laporan Bahan Baku
     Route::prefix('laporan-bahan-baku')->group(function () {
         Route::get('/', [LaporanBahanBakuController::class, 'index'])->name('laporanbahanbaku.pemilikmebel');
-        Route::get('/create', [LaporanBahanBakuController::class, 'store'])->name('store.laporanbahanbaku.pemilikmebel');
         Route::get('/show', [LaporanBahanBakuController::class, 'show'])->name('show.laporanbahanbaku.pemilikmebel');
-        Route::get('/rekap', [LaporanBahanBakuController::class, 'rekap'])->name('rekap.laporanbahanbaku.pemilikmebel');
+        Route::get('/pdf', [LaporanBahanBakuController::class, 'exportToPdf'])->name('pdf.laporanbahanbaku.pemilikmebel');
     });
     // Kelola Pengguna
     Route::prefix('data-pengguna')->group(function () {

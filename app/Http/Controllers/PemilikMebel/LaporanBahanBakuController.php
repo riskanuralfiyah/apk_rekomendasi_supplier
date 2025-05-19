@@ -4,98 +4,97 @@ namespace App\Http\Controllers\PemilikMebel;
 
 use App\Http\Controllers\Controller;
 use App\Models\Laporan;
-use App\Models\BahanBaku;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LaporanBahanBakuController extends Controller
 {
-    /**
-     * Menampilkan daftar laporan stok bahan baku
-     */
+    private $namaBulan = [
+        1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+        5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+        9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+    ];
+
     public function index(Request $request)
 {
-    $laporans = Laporan::when($request->bulan, function ($query) use ($request) {
-            return $query->whereMonth('bulan', $request->bulan);
-        })
-        ->when($request->tahun, function ($query) use ($request) {
-            return $query->whereYear('bulan', $request->tahun); // <- ini diubah
-        })
-        ->when($request->id_bahan_baku, function ($query) use ($request) {
-            return $query->where('id_bahan_baku', $request->id_bahan_baku);
-        })
-        ->with('bahanBaku')
-        ->paginate(10);
+    $bulan = $request->input('bulan');
+    $tahun = $request->input('tahun');
+    $searchTerm = $request->input('search', '');
+    $perPage = $request->input('per_page', 10);
 
-    $bahanBaku = BahanBaku::all();
+    $query = Laporan::with('bahanBaku');
 
-    return view('pages.PemilikMebel.LaporanBahanBaku.index', compact('laporans', 'bahanBaku'));
+    // hanya filter jika ada input bulan & tahun
+    if ($bulan) {
+        $query->where('bulan', $bulan);
+    }
+
+    if ($tahun) {
+        $query->where('tahun', $tahun);
+    }
+
+    if (!empty($searchTerm)) {
+        $query->where(function ($query) use ($searchTerm) {
+            $query->whereHas('bahanBaku', function ($q) use ($searchTerm) {
+                $q->where('nama_bahan_baku', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('satuan', 'like', '%' . $searchTerm . '%');
+            });
+
+            if (is_numeric($searchTerm)) {
+                $query->orWhere('bulan', (int)$searchTerm);
+            } else {
+                $bulanNamaKeAngka = [
+                    'januari' => 1, 'februari' => 2, 'maret' => 3, 'april' => 4,
+                    'mei' => 5, 'juni' => 6, 'juli' => 7, 'agustus' => 8,
+                    'september' => 9, 'oktober' => 10, 'november' => 11, 'desember' => 12
+                ];
+                $searchLower = strtolower($searchTerm);
+                if (isset($bulanNamaKeAngka[$searchLower])) {
+                    $query->orWhere('bulan', $bulanNamaKeAngka[$searchLower]);
+                }
+            }
+
+            $query->orWhere('tahun', 'like', '%' . $searchTerm . '%');
+        });
+    }
+
+    $laporans = $query->orderBy('id_bahan_baku')
+        ->paginate($perPage)
+        ->appends([
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+            'search' => $searchTerm,
+            'per_page' => $perPage
+        ]);
+
+    return view('pages.PemilikMebel.LaporanBahanBaku.index', [
+        'laporans' => $laporans,
+        'currentBulan' => $bulan,
+        'currentTahun' => $tahun,
+        'namaBulan' => $this->namaBulan,
+        'searchTerm' => $searchTerm,
+    ]);
 }
 
 
-    /**
-     * Menyimpan laporan bahan baku baru
-     */
-    public function store(Request $request)
+    public function exportToPdf(Request $request)
     {
-        // Validasi input
-        $request->validate([
-            'bulan' => 'required|date',
-            'tahun' => 'required|integer',
-            'id_bahan_baku' => 'required|exists:bahan_bakus,id',
-            'satuan' => 'required|string',
-            'total_stok_masuk' => 'required|integer',
-            'total_stok_keluar' => 'required|integer',
-        ]);
+        $bulan = $request->input('bulan', date('n'));
+        $tahun = $request->input('tahun', date('Y'));
 
-        // Mendapatkan stok awal bulan sebelumnya
-        $stok_awal = $this->getStokAwal($request->id_bahan_baku, $request->bulan, $request->tahun);
-
-        // Membuat laporan baru
-        Laporan::create([
-            'bulan' => $request->bulan,
-            'tahun' => $request->tahun,
-            'id_bahan_baku' => $request->id_bahan_baku,
-            'satuan' => $request->satuan,
-            'stok_awal' => $stok_awal,
-            'total_stok_masuk' => $request->total_stok_masuk,
-            'total_stok_keluar' => $request->total_stok_keluar,
-            'sisa_stok' => $stok_awal + $request->total_stok_masuk - $request->total_stok_keluar,
-        ]);
-
-        return redirect()->route('laporanbahanbaku.pemilikmebel')->with('success', 'Laporan berhasil disimpan');
-    }
-
-    /**
-     * Mendapatkan stok awal dari bulan sebelumnya
-     */
-    private function getStokAwal($id_bahan_baku, $bulan, $tahun)
-    {
-        // Mengambil laporan stok bahan baku dari bulan sebelumnya
-        $previousMonth = Carbon::createFromFormat('Y-m', "$tahun-$bulan")->subMonth()->format('m');
-        $previousYear = Carbon::createFromFormat('Y-m', "$tahun-$bulan")->subMonth()->format('Y');
-
-        $previousReport = Laporan::where('id_bahan_baku', $id_bahan_baku)
-            ->whereMonth('bulan', $previousMonth)
-            ->whereYear('tahun', $previousYear)
-            ->orderBy('bulan', 'desc')
-            ->first();
-
-        // Jika ada laporan stok sebelumnya, maka stok awal adalah stok sisa bulan sebelumnya
-        return $previousReport ? $previousReport->sisa_stok : 0;
-    }
-
-    /**
-     * Menampilkan laporan berdasarkan bulan dan tahun
-     */
-    public function show($bulan, $tahun)
-    {
-        // Menampilkan laporan berdasarkan bulan dan tahun
-        $laporan = Laporan::whereMonth('bulan', $bulan)
-            ->whereYear('tahun', $tahun)
-            ->with('bahanBaku')
+        $laporans = Laporan::with('bahanBaku')
+            ->where('bulan', $bulan)
+            ->where('tahun', $tahun)
+            ->orderBy('id_bahan_baku')
             ->get();
 
-        return view('pages.PemilikMebel.LaporanBahanBaku.show', compact('laporan', 'bulan', 'tahun'));
+        $pdf = Pdf::loadView('pages.PemilikMebel.LaporanBahanBaku.pdf', [
+            'laporans' => $laporans,
+            'currentBulan' => $bulan,
+            'currentTahun' => $tahun,
+            'namaBulan' => $this->namaBulan
+        ]);
+
+        return $pdf->download("laporan_bahan_baku_{$this->namaBulan[$bulan]}_{$tahun}.pdf");
     }
 }

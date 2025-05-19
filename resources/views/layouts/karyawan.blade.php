@@ -90,27 +90,29 @@
         </ul>
         <ul class="navbar-nav navbar-nav-right">
           <li class="nav-item dropdown">
-            <a class="nav-link count-indicator dropdown-toggle" id="notificationDropdown" href="#" data-toggle="dropdown">
-              <i class="icon-bell mx-0"></i>
-              <span class="count"></span>
+            <a class="nav-link count-indicator dropdown-toggle position-relative" id="notificationDropdown" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="mdi mdi-bell-outline" style="font-size: 1.5rem;"></i>
+                @if(count($notifications) > 0)
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill" style="
+                        background-color: #4B49AC;
+                        color: white;
+                        font-size: 0.6rem;
+                        font-weight: 500;
+                        padding: 0.25em 0.45em;
+                        min-width: 1.25rem;
+                        line-height: 1;
+                        margin-left: -10px;
+                        margin-top: 5px;
+                    ">
+                        {{ count($notifications) }}
+                    </span>
+                @endif
             </a>
-            <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="notificationDropdown">
-              <p class="mb-0 font-weight-normal float-left dropdown-header">Notifications</p>
-              <a class="dropdown-item preview-item">
-                <div class="preview-thumbnail">
-                  <div class="preview-icon bg-success">
-                    <i class="mdi mdi-information mx-0"></i>
-                  </div>
-                </div>
-                <div class="preview-item-content">
-                  <h6 class="preview-subject font-weight-normal">Stok hampir habis</h6>
-                  <p class="font-weight-light small-text mb-0 text-muted">
-                    Jumlah stok kayu jati tersisa 10.
-                  </p>
-                </div>
-              </a>
-            </div>
-          </li>
+            
+            @include('partials.notification-dropdown')
+        </li>                      
+        @include('partials.notification-toast')   
+
           <li class="nav-item nav-profile dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="profileDropdown">
               <img src="{{ asset('image/profile.jpeg') }}" alt="profile" />

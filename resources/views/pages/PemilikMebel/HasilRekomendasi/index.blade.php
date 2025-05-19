@@ -35,7 +35,8 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $item->supplier->nama_supplier }}</td>
-                                <td>{{ number_format($item->skor_akhir, 2) }}</td>
+                                {{-- <td>{{ $item->skor_akhir }}</td> --}}
+                                <td>{{ rtrim(rtrim(number_format($item->skor_akhir, 2), '0'), '.') }}</td>
                                 <td>{{ $item->peringkat }}</td>
                             </tr>
                             @endforeach

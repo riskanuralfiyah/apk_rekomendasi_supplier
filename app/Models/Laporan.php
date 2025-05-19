@@ -11,6 +11,8 @@ class Laporan extends Model
 
     protected $table = 'laporans';
 
+    protected $dates = 'bulan';
+
     protected $fillable = [
         'bulan',
         'tahun',

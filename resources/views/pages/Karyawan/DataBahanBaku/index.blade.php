@@ -56,6 +56,7 @@
                             <th>Satuan</th>
                             <th>Stok Minimum</th>
                             <th>Jumlah Stok</th>
+                            <th>Status</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -67,6 +68,11 @@
                             <td>{{ $bahanbaku->satuan }}</td>
                             <td>{{ $bahanbaku->stok_minimum }}</td>
                             <td>{{ $bahanbaku->jumlah_stok }}</td>
+                            <td>
+                                <span class="badge badge-{{ $bahanbaku->jumlah_stok <= 10 ? 'danger' : 'success' }}">
+                                    {{ $bahanbaku->jumlah_stok <= 10 ? 'Kritis' : 'Aman' }}
+                                </span>
+                            </td>
                             <td>
                                 <a href="{{ route('edit.databahanbaku.karyawan', $bahanbaku->id) }}" class="btn btn-primary btn-sm">
                                     <i class="mdi mdi-pencil text-white"></i>

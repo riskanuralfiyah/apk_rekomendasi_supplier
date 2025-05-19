@@ -134,7 +134,7 @@
                     <td>
                         {{ $result->supplier->no_telpon }}
                     </td>
-                    <td>{{ number_format($result->skor_akhir, 2) }}</td>
+                    <td>{{ rtrim(rtrim(number_format($result->skor_akhir, 2), '0'), '.') }}</td>
                     <td>
                         @if($result->peringkat <= 3)
                             Direkomendasikan

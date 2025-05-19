@@ -52,7 +52,10 @@
     <script src="{{ asset('frontend/js/settings.js') }}"></script>
     <script src="{{ asset('frontend/js/todolist.js') }}"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
     <!-- endinject -->
 </head>
 
@@ -94,51 +97,32 @@
                     </li>
                 </ul>
                 <ul class="navbar-nav navbar-nav-right">
+                    <!-- Contoh di bagian navbar -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link count-indicator dropdown-toggle" id="notificationDropdown" href="#"
-                            data-toggle="dropdown">
-                            <i class="icon-bell mx-0"></i>
-                            <span class="count"></span>
+                        <a class="nav-link count-indicator dropdown-toggle position-relative" id="notificationDropdown" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="mdi mdi-bell-outline" style="font-size: 1.5rem;"></i>
+                            @if(count($notifications) > 0)
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill" style="
+                                    background-color: #4B49AC;
+                                    color: white;
+                                    font-size: 0.6rem;
+                                    font-weight: 500;
+                                    padding: 0.25em 0.45em;
+                                    min-width: 1.25rem;
+                                    line-height: 1;
+                                    margin-left: -10px;
+                                    margin-top: 5px;
+                                ">
+                                    {{ count($notifications) }}
+                                </span>
+                            @endif
                         </a>
-                        <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list"
-                            aria-labelledby="notificationDropdown" style="min-width: 350px;">
-                            <p class="mb-0 font-weight-normal float-left dropdown-header">Notifikasi</p>
-                            
-                            <div class="dropdown-item preview-item py-3">
-                                <div class="preview-thumbnail">
-                                    <div class="preview-icon bg-success">
-                                        <i class="mdi mdi-information mx-0"></i>
-                                    </div>
-                                </div>
-                                <div class="preview-item-content">
-                                    <h6 class="preview-subject font-weight-normal mb-1">Stok hampir habis</h6>
-                                    <p class="font-weight-light small-text mb-2 text-muted">
-                                        Jumlah stok kayu jati tersisa 10.
-                                    </p>
-                                    <div class="d-flex align-items-center mb-2">
-                                        <i class="mdi mdi-check-circle-outline text-success mr-2"></i>
-                                        <span class="small">Rekomendasi Supplier: <strong>Supplier A</strong></span>
-                                    </div>
-                                    <div class="d-flex justify-content-start">
-                                        @if(isset($recommendedSupplier))
-                                            <a href="{{ route('detail.datasupplier.pemilikmebel', $recommendedSupplier->id) }}" 
-                                               class="btn btn-sm btn-outline-primary mr-2">Lihat Detail</a>
-                                        @else
-                                            <a href="{{ route('datasupplier.pemilikmebel') }}" 
-                                               class="btn btn-sm btn-outline-primary mr-2">Lihat Supplier</a>
-                                        @endif
-                                        <button class="btn btn-sm btn-outline-secondary">Tutup</button>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="dropdown-divider"></div>
-                            
-                            <div class="dropdown-footer text-center py-2">
-                                <a href="#" class="text-primary">Lihat semua notifikasi</a>
-                            </div>
-                        </div>
-                    </li>
+                        
+                        @include('partials.notification-dropdown')
+                    </li>                 
+                    
+                    @include('partials.notification-toast')                    
+
                     <li class="nav-item nav-profile dropdown">
                         <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="profileDropdown">
                             <img src="{{ asset('image/profile.jpeg') }}" alt="profile" />

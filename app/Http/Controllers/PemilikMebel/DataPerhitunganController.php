@@ -15,6 +15,8 @@ class DataPerhitunganController extends Controller
     {
         // Ambil semua supplier yang memiliki penilaian
         $suppliers = Supplier::whereHas('penilaians')->get();
+
+        // Ambil semua kriteria beserta subkriterianya
         $kriterias = Kriteria::with('subkriterias')->get();
 
         // Ambil data penilaian per supplier per kriteria
@@ -45,7 +47,7 @@ class DataPerhitunganController extends Controller
                 $minMax[$kriteria->id] = [
                     'min' => min($nilaiKriteria),
                     'max' => max($nilaiKriteria),
-                    'kategori' => $kriteria->kategori,
+                    'kategori' => $kriteria->kategori, // 'cost' atau 'benefit'
                     'bobot' => $kriteria->bobot,
                 ];
             }
@@ -54,22 +56,24 @@ class DataPerhitunganController extends Controller
         $utilityData = [];
         $hasil = [];
 
-        // Hitung utility dan skor akhir setiap supplier
+        // Hitung skor akhir setiap supplier
         foreach ($suppliers as $supplier) {
             $totalSkor = 0;
+            $adaPenilaian = false;
 
             foreach ($kriterias as $kriteria) {
                 if (!isset($penilaianData[$supplier->id][$kriteria->id]) || !isset($minMax[$kriteria->id])) {
                     continue;
                 }
 
+                $adaPenilaian = true;
                 $nilai = $penilaianData[$supplier->id][$kriteria->id];
                 $min = $minMax[$kriteria->id]['min'];
                 $max = $minMax[$kriteria->id]['max'];
                 $bobot = $minMax[$kriteria->id]['bobot'];
                 $kategori = $minMax[$kriteria->id]['kategori'];
 
-                // Hindari pembagian 0 jika min == max
+                // Hindari pembagian nol
                 if ($max == $min) {
                     $utility = 1;
                 } else {
@@ -93,12 +97,16 @@ class DataPerhitunganController extends Controller
         // Urutkan berdasarkan skor akhir
         usort($hasil, fn ($a, $b) => $b['skor_akhir'] <=> $a['skor_akhir']);
 
-        // Tambahkan peringkat
-        foreach ($hasil as $index => &$row) {
-            $row['peringkat'] = $index + 1;
-        }
+        
+        // ubah ke array numerik untuk bisa diurutkan
+        $hasil = array_values($hasil);
 
-        // Simpan hasil ke database
+        // Tambahkan peringkat
+        foreach ($hasil as $index => $row) {
+            $hasil[$index]['peringkat'] = $index + 1;
+        }
+        
+        // Simpan ke tabel hasil_rekomendasis
         DB::table('hasil_rekomendasis')->truncate();
         foreach ($hasil as $row) {
             HasilRekomendasi::create([
@@ -108,7 +116,7 @@ class DataPerhitunganController extends Controller
             ]);
         }
 
-        // Kirim data ke view dengan struktur yang sesuai
+        // Kirim ke view
         return view('pages.PemilikMebel.DataPerhitungan.index', [
             'hasil' => $hasil,
             'suppliers' => $suppliers,
