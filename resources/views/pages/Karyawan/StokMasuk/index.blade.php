@@ -167,34 +167,53 @@
                 document.getElementById('searchForm').submit();
             }
         });
+    </script>
 
-        function showDeleteModal(id) {
-            const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
-            const form = document.getElementById('deleteForm');
-            form.action = "{{ url('karyawan/stok-masuk') }}/" + id;
-            modal.show();
+<script type="text/javascript">
+    function showDeleteModal(id) {
+        const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+        document.getElementById('deleteForm').setAttribute('data-id', id); // simpan ID
+        modal.show();
+    }
+
+    document.getElementById('deleteForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const id = this.getAttribute('data-id');
+    const form = this;
+    const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));  // Mengambil referensi modal
+
+    // Menutup modal sebelum menjalankan ajax request dan menampilkan alert Swal
+    modal.hide();
+
+    $.ajax({
+        url: "{{ url('karyawan/stok-masuk') }}/" + id,
+        type: 'POST',
+        data: {
+            _method: 'DELETE',
+            _token: "{{ csrf_token() }}"
+        },
+        success: function(response) {
+            Swal.fire({
+                title: 'Berhasil!',
+                text: 'Data stok masuk berhasil dihapus.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    location.reload(); // reload halaman untuk merefresh data
+                }
+            });
+        },
+        error: function(xhr) {
+            Swal.fire({
+                title: 'Gagal!',
+                text: 'Terjadi kesalahan saat menghapus data.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
         }
-    </script>
-
-    @if(session('success'))
-    <script>
-        Swal.fire({
-            title: 'Berhasil!',
-            text: '{{ session('success') }}',
-            icon: 'success',
-            confirmButtonText: 'OK'
-        });
-    </script>
-    @endif
-
-    @if(session('error'))
-    <script>
-        Swal.fire({
-            title: 'Gagal!',
-            text: '{{ session('error') }}',
-            icon: 'error',
-            confirmButtonText: 'OK'
-        });
-    </script>
-    @endif
+    });
+});
+</script>
 @endsection

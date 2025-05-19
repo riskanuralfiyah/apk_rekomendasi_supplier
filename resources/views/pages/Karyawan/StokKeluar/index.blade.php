@@ -24,6 +24,20 @@
                 </a>
             </div>
 
+            <!-- Show Entries di bawah Tombol Tambah -->
+            <div class="d-flex justify-content-end mb-3">
+                <div>
+                    Show
+                    <select id="showEntries" class="form-control form-control-sm d-inline-block" style="width: auto;" onchange="updatePerPage(this.value)">
+                        <option value="5" {{ request('per_page', 10) == 5 ? 'selected' : '' }}>5</option>
+                        <option value="10" {{ request('per_page', 10) == 10 ? 'selected' : '' }}>10</option>
+                        <option value="20" {{ request('per_page', 10) == 20 ? 'selected' : '' }}>20</option>
+                        <option value="50" {{ request('per_page', 10) == 50 ? 'selected' : '' }}>50</option>
+                    </select>
+                    entries
+                </div>
+            </div>
+
             <div class="table-responsive">
                 <table class="table table-striped" id="stokKeluarTable">
                     <thead>
@@ -103,33 +117,65 @@
     </div>
 
     <script>
-        function showDeleteModal(id) {
-            const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
-            const form = document.getElementById('deleteForm');
-            form.action = "{{ url('karyawan/stok-keluar') }}/" + id;
-            modal.show();
+        function updatePerPage(value) {
+            const form = document.getElementById('searchForm');
+            form.querySelector('input[name="per_page"]').value = value;
+            form.submit();
         }
-    </script>
 
-    @if(session('success'))
-    <script>
-        Swal.fire({
-            title: 'Berhasil!',
-            text: '{{ session('success') }}',
-            icon: 'success',
-            confirmButtonText: 'OK'
+        // Fitur instant search saat menekan Enter
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('searchForm').submit();
+            }
         });
     </script>
-    @endif
 
-    @if(session('error'))
-    <script>
-        Swal.fire({
-            title: 'Gagal!',
-            text: '{{ session('error') }}',
-            icon: 'error',
-            confirmButtonText: 'OK'
-        });
-    </script>
-    @endif
+<script type="text/javascript">
+    function showDeleteModal(id) {
+        const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+        document.getElementById('deleteForm').setAttribute('data-id', id); // simpan ID
+        modal.show();
+    }
+
+    document.getElementById('deleteForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const id = this.getAttribute('data-id');
+    const form = this;
+    const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));  // Mengambil referensi modal
+
+    // Menutup modal sebelum menjalankan ajax request dan menampilkan alert Swal
+    modal.hide();
+
+    $.ajax({
+        url: "{{ url('karyawan/stok-keluar') }}/" + id,
+        type: 'POST',
+        data: {
+            _method: 'DELETE',
+            _token: "{{ csrf_token() }}"
+        },
+        success: function(response) {
+            Swal.fire({
+                title: 'Berhasil!',
+                text: 'Data stok keluar berhasil dihapus.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    location.reload(); // reload halaman untuk merefresh data
+                }
+            });
+        },
+        error: function(xhr) {
+            Swal.fire({
+                title: 'Gagal!',
+                text: 'Terjadi kesalahan saat menghapus data.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+    });
+});
+</script>
 @endsection
