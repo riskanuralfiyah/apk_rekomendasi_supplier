@@ -50,24 +50,29 @@
             color: #2c3e50;
         }
 
+        .highlight-info {
+            color: #4B49AC;
+            font-weight: bold;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         th {
             background-color: #4B49AC;
             color: white;
             text-align: center;
-            padding: 10px;
+            padding: 8px 5px;
             font-weight: bold;
             font-size: 9pt;
         }
 
         td {
-            padding: 8px 10px;
+            padding: 6px 5px;
             border-bottom: 1px solid #ddd;
             font-size: 9pt;
         }
@@ -79,25 +84,6 @@
         .text-left { text-align: left; }
         .text-right { text-align: right; }
         .text-center { text-align: center; }
-
-        .badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 8pt;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        /* .badge-success {
-            background-color: #25d039;
-            color: white;
-        }
-
-        .badge-danger {
-            background-color: #ee2a15;
-            color: white;
-        } */
 
         .footer {
             margin-top: 30px;
@@ -116,9 +102,6 @@
     </div>
 
     <div class="info-box">
-        {{-- <div class="info-row">
-            <span class="info-label">Periode: {{ $namaBulan[$currentBulan] }} {{ $currentTahun }}</span>
-        </div> --}}
         <div class="info-row">
             <span class="info-label">Tanggal Laporan:</span>
             <span>{{ now()->format('d F Y') }}</span>
@@ -127,20 +110,27 @@
             <span class="info-label">Total Bahan Baku:</span>
             <span>{{ count($laporans) }}</span>
         </div>
+        <div class="info-row">
+            <span class="info-label">Bahan Baku dengan Stok Masuk Terbanyak:</span>
+            <span class="highlight-info">{{ $maxStokMasuk->bahanBaku->nama_bahan_baku ?? '-' }} ({{ number_format($maxStokMasuk->total_stok_masuk ?? 0) }} {{ $maxStokMasuk->satuan ?? '' }})</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Bahan Baku dengan Stok Keluar Terbanyak:</span>
+            <span class="highlight-info">{{ $maxStokKeluar->bahanBaku->nama_bahan_baku ?? '-' }} ({{ number_format($maxStokKeluar->total_stok_keluar ?? 0) }} {{ $maxStokKeluar->satuan ?? '' }})</span>
+        </div>
     </div>
 
     <table>
         <thead>
             <tr>
                 <th width="5%">No.</th>
-                <th width="12%">Periode</th>
-                <th class="text-left">Bahan Baku</th>
-                <th width="8%">Satuan</th>
-                <th width="10%">Stok Awal</th>
+                <th width="15%">Periode</th>
+                <th width="15%" class="text-left">Bahan Baku</th>
+                <th width="10%" class="text-center">Satuan</th>
+                <th width="12%">Stok Awal</th>
                 <th width="12%">Stok Masuk</th>
                 <th width="12%">Stok Keluar</th>
-                <th width="10%">Sisa Stok</th>
-                {{-- <th width="12%">Status</th> --}}
+                <th width="12%">Sisa Stok</th>
             </tr>
         </thead>
         <tbody>
@@ -157,15 +147,10 @@
                     <td class="text-center">{{ $namaBulan[$laporan->bulan] }} {{ $laporan->tahun }}</td>
                     <td class="text-left">{{ $laporan->bahanBaku->nama_bahan_baku }}</td>
                     <td class="text-center">{{ $laporan->satuan }}</td>
-                    <td class="text-right">{{ number_format($laporan->stok_awal) }}</td>
-                    <td class="text-right">{{ number_format($laporan->total_stok_masuk) }}</td>
-                    <td class="text-right">{{ number_format($laporan->total_stok_keluar) }}</td>
-                    <td class="text-right">{{ number_format($laporan->sisa_stok) }}</td>
-                    {{-- <td class="text-center">
-                        <span class="badge badge-{{ $laporan->sisa_stok <= 10 ? 'danger' : 'success' }}">
-                            {{ $laporan->sisa_stok <= 10 ? 'KRITIS' : 'AMAN' }}
-                        </span>
-                    </td> --}}
+                    <td class="text-center">{{ number_format($laporan->stok_awal) }}</td>
+                    <td class="text-center">{{ number_format($laporan->total_stok_masuk) }}</td>
+                    <td class="text-center">{{ number_format($laporan->total_stok_keluar) }}</td>
+                    <td class="text-center">{{ number_format($laporan->sisa_stok) }}</td>
                 </tr>
             @endforeach
         </tbody>
