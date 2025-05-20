@@ -70,7 +70,7 @@
                             <td>{{ $bahanbaku->jumlah_stok }}</td>
                             <td>
                                 <span class="badge badge-{{ $bahanbaku->jumlah_stok <= 10 ? 'danger' : 'success' }}">
-                                    {{ $bahanbaku->jumlah_stok <= 10 ? 'Kritis' : 'Aman' }}
+                                    {{ $bahanbaku->jumlah_stok <= 10 ? 'Perlu Restock' : 'Aman' }}
                                 </span>
                             </td>
                             <td>

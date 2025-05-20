@@ -98,7 +98,7 @@
 <body>
     <div class="header">
         <h1>LAPORAN STOK BAHAN BAKU</h1>
-        <p>Periode: {{ $namaBulan[$currentBulan] }} {{ $currentTahun }}</p>
+        <p>Periode: {{ $currentBulan ? ($namaBulan[$currentBulan] ?? '-') : '-' }} {{ $currentTahun ?? '-' }}</p>
     </div>
 
     <div class="info-box">
@@ -107,30 +107,61 @@
             <span>{{ now()->format('d F Y') }}</span>
         </div>
         <div class="info-row">
-            <span class="info-label">Total Bahan Baku:</span>
+            <span class="info-label">Total Data:</span>
             <span>{{ count($laporans) }}</span>
         </div>
-        <div class="info-row">
-            <span class="info-label">Bahan Baku dengan Stok Masuk Terbanyak:</span>
-            <span class="highlight-info">{{ $maxStokMasuk->bahanBaku->nama_bahan_baku ?? '-' }} ({{ number_format($maxStokMasuk->total_stok_masuk ?? 0) }} {{ $maxStokMasuk->satuan ?? '' }})</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Bahan Baku dengan Stok Keluar Terbanyak:</span>
-            <span class="highlight-info">{{ $maxStokKeluar->bahanBaku->nama_bahan_baku ?? '-' }} ({{ number_format($maxStokKeluar->total_stok_keluar ?? 0) }} {{ $maxStokKeluar->satuan ?? '' }})</span>
-        </div>
+        
+        @if($jenisLaporan == 'bahan_baku')
+            <div class="info-row">
+                <span class="info-label">Bahan Baku dengan Stok Masuk Terbanyak:</span>
+                <span class="highlight-info">
+                    {{ $maxInfo['masuk'] }} 
+                    @if($maxInfo['masuk'] != '-')
+                    ({{ number_format($maxInfo['nilai_masuk']) }} {{ $maxInfo['satuan_masuk'] }})
+                    @endif
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Bahan Baku dengan Stok Keluar Terbanyak:</span>
+                <span class="highlight-info">
+                    {{ $maxInfo['keluar'] }}
+                    @if($maxInfo['keluar'] != '-')
+                    ({{ number_format($maxInfo['nilai_keluar']) }} {{ $maxInfo['satuan_keluar'] }})
+                    @endif
+                </span>
+            </div>
+        @elseif($jenisLaporan == 'bulan')
+            <div class="info-row">
+                <span class="info-label">Bulan dengan Stok Masuk Terbanyak:</span>
+                <span class="highlight-info">
+                    {{ $maxInfo['masuk'] }}
+                    @if($maxInfo['masuk'] != '-')
+                    ({{ number_format($maxInfo['nilai_masuk']) }})
+                    @endif
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Bulan dengan Stok Keluar Terbanyak:</span>
+                <span class="highlight-info">
+                    {{ $maxInfo['keluar'] }}
+                    @if($maxInfo['keluar'] != '-')
+                    ({{ number_format($maxInfo['nilai_keluar']) }})
+                    @endif
+                </span>
+            </div>
+        @endif
     </div>
 
     <table>
         <thead>
             <tr>
-                <th width="5%">No.</th>
-                <th width="15%">Periode</th>
-                <th width="15%" class="text-left">Bahan Baku</th>
+                <th width="8%">No.</th>
+                <th width="12%" class="text-left">Bahan Baku</th>
                 <th width="10%" class="text-center">Satuan</th>
-                <th width="12%">Stok Awal</th>
-                <th width="12%">Stok Masuk</th>
-                <th width="12%">Stok Keluar</th>
-                <th width="12%">Sisa Stok</th>
+                <th width="13%">Stok Awal</th>
+                <th width="13%">Stok Masuk</th>
+                <th width="13%">Stok Keluar</th>
+                <th width="13%">Sisa Stok</th>
             </tr>
         </thead>
         <tbody>
@@ -144,7 +175,6 @@
             @foreach ($laporans as $index => $laporan)
                 <tr>
                     <td class="text-center">{{ $index + 1 }}</td>
-                    <td class="text-center">{{ $namaBulan[$laporan->bulan] }} {{ $laporan->tahun }}</td>
                     <td class="text-left">{{ $laporan->bahanBaku->nama_bahan_baku }}</td>
                     <td class="text-center">{{ $laporan->satuan }}</td>
                     <td class="text-center">{{ number_format($laporan->stok_awal) }}</td>

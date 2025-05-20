@@ -40,7 +40,7 @@
 
     <!-- Bagian kanan: Export PDF -->
     <div class="mt-2 mt-sm-0">
-        <a href="{{ route('pdf.laporanbahanbaku.pemilikmebel', ['bulan' => request('bulan'), 'tahun' => request('tahun'), 'search' => request('search')]) }}" 
+        <a href="{{ route('pdf.laporanbahanbaku.pemilikmebel', ['bulan' => request('bulan'), 'tahun' => request('tahun'), 'search' => request('search'),'id_bahan_baku' => request('id_bahan_baku'),]) }}" 
            class="btn btn-danger btn-sm">
             <i class="fas fa-file-pdf"></i> Export PDF
         </a>
@@ -159,6 +159,17 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
+                <div class="form-group">
+                    <label for="modalBahanBakuFilter">Bahan Baku</label>
+                    <select class="form-control" id="modalBahanBakuFilter" name="id_bahan_baku">
+                        <option value="">Semua Bahan Baku</option>
+                        @foreach($daftarBahanBaku as $bahan)
+                            <option value="{{ $bahan->id }}" {{ request('id_bahan_baku') == $bahan->id ? 'selected' : '' }}>
+                                {{ $bahan->nama_bahan_baku }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>                
                 <div class="form-group">
                     <label for="modalMonthFilter">Bulan</label>
                     <select class="form-control" id="modalMonthFilter" name="bulan">
