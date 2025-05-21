@@ -39,12 +39,26 @@
     </form>
 
     <!-- Bagian kanan: Export PDF -->
-    <div class="mt-2 mt-sm-0">
-        <a href="{{ route('pdf.laporanbahanbaku.pemilikmebel', ['bulan' => request('bulan'), 'tahun' => request('tahun'), 'search' => request('search'),'id_bahan_baku' => request('id_bahan_baku'),]) }}" 
-           class="btn btn-danger btn-sm">
+    <div class="d-flex flex-wrap gap-2 mt-2">
+        <a href="{{ route('pdf.laporanbahanbaku.pemilikmebel', [
+            'bulan' => request('bulan'),
+            'tahun' => request('tahun'),
+            'search' => request('search'),
+            'id_bahan_baku' => request('id_bahan_baku'),
+        ]) }}" class="btn btn-danger btn-sm">
             <i class="fas fa-file-pdf"></i> Export PDF
         </a>
+    
+        <a href="{{ route('excel.laporanbahanbaku.pemilikmebel', [
+            'bulan' => request('bulan'),
+            'tahun' => request('tahun'),
+            'search' => request('search'),
+            'id_bahan_baku' => request('id_bahan_baku'),
+        ]) }}" class="btn btn-success btn-sm">
+            <i class="fas fa-file-excel"></i> Export Excel
+        </a>
     </div>
+    
 </div>
 
 
@@ -174,9 +188,14 @@
                     <label for="modalMonthFilter">Bulan</label>
                     <select class="form-control" id="modalMonthFilter" name="bulan">
                         <option value="">Semua Bulan</option>
+                        @php
+                            $bulanSekarang = request()->filled('bulan') ? request('bulan') : now()->month;
+                        @endphp
+
                         @foreach($namaBulan as $num => $nama)
-                            <option value="{{ $num }}" {{ request('bulan') == $num ? 'selected' : '' }}>{{ $nama }}</option>
+                            <option value="{{ $num }}" {{ (int)$bulanSekarang == (int)$num ? 'selected' : '' }}>{{ $nama }}</option>
                         @endforeach
+
                     </select>
                 </div>
                 <div class="form-group">

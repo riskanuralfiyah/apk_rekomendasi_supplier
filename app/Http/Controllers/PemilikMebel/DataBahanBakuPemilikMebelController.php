@@ -15,25 +15,35 @@ class DataBahanBakuPemilikMebelController extends Controller
     {
         $perPage = $request->input('per_page', 10);
         $searchTerm = $request->input('search', '');
-
+        $statusFilter = $request->input('status', '');
+    
         $query = BahanBaku::query();
-
+    
         if (!empty($searchTerm)) {
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('nama_bahan_baku', 'like', '%' . $searchTerm . '%')
                   ->orWhere('satuan', 'like', '%' . $searchTerm . '%');
             });
         }
-
+    
+        // filter status: aman atau perlu restock
+        if ($statusFilter === 'aman') {
+            $query->whereColumn('jumlah_stok', '>', 'stok_minimum');
+        } elseif ($statusFilter === 'perlu_restock') {
+            $query->whereColumn('jumlah_stok', '<=', 'stok_minimum');
+        }
+    
         $bahanbakus = $query->orderBy('created_at', 'desc')
             ->paginate($perPage)
             ->appends([
                 'per_page' => $perPage,
                 'search' => $searchTerm,
+                'status' => $statusFilter,
             ]);
-
+    
         return view('pages.PemilikMebel.DataBahanBaku.index', compact('bahanbakus'));
     }
+    
 
     /**
      * Show the form for creating a new resource.

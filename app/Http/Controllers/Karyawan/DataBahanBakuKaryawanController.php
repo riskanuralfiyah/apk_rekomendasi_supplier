@@ -13,6 +13,7 @@ class DataBahanBakuKaryawanController extends Controller
     {
         $perPage = $request->input('per_page', 10);
         $searchTerm = $request->input('search', '');
+        $statusFilter = $request->input('status', '');
 
         $query = BahanBaku::query();
 
@@ -23,11 +24,19 @@ class DataBahanBakuKaryawanController extends Controller
             });
         }
 
+                // filter status: aman atau perlu restock
+                if ($statusFilter === 'aman') {
+                    $query->whereColumn('jumlah_stok', '>', 'stok_minimum');
+                } elseif ($statusFilter === 'perlu_restock') {
+                    $query->whereColumn('jumlah_stok', '<=', 'stok_minimum');
+                }
+
         $bahanbakus = $query->orderBy('created_at', 'desc')
             ->paginate($perPage)
             ->appends([
                 'per_page' => $perPage,
                 'search' => $searchTerm,
+                'status' => $statusFilter,
             ]);
 
         return view('pages.Karyawan.DataBahanBaku.index', compact('bahanbakus'));

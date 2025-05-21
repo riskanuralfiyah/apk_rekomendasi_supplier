@@ -12,25 +12,32 @@
             <h3 class="mb-3 font-weight-bold">Data Bahan Baku</h3>
 
             <!-- Header dengan Search dan Tombol Tambah -->
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <!-- Input Search -->
-                <form method="GET" action="{{ route('databahanbaku.karyawan') }}" id="searchForm" class="d-flex" style="max-width: 300px;">
-                    <div class="input-group">
-                        <input type="text" name="search" id="searchInput" class="form-control" placeholder="Search" value="{{ request('search') }}">
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-secondary" type="submit" id="searchButton">
-                                <i class="mdi mdi-magnify"></i>
-                            </button>
-                        </div>
-                    </div>
+        <!-- Header dengan Search -->
+        <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+            <!-- Search Form -->
+            <form method="GET" action="{{ route('databahanbaku.karyawan') }}" id="searchForm" class="d-flex flex-column" style="max-width: 300px;">
+                <div class="input-group mb-3">
+                    <input type="text" name="search" id="searchInput" class="form-control" placeholder="Search" value="{{ request('search') }}">
+                    <input type="hidden" name="status" value="{{ request('status') }}">
                     <input type="hidden" name="per_page" value="{{ request('per_page', 10) }}">
-                </form>
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="submit" id="searchButton">
+                            <i class="mdi mdi-magnify"></i>
+                        </button>
+                    </div>
+                </div>
 
-                <!-- Tombol Tambah -->
-                <a href="{{ route('create.databahanbaku.karyawan') }}" class="btn btn-primary">
-                    <i class="mdi mdi-plus"></i> Tambah
-                </a>
-            </div>
+                <div class="d-flex" style="gap: 10px; margin-top: 10px;">
+                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#filterModal">
+                        <i class="mdi mdi-filter mr-1"></i> Filter
+                    </button>
+
+                    <a href="{{ route('databahanbaku.karyawan') }}" class="btn btn-secondary btn-sm">
+                        <i class="mdi mdi-refresh"></i> Reset
+                    </a>
+                </div>
+            </form>
+        </div>
 
             <!-- Show Entries di bawah Tombol Tambah -->
             <div class="d-flex justify-content-end mb-3">
@@ -159,6 +166,35 @@
             </div>
         </div>
     </div>
+
+    <!-- Filter Modal (Baru) -->
+<div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form method="GET" action="{{ route('databahanbaku.karyawan') }}" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filterModalLabel">Filter Status</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="statusFilter">Status Stok</label>
+                    <select class="form-control" id="statusFilter" name="status">
+                        <option value="">Semua Status</option>
+                        <option value="aman" {{ request('status') == 'aman' ? 'selected' : '' }}>Aman</option>
+                        <option value="perlu_restock" {{ request('status') == 'perlu_restock' ? 'selected' : '' }}>Perlu Restock</option>
+                    </select>
+                </div>
+                <!-- Simpan search dan per_page agar tetap terbawa -->
+                <input type="hidden" name="search" value="{{ request('search') }}">
+                <input type="hidden" name="per_page" value="{{ request('per_page', 10) }}">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                <button type="submit" class="btn btn-primary">Terapkan</button>
+            </div>
+        </form>
+    </div>
+</div>
 
     <script>
         function updatePerPage(value) {

@@ -96,9 +96,27 @@
     </style>
 </head>
 <body>
+    @php
+        $namaBulan = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+        
+        // Safely handle period display
+        $periodLabel = '-';
+        if (!empty($currentTahun)) {
+            if ($jenisLaporan == 'bahan_baku' && !empty($currentBulan) && isset($namaBulan[$currentBulan])) {
+                $periodLabel = $namaBulan[$currentBulan] . ' ' . $currentTahun;
+            } else {
+                $periodLabel = $currentTahun;
+            }
+        }
+    @endphp
+
     <div class="header">
         <h1>LAPORAN STOK BAHAN BAKU</h1>
-        <p>Periode: {{ $currentBulan ? ($namaBulan[$currentBulan] ?? '-') : '-' }} {{ $currentTahun ?? '-' }}</p>
+        <p>Periode: {{ $periodLabel }}</p>
     </div>
 
     <div class="info-box">
@@ -136,7 +154,7 @@
                 <span class="highlight-info">
                     {{ $maxInfo['masuk'] }}
                     @if($maxInfo['masuk'] != '-')
-                    ({{ number_format($maxInfo['nilai_masuk']) }})
+                    ({{ number_format($maxInfo['nilai_masuk']) }} {{ $maxInfo['satuan'] }})
                     @endif
                 </span>
             </div>
@@ -145,7 +163,7 @@
                 <span class="highlight-info">
                     {{ $maxInfo['keluar'] }}
                     @if($maxInfo['keluar'] != '-')
-                    ({{ number_format($maxInfo['nilai_keluar']) }})
+                    ({{ number_format($maxInfo['nilai_keluar']) }} {{ $maxInfo['satuan'] }})
                     @endif
                 </span>
             </div>
@@ -156,7 +174,10 @@
         <thead>
             <tr>
                 <th width="8%">No.</th>
-                <th width="12%" class="text-left">Bahan Baku</th>
+                @if($jenisLaporan != 'bahan_baku')
+                <th width="20%">Periode</th>
+                @endif
+                <th width="{{ $jenisLaporan == 'bahan_baku' ? '12%' : '15%' }}" class="text-left">Bahan Baku</th>
                 <th width="10%" class="text-center">Satuan</th>
                 <th width="13%">Stok Awal</th>
                 <th width="13%">Stok Masuk</th>
@@ -165,18 +186,20 @@
             </tr>
         </thead>
         <tbody>
-            @php
-                $namaBulan = [
-                    1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
-                    5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
-                    9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
-                ];
-            @endphp
             @foreach ($laporans as $index => $laporan)
                 <tr>
                     <td class="text-center">{{ $index + 1 }}</td>
-                    <td class="text-left">{{ $laporan->bahanBaku->nama_bahan_baku }}</td>
-                    <td class="text-center">{{ $laporan->satuan }}</td>
+                    @if($jenisLaporan != 'bahan_baku')
+                    <td class="text-center">
+                        @if(isset($laporan->bulan) && isset($namaBulan[$laporan->bulan]) && isset($laporan->tahun))
+                            {{ $namaBulan[$laporan->bulan] }} {{ $laporan->tahun }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                    @endif
+                    <td class="text-left">{{ $laporan->bahanBaku->nama_bahan_baku ?? '-' }}</td>
+                    <td class="text-center">{{ $laporan->satuan ?? '-' }}</td>
                     <td class="text-center">{{ number_format($laporan->stok_awal) }}</td>
                     <td class="text-center">{{ number_format($laporan->total_stok_masuk) }}</td>
                     <td class="text-center">{{ number_format($laporan->total_stok_keluar) }}</td>

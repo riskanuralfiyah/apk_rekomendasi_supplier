@@ -227,6 +227,13 @@
                             <span class="menu-title">Kelola Pengguna</span>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('kelolapengguna.pemilikmebel') ? 'active' : '' }}"
+                            href="{{ route('kelolapengguna.pemilikmebel') }}">
+                            <i class="mdi mdi-email menu-icon"></i>
+                            <span class="menu-title">Buat Surat Pemesanan</span>
+                        </a>
+                    </li>
                     
                 </ul>
             </nav>

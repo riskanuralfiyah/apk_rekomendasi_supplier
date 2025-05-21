@@ -117,6 +117,8 @@ Route::prefix('pemilikmebel')->middleware(['auth', 'role:pemilikmebel'])->group(
         Route::get('/', [LaporanBahanBakuController::class, 'index'])->name('laporanbahanbaku.pemilikmebel');
         Route::get('/show', [LaporanBahanBakuController::class, 'show'])->name('show.laporanbahanbaku.pemilikmebel');
         Route::get('/pdf', [LaporanBahanBakuController::class, 'exportToPdf'])->name('pdf.laporanbahanbaku.pemilikmebel');
+        Route::get('/excel', [LaporanBahanBakuController::class, 'exportToExcel'])->name('excel.laporanbahanbaku.pemilikmebel');
+
     });
     // Kelola Pengguna
     Route::prefix('data-pengguna')->group(function () {
