@@ -167,7 +167,8 @@
                 </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link {{ request()->routeIs('stokkeluar.karyawan') || request()->routeIs('edit.stokkeluar.karyawan') || request()->routeIs('create.stokkeluar.karyawan') ? 'active' : '' }}" href="{{ route('stokkeluar.karyawan') }}">
+              <a class="nav-link {{ request()->routeIs('suratpemesanan.karyawan') ? 'active' : '' }}"
+                  href="{{ route('suratpemesanan.karyawan') }}">
                   <i class="mdi mdi-email menu-icon"></i>
                   <span class="menu-title">Buat Surat Pemesanan</span>
               </a>

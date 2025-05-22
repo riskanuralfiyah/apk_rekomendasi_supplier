@@ -228,8 +228,8 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('kelolapengguna.pemilikmebel') ? 'active' : '' }}"
-                            href="{{ route('kelolapengguna.pemilikmebel') }}">
+                        <a class="nav-link {{ request()->routeIs('suratpemesanan.pemilikmebel') ? 'active' : '' }}"
+                            href="{{ route('suratpemesanan.pemilikmebel') }}">
                             <i class="mdi mdi-email menu-icon"></i>
                             <span class="menu-title">Buat Surat Pemesanan</span>
                         </a>

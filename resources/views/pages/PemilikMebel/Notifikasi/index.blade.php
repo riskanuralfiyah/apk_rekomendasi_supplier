@@ -25,7 +25,7 @@
 
     {{-- tombol Lihat Daftar Stok Habis di bawah sekali --}}
     <div class="mt-4 d-flex justify-content-start">
-        <a href="{{ route('datasupplier.pemilikmebel') }}" class="btn btn-outline-primary">
+        <a href="{{ route('suratpemesanan.pemilikmebel') }}" class="btn btn-outline-primary">
             Buat Surat Pemesanan
         </a>
     </div>    

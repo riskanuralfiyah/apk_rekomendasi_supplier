@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NotifikasiController;
+use App\Http\Controllers\SuratPemesananController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\PemilikMebel\DashboardPemilikMebelController;
@@ -127,6 +128,9 @@ Route::prefix('pemilikmebel')->middleware(['auth', 'role:pemilikmebel'])->group(
         Route::get('/edit', [KelolaPenggunaController::class, 'edit'])->name('edit.kelolapengguna.pemilikmebel');
         Route::get('/delete', [KelolaPenggunaController::class, 'delete'])->name('delete.kelolapengguna.pemilikmebel');
     });
+
+    Route::get('/surat-pemesanan', [SuratPemesananController::class, 'index'])->name('suratpemesanan.pemilikmebel');
+    Route::post('/surat-pemesanan/pdf', [SuratPemesananController::class, 'buatSurat'])->name('pdf.suratpemesanan.pemilikmebel');
 });
 
 // ROUTE UNTUK KARYAWAN (TANPA MIDDLEWARE ROLE)
@@ -166,6 +170,9 @@ Route::prefix('karyawan')->middleware(['auth', 'role:karyawan'])->group(function
         Route::put('/{id}', [StokKeluarController::class, 'update'])->name('update.stokkeluar.karyawan');
         Route::delete('/{id}', [StokKeluarController::class, 'destroy'])->name('delete.stokkeluar.karyawan');
     });
+
+    Route::get('/surat-pemesanan', [SuratPemesananController::class, 'index'])->name('suratpemesanan.karyawan');
+    Route::post('/surat-pemesanan/pdf', [SuratPemesananController::class, 'buatSurat'])->name('pdf.suratpemesanan.karyawan');
 });
 
 require __DIR__.'/auth.php';
