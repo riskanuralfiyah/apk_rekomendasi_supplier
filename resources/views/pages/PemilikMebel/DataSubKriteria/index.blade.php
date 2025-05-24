@@ -122,7 +122,7 @@
         success: function(response) {
             Swal.fire({
                 title: 'Berhasil!',
-                text: 'Data subkriteria berhasil dihapus.',
+                text: response.message,
                 icon: 'success',
                 confirmButtonText: 'OK'
             }).then((result) => {
@@ -132,13 +132,28 @@
             });
         },
         error: function(xhr) {
-            Swal.fire({
-                title: 'Gagal!',
-                text: 'Terjadi kesalahan saat menghapus data.',
-                icon: 'error',
-                confirmButtonText: 'OK'
-            });
-        }
+                
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    message = xhr.responseJSON.message;
+                }
+
+                // Menampilkan notifikasi kesalahan setelah modal ditutup
+                Swal.fire({
+                    title: 'Gagal!',
+                    text: message,
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    willClose: () => {
+                        // Refresh atau aktifkan ulang tombol setelah Swal ditutup
+                        const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+                        modal.show();  // Menunjukkan kembali modal setelah Swal ditutup
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        location.reload(); 
+                    }
+                });
+            }
     });
 });
 </script>

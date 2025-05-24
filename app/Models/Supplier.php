@@ -29,4 +29,9 @@ class Supplier extends Model
     {
         return $this->hasMany(HasilRekomendasi::class, 'id_supplier');
     }
+
+    public function stokMasuks()
+    {
+        return $this->hasMany(StokMasuk::class, 'id_supplier');
+    }
 }

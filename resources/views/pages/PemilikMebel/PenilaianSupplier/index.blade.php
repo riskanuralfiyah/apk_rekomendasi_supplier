@@ -104,6 +104,25 @@
     document.addEventListener('DOMContentLoaded', function () {
         const jumlahKriteria = {{ $jumlahKriteria ?? 0 }};
         const jumlahSubkriteria = {{ $jumlahSubkriteria ?? 0 }};
+        const jumlahPenilaian = {{ $jumlahPenilaian ?? 0 }};
+        const kriteriaTanpaSub = {{ $kriteriaTanpaSub ?? 0 }};
+        const errorMessage = @json($errorMessage);
+
+        if (errorMessage) {
+            Swal.fire({
+                title: 'Data Belum Lengkap',
+                text: errorMessage,
+                icon: 'warning',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                @if($errorMessage === 'Data supplier tidak ditemukan.')
+                    window.location.href = "{{ route('datasupplier.pemilikmebel') }}";
+                @else
+                    window.location.href = "{{ route('datakriteria.pemilikmebel') }}";
+                @endif
+            });
+            return; // stop further checks when there's an error
+        }
 
         if (jumlahKriteria === 0 || jumlahSubkriteria === 0) {
             Swal.fire({
@@ -112,31 +131,32 @@
                 icon: 'warning',
                 confirmButtonText: 'OK'
             }).then(() => {
-                window.location.href = "{{ route('datakriteria.pemilikmebel') }}"; // arahkan ke halaman pengisian kriteria
+                window.location.href = "{{ route('datakriteria.pemilikmebel') }}";
+            });
+        } else if (kriteriaTanpaSub > 0) {
+            Swal.fire({
+                title: 'Data Belum Lengkap',
+                text: 'Terdapat kriteria yang belum memiliki subkriteria. Harap lengkapi terlebih dahulu.',
+                icon: 'warning',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.href = "{{ route('datakriteria.pemilikmebel') }}";
+            });
+        } else if (jumlahPenilaian === 0) {
+            Swal.fire({
+                title: 'Data Belum Lengkap',
+                text: 'Belum ada data penilaian untuk dilakukan perhitungan.',
+                icon: 'warning',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.href = "{{ route('datasupplier.pemilikmebel') }}";
             });
         }
     });
 </script>
 
-{{-- <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const kriteria = @json($kriterias); // Ambil data kriteria dari backend
-        const incompleteKriterias = kriteria.filter(kriteria => kriteria.subkriterias.length === 0);
 
-        // Jika ada kriteria yang tidak memiliki subkriteria
-        if (incompleteKriterias.length > 0) {
-            Swal.fire({
-                title: 'Kriteria Belum Lengkap',
-                text: 'Semua kriteria harus memiliki subkriteria sebelum melakukan penilaian.',
-                icon: 'warning',
-                confirmButtonText: 'OK'
-            }).then(() => {
-                // Redirect ke halaman supplier atau halaman yang diinginkan
-                window.location.href = "{{ route('datasubkriteria.pemilikmebel') }}";
-            });
-        }
-    });
-</script> --}}
+
 
 <script type="text/javascript">
     function showDeleteModal(id) {
@@ -165,7 +185,7 @@
         success: function(response) {
             Swal.fire({
                 title: 'Berhasil!',
-                text: 'Data subkriteria berhasil dihapus.',
+                text: 'Data penilaian berhasil dihapus.',
                 icon: 'success',
                 confirmButtonText: 'OK'
             }).then((result) => {

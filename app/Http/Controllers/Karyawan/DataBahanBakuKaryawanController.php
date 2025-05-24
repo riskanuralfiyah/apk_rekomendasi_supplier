@@ -54,23 +54,56 @@ class DataBahanBakuKaryawanController extends Controller
             'satuan' => 'required|string|max:20',
             'stok_minimum' => 'required|integer|min:0',
             'jumlah_stok' => 'required|integer|min:0',
+        ], [
+            'nama_bahan_baku.required' => 'Nama bahan baku harus diisi.',
+            'nama_bahan_baku.string' => 'Nama bahan baku harus berupa teks.',
+            'nama_bahan_baku.max' => 'Nama bahan baku maksimal 100 karakter.',
+            'satuan.required' => 'Satuan harus diisi.',
+            'satuan.string' => 'Satuan harus berupa teks.',
+            'satuan.max' => 'Satuan maksimal 20 karakter.',
+            'stok_minimum.required' => 'Stok minimum harus diisi.',
+            'stok_minimum.integer' => 'Stok minimum harus berupa angka.',
+            'stok_minimum.min' => 'Stok minimum tidak boleh negatif.',
+            'jumlah_stok.required' => 'Jumlah stok harus diisi.',
+            'jumlah_stok.integer' => 'Jumlah stok harus berupa angka.',
+            'jumlah_stok.min' => 'Jumlah stok tidak boleh negatif.',
         ]);
+        
 
         if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 400); // status 400 bad request
         }
 
-        BahanBaku::create([
-            'nama_bahan_baku' => $request->nama_bahan_baku,
-            'satuan' => $request->satuan,
-            'stok_minimum' => $request->stok_minimum,
-            'jumlah_stok' => $request->jumlah_stok,
-        ]);
-
-        return redirect()->route('databahanbaku.karyawan')
-            ->with('success', 'Data bahan baku berhasil ditambahkan');
+        // cek duplikat
+        $existing = BahanBaku::where('nama_bahan_baku', $request->nama_bahan_baku)
+            ->first();
+    
+        if ($existing) {
+            return response()->json([
+                'errors' => [
+                    'duplicate' => ['Data bahan baku dengan nama yang sama sudah ada.']
+                ]
+            ], 400);
+        }
+    
+        try {
+            BahanBaku::create([
+                'nama_bahan_baku' => $request->nama_bahan_baku,
+                'satuan' => $request->satuan,
+                'stok_minimum' => $request->stok_minimum,
+                'jumlah_stok' => $request->jumlah_stok,
+            ]);
+    
+            return response()->json([
+                'message' => 'Data bahan baku berhasil ditambahkan'
+            ], 200); // OK
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Gagal menambahkan data bahan baku. Silakan coba lagi.'
+            ], 400); // Internal Server Error
+        }
     }
 
     public function show($id)
@@ -92,32 +125,78 @@ class DataBahanBakuKaryawanController extends Controller
             'satuan' => 'required|string|max:20',
             'stok_minimum' => 'required|integer|min:0',
             'jumlah_stok' => 'required|integer|min:0',
+        ], [
+            'nama_bahan_baku.required' => 'Nama bahan baku harus diisi.',
+            'nama_bahan_baku.string' => 'Nama bahan baku harus berupa teks.',
+            'nama_bahan_baku.max' => 'Nama bahan baku maksimal 100 karakter.',
+            'satuan.required' => 'Satuan harus diisi.',
+            'satuan.string' => 'Satuan harus berupa teks.',
+            'satuan.max' => 'Satuan maksimal 20 karakter.',
+            'stok_minimum.required' => 'Stok minimum harus diisi.',
+            'stok_minimum.integer' => 'Stok minimum harus berupa angka.',
+            'stok_minimum.min' => 'Stok minimum tidak boleh negatif.',
+            'jumlah_stok.required' => 'Jumlah stok harus diisi.',
+            'jumlah_stok.integer' => 'Jumlah stok harus berupa angka.',
+            'jumlah_stok.min' => 'Jumlah stok tidak boleh negatif.',
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 400); // status 400 bad request
         }
 
-        $bahanbaku = BahanBaku::findOrFail($id);
-        $bahanbaku->update([
-            'nama_bahan_baku' => $request->nama_bahan_baku,
-            'satuan' => $request->satuan,
-            'stok_minimum' => $request->stok_minimum,
-            'jumlah_stok' => $request->jumlah_stok,
-        ]);
-
-        return redirect()->route('databahanbaku.karyawan')
-            ->with('success', 'Data bahan baku berhasil diperbarui');
+        // cek duplikat
+        $existing = BahanBaku::where('nama_bahan_baku', $request->nama_bahan_baku)
+            ->where('id', '!=', $id)
+            ->first();
+    
+        if ($existing) {
+            return response()->json([
+                'errors' => [
+                    'duplicate' => ['Data bahan baku dengan nama yang sama sudah ada.']
+                ]
+            ], 400);
+        }
+    
+        try {
+            $bahanbaku = BahanBaku::findOrFail($id);
+            $bahanbaku->update([
+                'nama_bahan_baku' => $request->nama_bahan_baku,
+                'satuan' => $request->satuan,
+                'stok_minimum' => $request->stok_minimum,
+                'jumlah_stok' => $request->jumlah_stok,
+            ]);
+    
+            return response()->json([
+                'message' => 'Data bahan baku berhasil diperbarui'
+            ], 200); // OK
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Gagal memperbarui data bahan baku. Silakan coba lagi.'
+            ], 400); // Internal Server Error
+        }
     }
 
     public function destroy($id)
     {
         $bahanbaku = BahanBaku::findOrFail($id);
+
+        // Cek jika bahan baku memiliki relasi dengan data lain
+        if (
+            $bahanbaku->laporans()->exists() ||
+            $bahanbaku->stokKeluars()->exists() ||
+            $bahanbaku->stokMasuks()->exists() // tambahkan relasi lain jika ada
+        ) {
+            return response()->json([
+                'message' => 'Tidak dapat menghapus data bahan baku karena masih memiliki data terkait.'
+            ], 400);
+        }
+
         $bahanbaku->delete();
 
-        return redirect()->route('databahanbaku.karyawan')
-            ->with('success', 'Data bahan baku berhasil dihapus');
+        return response()->json([
+            'message' => 'Data bahan baku berhasil dihapus.'
+        ]);
     }
 }

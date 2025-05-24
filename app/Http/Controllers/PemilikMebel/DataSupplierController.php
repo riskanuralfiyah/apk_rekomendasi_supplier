@@ -52,23 +52,51 @@ class DataSupplierController extends Controller
             'nama_supplier' => 'required|string|max:100',
             'alamat' => 'required|string',
             'no_telpon' => 'required|string|max:20'
+        ], [
+            'nama_supplier.required' => 'Nama supplier harus diisi.',
+            'alamat.required' => 'Alamat harus diisi.',
+            'no_telpon.required' => 'Nomor telepon harus diisi.',
+            'no_telpon.max' => 'Nomor telepon maksimal 20 karakter.'
         ]);
-
+    
         if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 400); // status 400 bad request
         }
-
-        Supplier::create([
-            'nama_supplier' => $request->nama_supplier,
-            'alamat' => $request->alamat,
-            'no_telpon' => $request->no_telpon
-        ]);
-
-        return redirect()->route('datasupplier.pemilikmebel')
-            ->with('success', 'Data supplier berhasil ditambahkan');
+    
+        // cek duplikat
+        $existing = Supplier::where('nama_supplier', $request->nama_supplier)
+            ->where('alamat', $request->alamat)
+            ->where('no_telpon', $request->no_telpon)
+            ->first();
+    
+        if ($existing) {
+            return response()->json([
+                'errors' => [
+                    'duplicate' => ['Data supplier dengan nama, alamat, dan no telpon yang sama sudah ada.']
+                ]
+            ], 400);
+        }
+    
+        try {
+            Supplier::create([
+                'nama_supplier' => $request->nama_supplier,
+                'alamat' => $request->alamat,
+                'no_telpon' => $request->no_telpon
+            ]);
+    
+            return response()->json([
+                'message' => 'Data supplier berhasil ditambahkan'
+            ], 200); // OK
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Gagal menambahkan data supplier. Silakan coba lagi.'
+            ], 400); // Internal Server Error
+        }
     }
+    
+    
 
     public function show($id)
     {
@@ -86,37 +114,70 @@ class DataSupplierController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'nama_supplier' => 'required|string|max:100',
-            'alamat' => 'required|string', 
+            'alamat' => 'required|string',
             'no_telpon' => 'required|string|max:20'
+        ], [
+            'nama_supplier.required' => 'Nama supplier harus diisi.',
+            'alamat.required' => 'Alamat harus diisi.',
+            'no_telpon.required' => 'Nomor telepon harus diisi.',
+            'no_telpon.max' => 'Nomor telepon maksimal 20 karakter.'
         ]);
-
+    
         if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 400);
         }
-
-        $supplier = Supplier::findOrFail($id);
-        $supplier->update([
-            'nama_supplier' => $request->nama_supplier,
-            'alamat' => $request->alamat,
-            'no_telpon' => $request->no_telpon
-        ]);
-
-        return redirect()->route('datasupplier.pemilikmebel')
-            ->with('success', 'Data supplier berhasil diperbarui');
+    
+        // cek duplikat, kecuali dirinya sendiri
+        $existing = Supplier::where('nama_supplier', $request->nama_supplier)
+            ->where('alamat', $request->alamat)
+            ->where('no_telpon', $request->no_telpon)
+            ->where('id', '!=', $id)
+            ->first();
+    
+        if ($existing) {
+            return response()->json([
+                'errors' => [
+                    'duplicate' => ['Data supplier dengan nama, alamat, dan no telpon yang sama sudah ada.']
+                ]
+            ], 400);
+        }
+    
+        try {
+            $supplier = Supplier::findOrFail($id);
+            $supplier->update([
+                'nama_supplier' => $request->nama_supplier,
+                'alamat' => $request->alamat,
+                'no_telpon' => $request->no_telpon
+            ]);
+    
+            return response()->json([
+                'message' => 'Data supplier berhasil diperbarui'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Gagal memperbarui data supplier. Silakan coba lagi.'
+            ], 400);
+        }
     }
+    
 
     public function destroy($id)
     {
-        // Menarik data supplier beserta count dari penilaian
-        $supplier = Supplier::withCount(['penilaians'])->findOrFail($id);
 
-        // Cek jika supplier berelasi dengan penilaian
-        if ($supplier->penilaians_count > 0) {
+        // Ambil data supplier
+        $supplier = Supplier::findOrFail($id);
+
+        // Cek jika supplier memiliki relasi dengan data lain
+        if (
+            $supplier->penilaians()->exists() ||
+            $supplier->hasilRekomendasis()->exists() ||
+            $supplier->stokMasuks()->exists() // tambahkan relasi lain jika ada
+        ) {
             return response()->json([
-                'message' => 'Tidak bisa menghapus supplier karena masih memiliki penilaian terkait.'
-            ], 400); // Status 400 (Bad Request)
+                'message' => 'Tidak dapat menghapus data supplier karena masih memiliki data terkait.'
+            ], 400);
         }
 
         // Hapus supplier jika tidak ada relasi yang terdeteksi

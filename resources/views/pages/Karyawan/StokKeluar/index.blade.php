@@ -10,15 +10,20 @@
             <h3 class="mb-3 font-weight-bold">Data Stok Keluar</h3>
 
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="input-group" style="max-width: 300px;">
-                    <input type="text" id="searchInput" class="form-control" placeholder="Search">
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="button" id="searchButton">
-                            <i class="mdi mdi-magnify"></i>
-                        </button>
+                <!-- Input Search -->
+                <form method="GET" action="{{ route('stokkeluar.karyawan') }}" id="searchForm" class="d-flex" style="max-width: 300px;">
+                    <div class="input-group">
+                        <input type="text" name="search" id="searchInput" class="form-control" placeholder="Search" value="{{ request('search') }}">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="submit" id="searchButton">
+                                <i class="mdi mdi-magnify"></i>
+                            </button>
+                        </div>
                     </div>
-                </div>
+                    <input type="hidden" name="per_page" value="{{ request('per_page', 10) }}">
+                </form>
 
+                <!-- Tombol Tambah -->
                 <a href="{{ route('create.stokkeluar.karyawan') }}" class="btn btn-primary">
                     <i class="mdi mdi-plus"></i> Tambah
                 </a>
@@ -112,6 +117,29 @@
                         @endif
                     </ul>
                 </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Konfirmasi Hapus -->
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmDeleteModalLabel">Konfirmasi Hapus Data</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Apakah Anda yakin ingin menghapus data stok masuk ini?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Batal</button>
+                    <form id="deleteForm" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">Hapus</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

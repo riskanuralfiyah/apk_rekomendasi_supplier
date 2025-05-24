@@ -31,16 +31,21 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($hasilRekomendasi as $item)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ $item->supplier->nama_supplier }}</td>
-                                {{-- <td>{{ $item->skor_akhir }}</td> --}}
-                                <td>{{ rtrim(rtrim(number_format($item->skor_akhir, 2), '0'), '.') }}</td>
-                                <td>{{ $item->peringkat }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
+                            @if($hasilRekomendasi->isEmpty())
+                                <tr>
+                                    <td colspan="4" class="text-center fst-italic">Belum ada hasil rekomendasi.</td>
+                                </tr>
+                            @else
+                                @foreach($hasilRekomendasi as $item)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $item->supplier->nama_supplier }}</td>
+                                    <td>{{ rtrim(rtrim(number_format($item->skor_akhir, 2), '0'), '.') }}</td>
+                                    <td>{{ $item->peringkat }}</td>
+                                </tr>
+                                @endforeach
+                            @endif
+                        </tbody>                        
                     </table>
                 </div>
             </div>

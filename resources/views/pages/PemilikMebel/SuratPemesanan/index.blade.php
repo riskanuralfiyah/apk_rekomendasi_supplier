@@ -158,13 +158,13 @@
     </div>
 @endsection
 
-@section('styles')
+{{-- @section('styles')
 <style>
 .quantity-input-col {
   display: block !important;
 }
 </style>
-@endsection
+@endsection --}}
 
 @section('scripts')
 <script>

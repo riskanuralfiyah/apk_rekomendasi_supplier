@@ -122,11 +122,14 @@ Route::prefix('pemilikmebel')->middleware(['auth', 'role:pemilikmebel'])->group(
 
     });
     // Kelola Pengguna
-    Route::prefix('data-pengguna')->group(function () {
+    Route::prefix('kelola-pengguna')->group(function () {
         Route::get('/', [KelolaPenggunaController::class, 'index'])->name('kelolapengguna.pemilikmebel');
         Route::get('/create', [KelolaPenggunaController::class, 'create'])->name('create.kelolapengguna.pemilikmebel');
-        Route::get('/edit', [KelolaPenggunaController::class, 'edit'])->name('edit.kelolapengguna.pemilikmebel');
-        Route::get('/delete', [KelolaPenggunaController::class, 'delete'])->name('delete.kelolapengguna.pemilikmebel');
+        Route::post('/', [KelolaPenggunaController::class, 'store'])->name('store.kelolapengguna.pemilikmebel');
+        Route::get('/{id}', [KelolaPenggunaController::class, 'show'])->name('detail.kelolapengguna.pemilikmebel');
+        Route::get('/{id}/edit', [KelolaPenggunaController::class, 'edit'])->name('edit.kelolapengguna.pemilikmebel');
+        Route::put('/{id}', [KelolaPenggunaController::class, 'update'])->name('update.kelolapengguna.pemilikmebel');
+        Route::delete('/{id}', [KelolaPenggunaController::class, 'destroy'])->name('delete.kelolapengguna.pemilikmebel');
     });
 
     Route::get('/surat-pemesanan', [SuratPemesananController::class, 'index'])->name('suratpemesanan.pemilikmebel');

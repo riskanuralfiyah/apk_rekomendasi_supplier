@@ -8,7 +8,6 @@
     <title>Riska Mebel</title>
     <!-- plugins:css -->
     <link rel="stylesheet" href="{{ asset('frontend/vendors/feather/feather.css') }}">
-    <link rel="stylesheet" href="{{ asset('frontend/vendors/ti-icons/css/themify-icons.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/vendors/css/vendor.bundle.base.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.5.95/css/materialdesignicons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -19,13 +18,14 @@
     <link rel="stylesheet" href="{{ asset('frontend/vendors/datatables.net-bs4/dataTables.bootstrap4.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/vendors/ti-icons/css/themify-icons.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('frontend/js/select.dataTables.min.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <!-- End plugin css for this page -->
 
     <!-- inject:css -->
     <link rel="stylesheet" href="{{ asset('frontend/css/vertical-layout-light/style.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/css/style.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <!-- endinject -->
 
     <link rel="shortcut icon" href="{{ asset('image/logo-mini.png') }}" />
@@ -43,6 +43,8 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.9/dist/plugins/monthSelect/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.id.min.js"></script>
     <!-- End plugin js for this page -->
 
     <!-- inject:js -->
@@ -52,10 +54,9 @@
     <script src="{{ asset('frontend/js/settings.js') }}"></script>
     <script src="{{ asset('frontend/js/todolist.js') }}"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
-
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
+    {{-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> --}}
     <!-- endinject -->
 </head>
 
@@ -221,8 +222,12 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('kelolapengguna.pemilikmebel') ? 'active' : '' }}"
-                            href="{{ route('kelolapengguna.pemilikmebel') }}">
+                        <a class="nav-link
+                            {{ request()->routeIs('kelolapengguna.pemilikmebel') ||
+                            request()->routeIs('create.kelolapengguna.pemilikmebel') ||
+                            request()->routeIs('edit.kelolapengguna.pemilikmebel') 
+                            ? 'active' : '' }}"
+                            href="{{ route('kelolapengguna.pemilikmebel') }}" >
                             <i class="mdi mdi-account-multiple menu-icon"></i>
                             <span class="menu-title">Kelola Pengguna</span>
                         </a>
@@ -244,6 +249,6 @@
             </div>
         </div>
     </div>
+    {{-- @stack('scripts') --}}
 </body>
-
 </html>

@@ -43,22 +43,49 @@ class DataSubKriteriaController extends Controller
         $validator = Validator::make($request->all(), [
             'nama_subkriteria' => 'required|string|max:100',
             'nilai' => 'required|numeric|min:1'
-        ]);
+        ], [
+            'nama_subkriteria.required' => 'Nama subkriteria harus diisi.',
+            'nama_subkriteria.string' => 'Nama subkriteria harus berupa teks.',
+            'nama_subkriteria.max' => 'Nama subkriteria maksimal 100 karakter.',
+            'nilai.required' => 'Nilai harus diisi.',
+            'nilai.numeric' => 'Nilai harus berupa angka.',
+            'nilai.min' => 'Nilai minimal adalah 1.'
+        ]);        
 
         if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 400); // status 400 bad request
         }
 
-        SubKriteria::create([
-            'id_kriteria' => $kriteriaId,
-            'nama_subkriteria' => $request->nama_subkriteria,
-            'nilai' => $request->nilai
-        ]);
+         // cek duplikat
+        $existing = Subkriteria::where('id_kriteria', $kriteriaId)
+        ->where('nama_subkriteria', $request->nama_subkriteria)
+        ->first();
 
-        return redirect()->route('datasubkriteria.pemilikmebel', $kriteriaId)
-            ->with('success', 'Data subkriteria berhasil ditambahkan');
+        if ($existing) {
+            return response()->json([
+                'errors' => [
+                    'duplicate' => ['Nama subkriteria sudah digunakan untuk kriteria ini.']
+                ]
+            ], 400);
+        }
+
+        try {
+            Subkriteria::create([
+                'id_kriteria' => $kriteriaId,
+                'nama_subkriteria' => $request->nama_subkriteria,
+                'nilai' => $request->nilai
+            ]);
+
+            return response()->json([
+                'message' => 'Data subkriteria berhasil ditambahkan'
+            ], 200); // OK
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Gagal menambahkan data subkriteria. Silakan coba lagi.'
+            ], 400); // Internal Server Error
+        }
     }
 
     /**
@@ -91,23 +118,51 @@ class DataSubKriteriaController extends Controller
         $validator = Validator::make($request->all(), [
             'nama_subkriteria' => 'required|string|max:100',
             'nilai' => 'required|numeric|min:1'
-        ]);
+        ], [
+            'nama_subkriteria.required' => 'Nama subkriteria harus diisi.',
+            'nama_subkriteria.string' => 'Nama subkriteria harus berupa teks.',
+            'nama_subkriteria.max' => 'Nama subkriteria maksimal 100 karakter.',
+            'nilai.required' => 'Nilai harus diisi.',
+            'nilai.numeric' => 'Nilai harus berupa angka.',
+            'nilai.min' => 'Nilai minimal adalah 1.'
+        ]);  
 
         if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 400);
         }
 
-        $subkriteria = SubKriteria::where('id_kriteria', $kriteriaId)
-                                ->findOrFail($id);
-        $subkriteria->update([
-            'nama_subkriteria' => $request->nama_subkriteria,
-            'nilai' => $request->nilai
-        ]);
+        // cek duplikat
+        $existing = Subkriteria::where('id_kriteria', $kriteriaId)
+        ->where('nama_subkriteria', $request->nama_subkriteria)
+        ->where('id', '!=', $id)
+        ->first();
 
-        return redirect()->route('datasubkriteria.pemilikmebel', $kriteriaId)
-            ->with('success', 'Data subkriteria berhasil diperbarui');
+        if ($existing) {
+            return response()->json([
+                'errors' => [
+                    'duplicate' => ['Nama subkriteria sudah digunakan untuk kriteria ini.']
+                ]
+            ], 400);
+        }
+
+        try {
+            $subkriteria = Subkriteria::findOrFail($id);
+            $subkriteria->update([
+                'id_kriteria' => $kriteriaId,
+                'nama_subkriteria' => $request->nama_subkriteria,
+                'nilai' => $request->nilai
+            ]);
+
+            return response()->json([
+                'message' => 'Data subkriteria berhasil diperbarui'
+            ], 200); // OK
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Gagal memperbarui data subkriteria. Silakan coba lagi.'
+            ], 400); // Internal Server Error
+        }
     }
 
     /**
@@ -117,9 +172,20 @@ class DataSubKriteriaController extends Controller
     {
         $subkriteria = SubKriteria::where('id_kriteria', $kriteriaId)
                                 ->findOrFail($subkriteriaId);
+
+        // Cek jika subkriteria memiliki relasi dengan data lain
+        if (
+            $subkriteria->penilaians()->exists()
+        ) {
+            return response()->json([
+                'message' => 'Tidak dapat menghapus data subkriteria karena masih memiliki data terkait.'
+            ], 400);
+        }
+
         $subkriteria->delete();
 
-        return redirect()->route('datasubkriteria.pemilikmebel', $kriteriaId)
-            ->with('success', 'Data subkriteria berhasil dihapus');
+        return response()->json([
+            'message' => 'Data subkriteria berhasil dihapus.'
+        ]);
     }
 }

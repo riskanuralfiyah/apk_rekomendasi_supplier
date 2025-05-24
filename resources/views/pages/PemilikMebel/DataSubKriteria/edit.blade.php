@@ -73,7 +73,7 @@
               success: function(response) {
                   Swal.fire({
                       title: "Berhasil!",
-                      text: "Data subkriteria berhasil diperbarui",
+                      text: response.message,
                       icon: "success",
                       confirmButtonText: "OK"
                   }).then((result) => {
@@ -83,21 +83,41 @@
                   });
               },
               error: function(xhr, status, error) {
-                  var errors = xhr.responseJSON.errors;
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        var errors = xhr.responseJSON.errors;
                   
+                  // Display validation errors
                   $.each(errors, function(key, value) {
-                      var input = $('[name="' + key + '"]');
-                      input.addClass('is-invalid');
-                      input.after('<div class="invalid-feedback">' + value[0] + '</div>');
-                  });
-
-                  Swal.fire({
-                      title: "Gagal!",
-                      text: "Terdapat kesalahan dalam pengisian form",
-                      icon: "error",
-                      confirmButtonText: "OK"
-                  });
-              }
+                            if (key === 'duplicate') {
+                                // Tampilkan error umum (bukan field spesifik)
+                                Swal.fire({
+                                    title: "Gagal!",
+                                    text: value[0],
+                                    icon: "error",
+                                    confirmButtonText: "OK"
+                                });
+                            } else {
+                                // Tampilkan error di input form
+                                var input = $('[name="' + key + '"]');
+                                input.addClass('is-invalid');
+                                input.after('<div class="invalid-feedback">' + value[0] + '</div>');
+                            }
+                        });
+                    } else {
+                        // Error sistem/server (500, dsb)
+                        let message = 'Terjadi kesalahan sistem. Silakan coba lagi.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            message = xhr.responseJSON.message;
+                        }
+                    // Show general error message
+                    Swal.fire({
+                        title: "Gagal!",
+                        text: message,
+                        icon: "error",
+                        confirmButtonText: "OK"
+                    });
+                }
+            }
           });
       });
   });

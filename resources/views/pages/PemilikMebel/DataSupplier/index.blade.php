@@ -203,7 +203,7 @@
         success: function(response) {
             Swal.fire({
                 title: 'Berhasil!',
-                text: 'Data supplier berhasil dihapus.',
+                text: response.message,
                 icon: 'success',
                 confirmButtonText: 'OK'
             }).then((result) => {
@@ -213,8 +213,6 @@
             });
         },
         error: function(xhr) {
-                let message = 'Terjadi kesalahan saat menghapus data.';
-                
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     message = xhr.responseJSON.message;
                 }

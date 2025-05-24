@@ -27,4 +27,10 @@ class BahanBaku extends Model
     {
         return $this->hasMany(StokKeluar::class, 'id_bahan_baku');
     }
+
+    public function laporans()
+    {
+        return $this->hasMany(Laporan::class, 'id_bahan_baku');
+    }
+
 }

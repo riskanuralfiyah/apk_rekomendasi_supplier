@@ -12,32 +12,25 @@
             <h3 class="mb-3 font-weight-bold">Data Bahan Baku</h3>
 
             <!-- Header dengan Search dan Tombol Tambah -->
-        <!-- Header dengan Search -->
-        <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
-            <!-- Search Form -->
-            <form method="GET" action="{{ route('databahanbaku.karyawan') }}" id="searchForm" class="d-flex flex-column" style="max-width: 300px;">
-                <div class="input-group mb-3">
-                    <input type="text" name="search" id="searchInput" class="form-control" placeholder="Search" value="{{ request('search') }}">
-                    <input type="hidden" name="status" value="{{ request('status') }}">
-                    <input type="hidden" name="per_page" value="{{ request('per_page', 10) }}">
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="submit" id="searchButton">
-                            <i class="mdi mdi-magnify"></i>
-                        </button>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <!-- Input Search -->
+                <form method="GET" action="{{ route('databahanbaku.karyawan') }}" id="searchForm" class="d-flex" style="max-width: 300px;">
+                    <div class="input-group">
+                        <input type="text" name="search" id="searchInput" class="form-control" placeholder="Search" value="{{ request('search') }}">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="submit" id="searchButton">
+                                <i class="mdi mdi-magnify"></i>
+                            </button>
+                        </div>
                     </div>
-                </div>
+                    <input type="hidden" name="per_page" value="{{ request('per_page', 10) }}">
+                </form>
 
-                <div class="d-flex" style="gap: 10px; margin-top: 10px;">
-                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#filterModal">
-                        <i class="mdi mdi-filter mr-1"></i> Filter
-                    </button>
-
-                    <a href="{{ route('databahanbaku.karyawan') }}" class="btn btn-secondary btn-sm">
-                        <i class="mdi mdi-refresh"></i> Reset
-                    </a>
-                </div>
-            </form>
-        </div>
+                <!-- Tombol Tambah -->
+                <a href="{{ route('create.databahanbaku.karyawan') }}" class="btn btn-primary">
+                    <i class="mdi mdi-plus"></i> Tambah
+                </a>
+            </div>
 
             <!-- Show Entries di bawah Tombol Tambah -->
             <div class="d-flex justify-content-end mb-3">
@@ -238,7 +231,7 @@
         success: function(response) {
             Swal.fire({
                 title: 'Berhasil!',
-                text: 'Data bahan baku berhasil dihapus.',
+                text: response.message,
                 icon: 'success',
                 confirmButtonText: 'OK'
             }).then((result) => {
@@ -248,13 +241,27 @@
             });
         },
         error: function(xhr) {
-            Swal.fire({
-                title: 'Gagal!',
-                text: 'Terjadi kesalahan saat menghapus data.',
-                icon: 'error',
-                confirmButtonText: 'OK'
-            });
-        }
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    message = xhr.responseJSON.message;
+                }
+
+                // Menampilkan notifikasi kesalahan setelah modal ditutup
+                Swal.fire({
+                    title: 'Gagal!',
+                    text: message,
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    willClose: () => {
+                        // Refresh atau aktifkan ulang tombol setelah Swal ditutup
+                        const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+                        modal.show();  // Menunjukkan kembali modal setelah Swal ditutup
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        location.reload(); 
+                    }
+                });
+            }
     });
 });
 </script>

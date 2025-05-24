@@ -22,6 +22,8 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'no_telp',
+        'foto',
     ];
 
     /**
@@ -58,5 +60,10 @@ class User extends Authenticatable
     public function isKaryawan(): bool
     {
         return $this->role === 'karyawan';
+    }
+
+    public function notifikasis()
+    {
+        return $this->hasMany(Notifikasi::class, 'id_user');
     }
 }

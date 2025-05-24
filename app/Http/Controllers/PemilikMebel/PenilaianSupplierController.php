@@ -11,29 +11,67 @@ class PenilaianSupplierController extends Controller
 {
     public function index(Request $request, $supplierId)
     {
-        $supplier = Supplier::findOrFail($supplierId);
-
-    // cek apakah ada data kriteria dan subkriteria
-    $jumlahKriteria = Kriteria::count();
-    $jumlahSubkriteria = Subkriteria::count();
-
-    if ($jumlahKriteria == 0 || $jumlahSubkriteria == 0) {
-        return redirect()
-            ->back()
-            ->with('error', 'Harap lengkapi data kriteria dan subkriteria terlebih dahulu sebelum melakukan penilaian.');
-    }
-
-        $query = $supplier->penilaians()->with(['kriteria', 'subkriteria']);
-
-        $penilaians = $query->orderBy('created_at', 'desc')->get();
-
+        $supplier = Supplier::find($supplierId);
+    
+        if (!$supplier) {
+            return view('pages.PemilikMebel.PenilaianSupplier.index', [
+                'errorMessage' => 'Data supplier tidak ditemukan.',
+                'supplier' => null,
+                'penilaians' => collect(),
+                'jumlahKriteria' => 0,
+                'jumlahSubkriteria' => 0,
+                'kriteriaTanpaSub' => 0,
+                'jumlahPenilaian' => 0,
+            ]);
+        }
+    
+        $jumlahKriteria = Kriteria::count();
+        $jumlahSubkriteria = Subkriteria::count();
+    
+        if ($jumlahKriteria == 0 || $jumlahSubkriteria == 0) {
+            return view('pages.PemilikMebel.PenilaianSupplier.index', [
+                'errorMessage' => 'Harap lengkapi data kriteria dan subkriteria terlebih dahulu sebelum melakukan penilaian.',
+                'supplier' => $supplier,
+                'penilaians' => collect(),
+                'jumlahKriteria' => $jumlahKriteria,
+                'jumlahSubkriteria' => $jumlahSubkriteria,
+                'kriteriaTanpaSub' => 0,
+                'jumlahPenilaian' => 0,
+            ]);
+        }
+    
+        $kriteriaTanpaSub = Kriteria::whereDoesntHave('subkriterias')->count();
+    
+        if ($kriteriaTanpaSub > 0) {
+            return view('pages.PemilikMebel.PenilaianSupplier.index', [
+                'errorMessage' => 'Terdapat kriteria yang belum memiliki subkriteria. Harap lengkapi terlebih dahulu.',
+                'supplier' => $supplier,
+                'penilaians' => collect(),
+                'jumlahKriteria' => $jumlahKriteria,
+                'jumlahSubkriteria' => $jumlahSubkriteria,
+                'kriteriaTanpaSub' => $kriteriaTanpaSub,
+                'jumlahPenilaian' => 0,
+            ]);
+        }
+    
+        $penilaians = $supplier->penilaians()
+            ->with(['kriteria', 'subkriteria'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+    
+        $jumlahPenilaian = $penilaians->count();
+    
         return view('pages.PemilikMebel.PenilaianSupplier.index', [
+            'errorMessage' => null,
             'supplier' => $supplier,
             'penilaians' => $penilaians,
             'jumlahKriteria' => $jumlahKriteria,
-            'jumlahSubkriteria' => $jumlahSubkriteria
+            'jumlahSubkriteria' => $jumlahSubkriteria,
+            'kriteriaTanpaSub' => $kriteriaTanpaSub,
+            'jumlahPenilaian' => $jumlahPenilaian,
         ]);
     }
+    
 
     public function create($supplierId)
     {
@@ -261,7 +299,7 @@ public function destroy($supplierId)
     $penilaians->delete();
 
     return redirect()->route('penilaiansupplier.pemilikmebel', $supplierId)
-        ->with('success', 'Semua penilaian berhasil dihapus');
+        ->with('success', 'Data penilaian berhasil dihapus');
 }
 
 

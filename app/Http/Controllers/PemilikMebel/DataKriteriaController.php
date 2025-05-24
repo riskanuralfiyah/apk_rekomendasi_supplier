@@ -52,40 +52,71 @@ class DataKriteriaController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-{
-    $currentTotal = Kriteria::sum('bobot');
+    {
+        $currentTotal = Kriteria::sum('bobot');
 
-    $validator = Validator::make($request->all(), [
-        'nama_kriteria' => 'required|string|max:100|unique:kriterias,nama_kriteria',
-        'kategori' => 'required|in:benefit,cost',
-        'bobot' => [
-            'required',
-            'numeric',
-            'min:1',
-            'max:100',
-            function ($attribute, $value, $fail) use ($currentTotal) {
-                if (($currentTotal + ($value / 100)) > 1) {
-                    $fail('Total bobot semua kriteria tidak boleh melebihi 100%');
+        $validator = Validator::make($request->all(), [
+            'nama_kriteria' => 'required|string|max:100|unique:kriterias,nama_kriteria',
+            'kategori' => 'required|in:benefit,cost',
+            'bobot' => [
+                'required',
+                'numeric',
+                'min:1',
+                'max:100',
+                function ($attribute, $value, $fail) use ($currentTotal) {
+                    if (($currentTotal + ($value / 100)) > 1) {
+                        $fail('Total bobot semua kriteria tidak boleh melebihi 100%.');
+                    }
                 }
+            ]
+        ], [
+            'nama_kriteria.required' => 'Nama kriteria harus diisi.',
+            'nama_kriteria.max' => 'Nama kriteria maksimal 100 karakter.',
+            'nama_kriteria.unique' => 'Nama kriteria sudah digunakan.',
+            'kategori.required' => 'Kategori harus diisi.',
+            'kategori.in' => 'Kategori harus bernilai benefit atau cost.',
+            'bobot.required' => 'Bobot harus diisi.',
+            'bobot.numeric' => 'Bobot harus berupa angka.',
+            'bobot.min' => 'Bobot minimal 1.',
+            'bobot.max' => 'Bobot maksimal 100.'
+        ]);
+        
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 400); // status 400 bad request
+        }
+
+        $existing = Kriteria::where('nama_kriteria', $request->nama_kriteria)
+                ->where('kategori', $request->kategori)
+                ->where('bobot', $request->bobot)
+                ->first();
+        
+            if ($existing) {
+                return response()->json([
+                    'errors' => [
+                        'duplicate' => ['Data kriteria dengan nama, kategori, dan bobot yang sama sudah ada.']
+                    ]
+                ], 400);
             }
-        ]
-    ]);
-
-    if ($validator->fails()) {
-        return redirect()->back()
-            ->withErrors($validator)
-            ->withInput();
+        
+            try {
+                Kriteria::create([
+                    'nama_kriteria' => $request->nama_kriteria,
+                    'kategori' => $request->kategori,
+                    'bobot' => $request->bobot
+                ]);
+        
+                return response()->json([
+                    'message' => 'Data kriteria berhasil ditambahkan'
+                ], 200); // OK
+            } catch (\Exception $e) {
+                return response()->json([
+                    'message' => 'Gagal menambahkan data kriteria. Silakan coba lagi.'
+                ], 400); // Internal Server Error
+            }
     }
-
-    Kriteria::create([
-        'nama_kriteria' => $request->nama_kriteria,
-        'kategori' => $request->kategori,
-        'bobot' => $request->bobot // mutator otomatis ubah ke 0.5
-    ]);
-
-    return redirect()->route('datakriteria.pemilikmebel')
-        ->with('success', 'Data kriteria berhasil ditambahkan');
-}
 
 
     /**
@@ -115,7 +146,7 @@ class DataKriteriaController extends Controller
     $currentTotal = Kriteria::where('id', '!=', $id)->sum('bobot');
 
     $validator = Validator::make($request->all(), [
-        'nama_kriteria' => 'required|string|max:100|unique:kriterias,nama_kriteria,' . $id,
+        'nama_kriteria' => 'required|string|max:100|unique:kriterias,nama_kriteria',
         'kategori' => 'required|in:benefit,cost',
         'bobot' => [
             'required',
@@ -124,26 +155,58 @@ class DataKriteriaController extends Controller
             'max:100',
             function ($attribute, $value, $fail) use ($currentTotal) {
                 if (($currentTotal + ($value / 100)) > 1) {
-                    $fail('Total bobot semua kriteria tidak boleh melebihi 100%');
+                    $fail('Total bobot semua kriteria tidak boleh melebihi 100%.');
                 }
             }
         ]
+    ], [
+        'nama_kriteria.required' => 'Nama kriteria harus diisi.',
+        'nama_kriteria.max' => 'Nama kriteria maksimal 100 karakter.',
+        'nama_kriteria.unique' => 'Nama kriteria sudah digunakan.',
+        'kategori.required' => 'Kategori harus diisi.',
+        'kategori.in' => 'Kategori harus bernilai benefit atau cost.',
+        'bobot.required' => 'Bobot harus diisi.',
+        'bobot.numeric' => 'Bobot harus berupa angka.',
+        'bobot.min' => 'Bobot minimal 1.',
+        'bobot.max' => 'Bobot maksimal 100.'
     ]);
 
     if ($validator->fails()) {
-        return redirect()->back()
-            ->withErrors($validator)
-            ->withInput();
+        return response()->json([
+            'errors' => $validator->errors()
+        ], 400);
     }
 
-    $kriteria->update([
-        'nama_kriteria' => $request->nama_kriteria,
-        'kategori' => $request->kategori,
-        'bobot' => $request->bobot // mutator otomatis ubah ke 0.5
-    ]);
-
-    return redirect()->route('datakriteria.pemilikmebel')
-        ->with('success', 'Data kriteria berhasil diperbarui');
+    $existing = Kriteria::where('nama_kriteria', $request->nama_kriteria)
+                ->where('kategori', $request->kategori)
+                ->where('bobot', $request->bobot)
+                ->where('id', '!=', $id)
+                ->first();
+        
+            if ($existing) {
+                return response()->json([
+                    'errors' => [
+                        'duplicate' => ['Data kriteria dengan nama, kategori, dan bobot yang sama sudah ada.']
+                    ]
+                ], 400);
+            }
+        
+            try {
+                $kriteria = Kriteria::findOrFail($id);
+                $kriteria->update([
+                    'nama_kriteria' => $request->nama_kriteria,
+                    'kategori' => $request->kategori,
+                    'bobot' => $request->bobot
+                ]);
+        
+                return response()->json([
+                    'message' => 'Data kriteria berhasil diperbarui'
+                ], 200); // OK
+            } catch (\Exception $e) {
+                return response()->json([
+                    'message' => 'Gagal memperbarui data kriteria. Silakan coba lagi.'
+                ], 400); // Internal Server Error
+            }
 }
 
 
@@ -152,21 +215,17 @@ class DataKriteriaController extends Controller
      */
     public function destroy($id)
     {
-        // Menarik data kriteria beserta count dari subkriterias dan relasi dengan penilaian
-        $kriteria = Kriteria::withCount(['subkriterias', 'penilaians'])->findOrFail($id);
+        // Ambil data kriteria
+        $kriteria = Kriteria::findOrFail($id);
 
-        // Cek jika kriteria memiliki subkriteria
-        if ($kriteria->subkriterias_count > 0) {
+        // Cek jika kriteria memiliki relasi dengan data lain
+        if (
+            $kriteria->penilaians()->exists() ||
+            $kriteria->subkriterias()->exists()
+        ) {
             return response()->json([
-                'message' => 'Tidak bisa menghapus kriteria karena masih memiliki subkriteria terkait.'
-            ], 400); // Status 400 (Bad Request)
-        }
-
-        // Cek jika kriteria berelasi dengan penilaian
-        if ($kriteria->penilaians_count > 0) {
-            return response()->json([
-                'message' => 'Tidak bisa menghapus kriteria karena masih memiliki penilaian terkait.'
-            ], 400); // Status 400 (Bad Request)
+                'message' => 'Tidak dapat menghapus data kriteria karena masih memiliki data terkait.'
+            ], 400);
         }
 
         // Hapus kriteria jika tidak ada relasi yang terdeteksi

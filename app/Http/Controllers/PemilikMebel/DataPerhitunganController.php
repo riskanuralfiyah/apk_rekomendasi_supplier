@@ -13,8 +13,23 @@ class DataPerhitunganController extends Controller
 {
     public function hitung()
     {
+        $jumlahKriteria = Kriteria::count();
+        if ($jumlahKriteria === 0) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Harap lengkapi data kriteria terlebih dahulu sebelum melakukan perhitungan.'
+            ], 400);
+        }
+
+        // Cek apakah ada data penilaian
+        $jumlahPenilaian = Penilaian::count();
+        $adaPenilaian = $jumlahPenilaian > 0;
+
         // Ambil semua supplier yang memiliki penilaian
-        $suppliers = Supplier::whereHas('penilaians')->get();
+        $suppliers = $adaPenilaian ? Supplier::whereHas('penilaians')->get() : collect();
+
+        // // Ambil semua supplier yang memiliki penilaian
+        // $suppliers = Supplier::whereHas('penilaians')->get();
 
         // Ambil semua kriteria beserta subkriterianya
         $kriterias = Kriteria::with('subkriterias')->get();
@@ -123,6 +138,8 @@ class DataPerhitunganController extends Controller
             'kriterias' => $kriterias,
             'penilaianData' => $penilaianData,
             'utilityData' => $utilityData,
+            'jumlahKriteria' => $jumlahKriteria,
+            'jumlahPenilaian' => $jumlahPenilaian // Pastikan ini ditambahkan
         ]);
     }
 }
