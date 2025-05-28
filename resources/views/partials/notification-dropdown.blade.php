@@ -16,9 +16,9 @@
                     {{ $notif['message'] }}
                 </p>
                 <div class="d-flex justify-content-end mt-2">
-                    <button class="btn btn-sm btn-outline-primary close-notification" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">
+                    {{-- <button class="btn btn-sm btn-outline-primary close-notification" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">
                         Tutup
-                    </button>
+                    </button> --}}
                 </div>
             </div>
         </div>

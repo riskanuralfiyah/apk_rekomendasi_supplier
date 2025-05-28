@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Kriteria;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+
 
 class DataKriteriaController extends Controller
 {
@@ -45,7 +47,8 @@ class DataKriteriaController extends Controller
      */
     public function create()
     {
-        return view('pages.PemilikMebel.DataKriteria.create');
+        $kriterias = Kriteria::all();
+        return view('pages.PemilikMebel.DataKriteria.create', compact('kriterias'));
     }
 
     /**
@@ -146,7 +149,12 @@ class DataKriteriaController extends Controller
     $currentTotal = Kriteria::where('id', '!=', $id)->sum('bobot');
 
     $validator = Validator::make($request->all(), [
-        'nama_kriteria' => 'required|string|max:100|unique:kriterias,nama_kriteria',
+        'nama_kriteria' => [
+            'required',
+            'string',
+            'max:100',
+            Rule::unique('kriterias')->ignore($id),
+        ],
         'kategori' => 'required|in:benefit,cost',
         'bobot' => [
             'required',

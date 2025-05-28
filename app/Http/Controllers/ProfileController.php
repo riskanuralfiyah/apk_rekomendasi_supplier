@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 class ProfileController extends Controller
 {
@@ -73,6 +74,7 @@ class ProfileController extends Controller
  
          return Redirect::back()->with('success', 'Password berhasil diubah.');
      }
+
     /**
      * Delete the user's account.
      */

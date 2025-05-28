@@ -16,11 +16,13 @@ class Notifikasi extends Model
         'message',
         'is_read',
         'is_toasted',
+        'is_deleted',
     ];
 
     protected $casts = [
         'is_read' => 'boolean',
         'is_toasted' => 'boolean',
+        'is_deleted' => 'boolean',
     ];
 
     /**

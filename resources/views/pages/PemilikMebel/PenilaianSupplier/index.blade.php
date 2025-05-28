@@ -104,7 +104,6 @@
     document.addEventListener('DOMContentLoaded', function () {
         const jumlahKriteria = {{ $jumlahKriteria ?? 0 }};
         const jumlahSubkriteria = {{ $jumlahSubkriteria ?? 0 }};
-        const jumlahPenilaian = {{ $jumlahPenilaian ?? 0 }};
         const kriteriaTanpaSub = {{ $kriteriaTanpaSub ?? 0 }};
         const errorMessage = @json($errorMessage);
 
@@ -142,16 +141,7 @@
             }).then(() => {
                 window.location.href = "{{ route('datakriteria.pemilikmebel') }}";
             });
-        } else if (jumlahPenilaian === 0) {
-            Swal.fire({
-                title: 'Data Belum Lengkap',
-                text: 'Belum ada data penilaian untuk dilakukan perhitungan.',
-                icon: 'warning',
-                confirmButtonText: 'OK'
-            }).then(() => {
-                window.location.href = "{{ route('datasupplier.pemilikmebel') }}";
-            });
-        }
+        } 
     });
 </script>
 

@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
 use App\Models\BahanBaku;
 use App\Models\Notifikasi;
@@ -13,9 +14,10 @@ class AppServiceProvider extends ServiceProvider
     {
         View::composer('*', function ($view) {
             $notifications = [];
+            $user = Auth::user();
         
-            if (auth()->check()) {
-                $userId = auth()->id();
+            if ($user) {
+                $userId = $user->id;
         
                 // cek stok rendah dan buat notifikasi baru jika belum ada
                 $stokHabis = BahanBaku::whereColumn('jumlah_stok', '<=', 'stok_minimum')->get();
@@ -48,7 +50,8 @@ class AppServiceProvider extends ServiceProvider
                 });
             }
         
-            $view->with('notifications', $notifications);
+            $view->with('notifications', $notifications)
+             ->with('user', $user); 
         });
         
     }

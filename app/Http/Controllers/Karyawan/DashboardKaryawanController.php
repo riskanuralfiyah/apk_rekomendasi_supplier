@@ -5,6 +5,11 @@ namespace App\Http\Controllers\Karyawan;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+use App\Models\BahanBaku;
+use App\Models\StokMasuk;
+use App\Models\StokKeluar;
+use Carbon\Carbon;
+
 class DashboardKaryawanController extends Controller
 {
     /**
@@ -12,7 +17,17 @@ class DashboardKaryawanController extends Controller
      */
     public function index()
     {
-        return view('pages.Karyawan.index');
+        $totalBahanBaku = BahanBaku::count();
+
+        $today = Carbon::today()->toDateString();
+
+        $stokMasukHariIni = StokMasuk::whereDate('created_at', $today)->sum('jumlah_stok_masuk'); 
+        // asumsikan kolom jumlah untuk qty stok masuk
+
+        $stokKeluarHariIni = StokKeluar::whereDate('created_at', $today)->sum('jumlah_stok_keluar'); 
+        // asumsikan kolom jumlah untuk qty stok keluar
+
+        return view('pages.Karyawan.index', compact('totalBahanBaku', 'stokMasukHariIni', 'stokKeluarHariIni'));
     }
 
     /**

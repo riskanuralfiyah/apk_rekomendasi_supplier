@@ -27,7 +27,7 @@
                         <p class="mb-4">Total Data Supplier</p>
                         <i class="mdi mdi-account-multiple-outline" style="font-size: 35px;"></i> <!-- Ikon diperbesar -->
                     </div>
-                    <p class="fs-30 mb-2">10</p>
+                    <p class="fs-30 mb-2">{{ $totalSupplier }}</p>
                 </div>
             </div>
         </div>
@@ -40,7 +40,7 @@
                         <p class="mb-4">Total Data Kriteria</p>
                         <i class="mdi mdi-format-list-checks" style="font-size: 35px;"></i> <!-- Ikon diperbesar -->
                     </div>
-                    <p class="fs-30 mb-2">3</p>
+                    <p class="fs-30 mb-2">{{ $totalKriteria }}</p>
                 </div>
             </div>
         </div>
@@ -53,7 +53,7 @@
                         <p class="mb-4">Total Sub Kriteria</p>
                         <i class="mdi mdi-format-list-checks" style="font-size: 35px;"></i> <!-- Ikon diperbesar -->
                     </div>
-                    <p class="fs-30 mb-2">11</p>
+                    <p class="fs-30 mb-2">{{ $totalSubkriteria }}</p>
                 </div>
             </div>
         </div>
@@ -66,7 +66,7 @@
                         <p class="mb-4" style="color: #FFFFFF;">Total Bahan Baku</p> <!-- Warna font putih -->
                         <i class="mdi mdi-package-variant-closed" style="font-size: 35px; color: #FFFFFF;"></i> <!-- Ikon diperbesar dan warna font putih -->
                     </div>
-                    <p class="fs-30 mb-2" style="color: #FFFFFF;">50</p> <!-- Warna font putih -->
+                    <p class="fs-30 mb-2" style="color: #FFFFFF;">{{ $totalBahanBaku }}</p>
                 </div>
             </div>
         </div>

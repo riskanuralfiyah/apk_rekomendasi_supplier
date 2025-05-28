@@ -50,6 +50,7 @@ Route::post('/otp-verifikasi', [AuthenticatedSessionController::class, 'verifyOt
 
 Route::get('/notifikasi', [NotifikasiController::class, 'index'])->name('notifikasi.index');
 Route::post('/notifikasi/mark-toasted', [NotifikasiController::class, 'markToasted'])->name('notifikasi.marktoasted');
+Route::put('/notifikasi/{id}/softdelete', [NotifikasiController::class, 'softDelete'])->name('notifikasi.softdelete');
 
 
 // ROUTE UNTUK PEMILIK MEBEL (TANPA MIDDLEWARE ROLE)

@@ -96,6 +96,8 @@ class LaporanBahanBakuController extends Controller
     {
         $bulan = $request->input('bulan');
         $tahun = $request->input('tahun', date('Y'));
+        // $bulan = $request->input('bulan', Carbon::now()->month);
+        // $tahun = $request->input('tahun', Carbon::now()->year);
         $bahanBakuId = $request->input('id_bahan_baku');
     
         $query = Laporan::with('bahanBaku');
@@ -191,6 +193,8 @@ class LaporanBahanBakuController extends Controller
     {
         $bulan = $request->input('bulan');
         $tahun = $request->input('tahun', date('Y'));
+        // $bulan = $request->input('bulan', Carbon::now()->month);
+        // $tahun = $request->input('tahun', Carbon::now()->year);
         $bahanBakuId = $request->input('id_bahan_baku');
 
         $namaBulan = [

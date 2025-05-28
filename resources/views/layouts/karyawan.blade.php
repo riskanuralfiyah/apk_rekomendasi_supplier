@@ -115,8 +115,11 @@
 
           <li class="nav-item nav-profile dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="profileDropdown">
-              <img src="{{ asset('image/profile.jpeg') }}" alt="profile" />
-            </a>
+              <img 
+                  src="{{ $user && $user->foto ? asset('storage/' . $user->foto) : asset('image/profile.png') }}" 
+                  alt="profile" 
+              />
+          </a>
             <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
               <a href="{{ route('profile.edit') }}" class="dropdown-item">
                 <i class="ti-settings text-primary"></i>

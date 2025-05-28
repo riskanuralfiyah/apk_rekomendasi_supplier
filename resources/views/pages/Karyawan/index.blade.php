@@ -27,7 +27,7 @@
                         <p class="mb-4">Stok Masuk Hari Ini</p>
                         <i class="mdi mdi-arrow-down-bold" style="font-size: 35px;"></i>
                     </div>
-                    <p class="fs-30 mb-2">5</p>
+                    <p class="fs-30 mb-2">{{ $stokMasukHariIni }}</p>
                 </div>
             </div>
         </div>
@@ -40,7 +40,7 @@
                         <p class="mb-4 text-white">Stok Keluar Hari Ini</p>
                         <i class="mdi mdi-arrow-up-bold text-white" style="font-size: 35px;"></i>
                     </div>
-                    <p class="fs-30 mb-2 text-white">8</p>
+                    <p class="fs-30 mb-2 text-white">{{ $stokKeluarHariIni }}</p>
                 </div>
             </div>
         </div>
@@ -53,7 +53,7 @@
                         <p class="mb-4">Total Bahan Baku</p>
                         <i class="mdi mdi-package-variant-closed" style="font-size: 35px;"></i> <!-- Ikon diperbesar -->
                     </div>
-                    <p class="fs-30 mb-2">50</p>
+                    <p class="fs-30 mb-2">{{ $totalBahanBaku }}</p>
                 </div>
             </div>
         </div>

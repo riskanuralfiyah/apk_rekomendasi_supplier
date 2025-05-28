@@ -10,20 +10,20 @@
 <div class="card">
     <div class="card-body">
         <!-- Informasi Kriteria -->
-        {{-- <div class="row mb-4">
-            <div class="col-md-4">
+        {{-- <div class="row mb-4"> --}}
+            {{-- <div class="col-md-4">
                 <label for="namaKriteria">Nama Kriteria</label>
                 <input type="text" class="form-control" id="namaKriteria" value="{{ $kriteria->nama_kriteria }}" readonly>
-            </div>
-            <div class="col-md-4">
+            </div> --}}
+            {{-- <div class="col-md-4">
                 <label for="kategori">Kategori</label>
                 <input type="text" class="form-control" id="kategori" value="{{ ucfirst($kriteria->kategori) }}" readonly>
-            </div>
-            <div class="col-md-4">
+            </div> --}}
+            {{-- <div class="col-md-4">
                 <label for="bobot">Bobot</label>
                 <input type="text" class="form-control" id="bobot" value="{{ $kriteria->bobot * 100 }}%" readonly>
-            </div>
-        </div> --}}
+            </div> --}}
+        {{-- </div> --}}
 
         <!-- Judul Halaman Form Data Sub Kriteria -->
         <h3 class="mb-4 font-weight-bold">Form Data Subkriteria</h3>
@@ -50,6 +50,7 @@
                        min="1" step="1">
                 <small class="form-text text-muted">
                   Benefit = Nilai besar lebih baik, Cost = Nilai kecil lebih baik.
+                  <strong>Kategori: {{ ucfirst($kriteria->kategori) }}</strong>
                 </small>
                 @error('nilai')
                     <div class="invalid-feedback">{{ $message }}</div>

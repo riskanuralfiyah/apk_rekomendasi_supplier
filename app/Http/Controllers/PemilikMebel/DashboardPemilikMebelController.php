@@ -5,6 +5,11 @@ namespace App\Http\Controllers\PemilikMebel;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+use App\Models\Supplier;
+use App\Models\Kriteria;
+use App\Models\Subkriteria;
+use App\Models\BahanBaku;
+
 class DashboardPemilikMebelController extends Controller
 {
     /**
@@ -12,7 +17,17 @@ class DashboardPemilikMebelController extends Controller
      */
     public function index()
     {
-        return view('pages.PemilikMebel.index');
+        $totalSupplier = Supplier::count();
+        $totalKriteria = Kriteria::count();
+        $totalSubkriteria = Subkriteria::count();
+        $totalBahanBaku = BahanBaku::count();
+
+        return view('pages.PemilikMebel.index', compact(
+            'totalSupplier',
+            'totalKriteria',
+            'totalSubkriteria',
+            'totalBahanBaku'
+        ));
     }
 
     /**

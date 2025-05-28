@@ -5,6 +5,15 @@
 @endsection
 
 @section('content')
+    {{-- Notifikasi Error --}}
+    @if (session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ session('error') }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Tutup">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    @endif
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-4">
@@ -158,63 +167,56 @@
     </div>
 @endsection
 
-{{-- @section('styles')
-<style>
-.quantity-input-col {
-  display: block !important;
-}
-</style>
-@endsection --}}
-
 @section('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    function handleCheckboxChanges() {
-        document.querySelectorAll('.bahan-checkbox').forEach(checkbox => {
-            const row = checkbox.closest('.form-group');
-            const quantityInputCol = row.querySelector('.quantity-input-col');
-            
-            // atur tampilan awal sesuai checked atau tidak
-            updateQuantityVisibility(checkbox, quantityInputCol);
-            
-            checkbox.addEventListener('change', function() {
-                updateQuantityVisibility(this, quantityInputCol);
+    document.addEventListener('DOMContentLoaded', function() {
+        function handleCheckboxChanges() {
+            document.querySelectorAll('.bahan-checkbox').forEach(checkbox => {
+                const row = checkbox.closest('.form-group');
+                const quantityInputCol = row.querySelector('.quantity-input-col');
+                
+                // atur tampilan awal sesuai checked atau tidak
+                updateQuantityVisibility(checkbox, quantityInputCol);
+                
+                checkbox.addEventListener('change', function() {
+                    updateQuantityVisibility(this, quantityInputCol);
+                });
             });
-        });
-    }
-
-    function updateQuantityVisibility(checkbox, quantityCol) {
-    const input = quantityCol.querySelector('input');
-    if (checkbox.checked) {
-        quantityCol.style.display = 'block';
-        input.required = true;
-        input.removeAttribute('disabled');
-    } else {
-        quantityCol.style.display = 'block'; // tetap tampil tapi disable
-        input.required = false;
-        input.setAttribute('disabled', 'disabled'); 
-        input.value = '';
-    }
-}
-
-
-    handleCheckboxChanges();
-
-    // validasi bootstrap tetap sama
-    (function() {
-        'use strict';
-        var forms = document.getElementsByClassName('needs-validation');
-        Array.prototype.forEach.call(forms, function(form) {
-            form.addEventListener('submit', function(event) {
-                if (!form.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            }, false);
-        });
-    })();
-});
-
-</script>
+        }
+    
+        function updateQuantityVisibility(checkbox, quantityCol) {
+            const input = quantityCol.querySelector('input');
+            if (checkbox.checked) {
+                quantityCol.style.display = 'block';
+                input.required = true;
+                input.removeAttribute('disabled');
+                console.log('enabled input for', input.name);
+            } else {
+                quantityCol.style.display = 'block'; // tetap tampil tapi disable
+                input.required = false;
+                input.setAttribute('disabled', 'disabled');
+                input.value = '';
+                console.log('disabled input for', input.name);
+            }
+        }
+    
+        handleCheckboxChanges();
+    
+        // validasi bootstrap tetap sama
+        (function() {
+            'use strict';
+            var forms = document.getElementsByClassName('needs-validation');
+            Array.prototype.forEach.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        })();
+    });
+    </script>
+    
 @endsection

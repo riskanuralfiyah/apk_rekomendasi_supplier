@@ -106,10 +106,10 @@
                         </table>
                     </div>
                 </div>
-            @else
+            {{-- @else
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle mr-2"></i> Belum ada data penilaian untuk ditampilkan. Silahkan lakukan penilaian terlebih dahulu.
-                </div>
+                </div> --}}
             @endif
         </div>
     </div>
@@ -120,20 +120,18 @@
             const jumlahPenilaian = {{ $jumlahPenilaian ?? 0 }};
     
             if (jumlahKriteria === 0) {
-                let message = 'Harap lengkapi data kriteria terlebih dahulu sebelum melakukan perhitungan.';
-    
-                Swal.fire({
-                    title: 'Data Belum Lengkap',
-                    text: message,
-                    icon: 'warning',
-                    confirmButtonText: 'OK'
-                }).then(() => {
-                    window.location.href = "{{ route('datakriteria.pemilikmebel') }}";
-                });
+            Swal.fire({
+                title: 'Data Belum Lengkap',
+                text: 'Tidak dapat menampilkan data perhitungan karena belum adanya kriteria.',
+                icon: 'warning',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.href = "{{ route('datakriteria.pemilikmebel') }}";
+            });
             } else if (jumlahPenilaian === 0) {
                 Swal.fire({
                     title: 'Data Belum Lengkap',
-                    text: 'Belum ada data penilaian untuk dilakukan perhitungan.',
+                    text: 'Belum ada data penilaian untuk ditampilkan. Silahkan lakukan penilaian terlebih dahulu.',
                     icon: 'warning',
                     confirmButtonText: 'OK'
                 }). then(() => {

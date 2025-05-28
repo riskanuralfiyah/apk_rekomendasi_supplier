@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class KelolaPenggunaController extends Controller
 {
@@ -111,7 +112,11 @@ class KelolaPenggunaController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'nama_pengguna' => 'required|string|max:100',
-            'email' => 'required|email|unique:users,email',
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('users')->ignore($id),
+            ],
             'role' => 'required|in:pemilikmebel,karyawan'
         ], [
             'nama_pengguna.required' => 'Nama pengguna harus diisi.',

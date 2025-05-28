@@ -66,4 +66,11 @@ class User extends Authenticatable
     {
         return $this->hasMany(Notifikasi::class, 'id_user');
     }
+
+    public function getFotoUrlAttribute()
+    {
+        return $this->foto
+            ? asset('storage/' . $this->foto)
+            : asset('image/profile.jpeg');
+    }
 }

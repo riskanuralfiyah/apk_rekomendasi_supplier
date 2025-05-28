@@ -14,6 +14,7 @@ class NotifikasiController extends Controller
 {
     $userId = Auth::id();
     $notifikasis = Notifikasi::where('id_user', $userId)
+                    ->where('is_deleted', false)
                     ->orderBy('created_at', 'desc')
                     ->get();
 
@@ -44,4 +45,18 @@ class NotifikasiController extends Controller
 
         return response()->json(['status' => 'success']);
     }
+
+    public function softDelete($id)
+    {
+        $notif = Notifikasi::where('id', $id)
+            ->where('id_user', Auth::id())
+            ->firstOrFail();
+    
+        $notif->update(['is_deleted' => true]);
+    
+        return response()->json([
+            'message' => 'Notifikasi berhasil dihapus.'
+        ]);
+    }
+    
 }

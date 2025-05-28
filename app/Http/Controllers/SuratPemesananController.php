@@ -55,6 +55,11 @@ class SuratPemesananController extends Controller
         $bahanDipilih = $request->input('bahan_baku', []);
         $jumlahBahan = $request->input('jumlah', []);
         $supplierId = $request->input('supplier');
+
+         // validasi: jika tidak ada bahan baku atau supplier yang dipilih
+        if (empty($bahanDipilih) || !$supplierId) {
+            return back()->with('error', 'Silakan pilih minimal satu bahan baku dan supplier terlebih dahulu.');
+        }
     
         // ambil data bahan baku
         $bahanList = BahanBaku::whereIn('id', $bahanDipilih)->get();

@@ -21,7 +21,6 @@ class PenilaianSupplierController extends Controller
                 'jumlahKriteria' => 0,
                 'jumlahSubkriteria' => 0,
                 'kriteriaTanpaSub' => 0,
-                'jumlahPenilaian' => 0,
             ]);
         }
     
@@ -36,7 +35,6 @@ class PenilaianSupplierController extends Controller
                 'jumlahKriteria' => $jumlahKriteria,
                 'jumlahSubkriteria' => $jumlahSubkriteria,
                 'kriteriaTanpaSub' => 0,
-                'jumlahPenilaian' => 0,
             ]);
         }
     
@@ -50,7 +48,6 @@ class PenilaianSupplierController extends Controller
                 'jumlahKriteria' => $jumlahKriteria,
                 'jumlahSubkriteria' => $jumlahSubkriteria,
                 'kriteriaTanpaSub' => $kriteriaTanpaSub,
-                'jumlahPenilaian' => 0,
             ]);
         }
     
@@ -59,8 +56,6 @@ class PenilaianSupplierController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
     
-        $jumlahPenilaian = $penilaians->count();
-    
         return view('pages.PemilikMebel.PenilaianSupplier.index', [
             'errorMessage' => null,
             'supplier' => $supplier,
@@ -68,9 +63,9 @@ class PenilaianSupplierController extends Controller
             'jumlahKriteria' => $jumlahKriteria,
             'jumlahSubkriteria' => $jumlahSubkriteria,
             'kriteriaTanpaSub' => $kriteriaTanpaSub,
-            'jumlahPenilaian' => $jumlahPenilaian,
         ]);
     }
+    
     
 
     public function create($supplierId)

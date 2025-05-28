@@ -126,7 +126,10 @@
 
                     <li class="nav-item nav-profile dropdown">
                         <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="profileDropdown">
-                            <img src="{{ asset('image/profile.jpeg') }}" alt="profile" />
+                            <img 
+                                src="{{ $user && $user->foto ? asset('storage/' . $user->foto) : asset('image/profile.png') }}" 
+                                alt="profile" 
+                            />
                         </a>
                         <div class="dropdown-menu dropdown-menu-right navbar-dropdown"
                             aria-labelledby="profileDropdown">

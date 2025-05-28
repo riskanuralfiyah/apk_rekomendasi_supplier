@@ -14,11 +14,19 @@ class DataPerhitunganController extends Controller
     public function hitung()
     {
         $jumlahKriteria = Kriteria::count();
-        if ($jumlahKriteria === 0) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Harap lengkapi data kriteria terlebih dahulu sebelum melakukan perhitungan.'
-            ], 400);
+
+        // jika data kriteria belum lengkap
+        if ($jumlahKriteria == 0) {
+            return view('pages.PemilikMebel.DataPerhitungan.index', [
+                'errorMessage' => 'Tidak dapat menampilkan data perhitungan karena belum adanya kriteria..',
+                'hasil' => [],
+                'suppliers' => collect(),
+                'kriterias' => collect(),
+                'penilaianData' => [],
+                'utilityData' => [],
+                'jumlahKriteria' => $jumlahKriteria,
+                'jumlahPenilaian' => 0
+            ]);
         }
 
         // Cek apakah ada data penilaian

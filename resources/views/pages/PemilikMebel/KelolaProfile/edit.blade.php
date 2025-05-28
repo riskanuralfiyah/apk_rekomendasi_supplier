@@ -17,7 +17,7 @@
     <div class="row align-items-center mb-5">
       {{-- Foto & Change Picture --}}
       <div class="col-md-3 text-center">
-        <img src="{{ $user->foto ? asset('storage/' . $user->foto) : asset('image/profile1.png') }}"
+        <img src="{{ $user->foto ? asset('storage/' . $user->foto) : asset('image/profile.png') }}"
              class="rounded-circle mb-2"
              style="width:120px; height:120px; object-fit:cover;"
              alt="Foto Profil">

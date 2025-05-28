@@ -36,6 +36,16 @@
               <div class="invalid-feedback">{{ $message }}</div>
           @enderror
         </div>
+
+        @php
+            // total bobot dari kriteria lain (dalam persen)
+            $totalBobotSaatIni = $kriterias->sum('bobot') * 100;
+
+            // jika sedang edit data, kurangi bobot lama dari total agar tidak double dihitung
+            if (isset($kriteria)) {
+                $totalBobotSaatIni -= $kriteria->bobot * 100;
+            }
+        @endphp
         
         <div class="form-group">
           <label for="bobot" class="form-label">Bobot (%)</label>
@@ -44,10 +54,10 @@
                  value="{{ old('bobot', isset($kriteria) ? $kriteria->bobot * 100 : '') }}" 
                  placeholder="Bobot (0-100)" 
                  min="1" max="100" step="1">
-          <small class="form-text text-muted">
-            Masukkan nilai antara 1-100. Total semua bobot kriteria tidak boleh melebihi 100%.
-            <span id="total-bobot-info" class="font-weight-bold"></span>
-          </small>
+            <small class="form-text text-muted">
+                Masukkan nilai antara 1-100. Sisa bobot yang tersedia:
+                <span id="sisa-bobot-info" class="font-weight-bold text-primary"></span>
+            </small>
           @error('bobot')
               <div class="invalid-feedback">{{ $message }}</div>
           @enderror
@@ -58,6 +68,38 @@
       </form>
     </div>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const totalBobotSaatIni = {{ $totalBobotSaatIni }};
+        const bobotInput = document.getElementById('bobot');
+        const sisaBobotInfo = document.getElementById('sisa-bobot-info');
+
+        function updateSisaBobot() {
+            const inputValue = parseFloat(bobotInput.value) || 0;
+            const sisa = 100 - totalBobotSaatIni;
+
+            const sisaSetelahInput = sisa - inputValue;
+
+            // update isi teks
+            sisaBobotInfo.textContent = sisaSetelahInput + '%';
+
+            // warnai teks jika melebihi batas
+            if (sisaSetelahInput < 0) {
+                sisaBobotInfo.classList.remove('text-primary');
+                sisaBobotInfo.classList.add('text-danger');
+            } else {
+                sisaBobotInfo.classList.remove('text-danger');
+                sisaBobotInfo.classList.add('text-primary');
+            }
+        }
+
+        // jalankan saat load dan saat input berubah
+        updateSisaBobot();
+        bobotInput.addEventListener('input', updateSisaBobot);
+    });
+</script>
+
 
   <script type="text/javascript">
     $(document).ready(function() {

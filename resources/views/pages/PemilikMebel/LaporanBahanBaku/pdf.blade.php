@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Laporan Stok Bahan Baku</title>
+    <title>Laporan Stok Bahan Baku Toko Riska Mebel</title>
     <style>
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
@@ -115,7 +115,7 @@
     @endphp
 
     <div class="header">
-        <h1>LAPORAN STOK BAHAN BAKU</h1>
+        <h1>LAPORAN STOK BAHAN BAKU TOKO RISKA MEBEL</h1>
         <p>Periode: {{ $periodLabel }}</p>
     </div>
 
