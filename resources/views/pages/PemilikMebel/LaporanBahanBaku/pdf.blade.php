@@ -93,6 +93,42 @@
             border-top: 1px solid #ddd;
             padding-top: 10px;
         }
+        
+        .closing {
+            margin-bottom: 5px;
+            line-height: 1.8;
+            text-align: justify;
+        }
+        
+        .signature-container {
+            float: right;
+            width: 250px;
+            margin-top: 20px;
+        }
+        
+        .signature {
+            text-align: center;
+        }
+        
+        .signature-place {
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+        
+        .signature-name {
+            margin-top: 40px;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+        
+        .signature-position {
+            font-size: 11px;
+            margin-top: 5px;
+        }
+        
+        .spacer {
+            height: 10px;
+        }
     </style>
 </head>
 <body>
@@ -114,47 +150,52 @@
         }
     @endphp
 
-    <div class="header">
-        <h1>LAPORAN STOK BAHAN BAKU TOKO RISKA MEBEL</h1>
-        <p>Periode: {{ $periodLabel }}</p>
+    <div class="header" style="display: flex; align-items: center; justify-content: space-between;">
+        <div style="flex: 0 0 auto;">
+            <img src="{{ public_path('image/logo.png') }}" alt="logo" style="height: 80px;">
+        </div>
+        <div style="flex: 1; text-align: center;">
+            <h1>LAPORAN STOK BAHAN BAKU TOKO RISKA MEBEL</h1>
+            @if(!empty($bahanBakuNama))
+                <h2>Bahan Baku: {{ $bahanBakuNama }}</h2>
+            @endif
+            <p>Periode: {{ $periodLabel }}</p>
+        </div>
     </div>
+
 
     <div class="info-box">
         <div class="info-row">
             <span class="info-label">Tanggal Laporan:</span>
-            <span>{{ now()->format('d F Y') }}</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Total Data:</span>
-            <span>{{ count($laporans) }}</span>
-        </div>
+            <span>{{ now()->locale('id')->translatedFormat('d F Y') }}</span>
+        </div>        
         
         @if($jenisLaporan == 'bahan_baku')
             <div class="info-row">
                 <span class="info-label">Bahan Baku dengan Stok Masuk Terbanyak:</span>
                 <span class="highlight-info">
-                    {{ $maxInfo['masuk'] }} 
+                    {{ $maxInfo['masuk'] }}
                     @if($maxInfo['masuk'] != '-')
-                    ({{ number_format($maxInfo['nilai_masuk']) }} {{ $maxInfo['satuan_masuk'] }})
+                        {{ ' ' . $maxInfo['ukuran_masuk'] }} ({{ number_format($maxInfo['nilai_masuk'] ?? 0) }})
                     @endif
                 </span>
-            </div>
+            </div>        
             <div class="info-row">
                 <span class="info-label">Bahan Baku dengan Stok Keluar Terbanyak:</span>
                 <span class="highlight-info">
                     {{ $maxInfo['keluar'] }}
                     @if($maxInfo['keluar'] != '-')
-                    ({{ number_format($maxInfo['nilai_keluar']) }} {{ $maxInfo['satuan_keluar'] }})
+                    {{ ' ' . $maxInfo['ukuran_keluar'] }} ({{ number_format($maxInfo['nilai_keluar'] ?? 0) }})
                     @endif
                 </span>
             </div>
-        @elseif($jenisLaporan == 'bulan')
+        {{-- @elseif($jenisLaporan == 'bulan')
             <div class="info-row">
                 <span class="info-label">Bulan dengan Stok Masuk Terbanyak:</span>
                 <span class="highlight-info">
                     {{ $maxInfo['masuk'] }}
                     @if($maxInfo['masuk'] != '-')
-                    ({{ number_format($maxInfo['nilai_masuk']) }} {{ $maxInfo['satuan'] }})
+                    {{ ' ' . $maxInfo['ukuran_masuk'] }} ({{ number_format($maxInfo['nilai_masuk'] ?? 0) }})
                     @endif
                 </span>
             </div>
@@ -163,10 +204,28 @@
                 <span class="highlight-info">
                     {{ $maxInfo['keluar'] }}
                     @if($maxInfo['keluar'] != '-')
-                    ({{ number_format($maxInfo['nilai_keluar']) }} {{ $maxInfo['satuan'] }})
+                    {{ ' ' . $maxInfo['ukuran_keluar'] }} ({{ number_format($maxInfo['nilai_keluar'] ?? 0) }})
+                    @endif
+                </span>
+            </div> --}}
+            {{-- <div class="info-row">
+                <span class="info-label">Bulan dengan Stok Awal Terbanyak:</span>
+                <span class="highlight-info">
+                    {{ $maxInfo['awal'] }}
+                    @if($maxInfo['awal'] != '-')
+                    ({{ number_format($maxInfo['nilai_awal']) }} {{ $maxInfo['satuan'] }})
                     @endif
                 </span>
             </div>
+            <div class="info-row">
+                <span class="info-label">Bulan dengan Sisa Stok Terbanyak:</span>
+                <span class="highlight-info">
+                    {{ $maxInfo['sisa'] }}
+                    @if($maxInfo['sisa'] != '-')
+                    ({{ number_format($maxInfo['nilai_sisa']) }} {{ $maxInfo['satuan'] }})
+                    @endif
+                </span>
+            </div> --}}
         @endif
     </div>
 
@@ -178,7 +237,7 @@
                 <th width="20%">Periode</th>
                 @endif
                 <th width="{{ $jenisLaporan == 'bahan_baku' ? '12%' : '15%' }}" class="text-left">Bahan Baku</th>
-                <th width="10%" class="text-center">Satuan</th>
+                <th width="10%" class="text-center">Ukuran</th>
                 <th width="13%">Stok Awal</th>
                 <th width="13%">Stok Masuk</th>
                 <th width="13%">Stok Keluar</th>
@@ -191,27 +250,41 @@
                     <td class="text-center">{{ $index + 1 }}</td>
                     @if($jenisLaporan != 'bahan_baku')
                     <td class="text-center">
-                        @if(isset($laporan->bulan) && isset($namaBulan[$laporan->bulan]) && isset($laporan->tahun))
-                            {{ $namaBulan[$laporan->bulan] }} {{ $laporan->tahun }}
+                        @if(isset($laporan['bulan']) && isset($namaBulan[$laporan['bulan']]) && isset($laporan['tahun']))
+                            {{ $namaBulan[$laporan['bulan']] }} {{ $laporan['tahun'] }}
                         @else
                             -
                         @endif
                     </td>
                     @endif
-                    <td class="text-left">{{ $laporan->bahanBaku->nama_bahan_baku ?? '-' }}</td>
-                    <td class="text-center">{{ $laporan->satuan ?? '-' }}</td>
-                    <td class="text-center">{{ number_format($laporan->stok_awal) }}</td>
-                    <td class="text-center">{{ number_format($laporan->total_stok_masuk) }}</td>
-                    <td class="text-center">{{ number_format($laporan->total_stok_keluar) }}</td>
-                    <td class="text-center">{{ number_format($laporan->sisa_stok) }}</td>
+                    <td class="text-left">{{ $laporan['nama_bahan_baku'] ?? '-' }}</td>
+                    <td class="text-center">{{ $laporan['ukuran'] ?? '-' }}</td>
+                    <td class="text-center">{{ number_format($laporan['stok_awal'] ?? 0) }}</td>
+                    <td class="text-center">{{ number_format($laporan['stok_masuk'] ?? 0) }}</td>
+                    <td class="text-center">{{ number_format($laporan['stok_keluar'] ?? 0) }}</td>
+                    <td class="text-center">{{ number_format($laporan['sisa_stok'] ?? 0) }}</td>
                 </tr>
             @endforeach
         </tbody>
     </table>
 
     <div class="footer">
-        <p>Dokumen ini dihasilkan secara otomatis pada {{ now()->format('d F Y H:i') }}</p>
+        <p>Dokumen ini dicetak pada {{ now()->locale('id')->translatedFormat('d F Y H:i') }}</p>
         <p>&copy; {{ date('Y') }} Riska Mebel. All rights reserved.</p>
+    </div>
+
+    <div class="footer">
+        <div class="signature-container">
+            <div class="signature">
+                <div class="signature-place">Indramayu, {{ \Carbon\Carbon::now()->locale('id')->isoFormat('D MMMM Y') }}</div>
+                <div class="signature-position">Pemilik Riska Mebel</div>
+                <div class="spacer"></div>
+                <div class="spacer"></div>
+                <div class="signature-name">{{ auth()->user()->name ?? '(_______________________)' }}</div>
+                {{-- <div class="signature-position">{{ auth()->user()->position ?? 'Pemilik Riska Mebel' }}</div> --}}
+            </div>
+        </div>
+        <div style="clear: both;"></div>
     </div>
 </body>
 </html>

@@ -17,7 +17,7 @@ class Laporan extends Model
         'bulan',
         'tahun',
         'id_bahan_baku',
-        'satuan',
+        'ukuran',
         'stok_awal',
         'total_stok_masuk',
         'total_stok_keluar',

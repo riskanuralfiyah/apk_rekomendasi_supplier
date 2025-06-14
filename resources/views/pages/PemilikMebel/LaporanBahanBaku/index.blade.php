@@ -10,57 +10,55 @@
         <h3 class="mb-2 font-weight-bold">Laporan Stok Bahan Baku</h3>
 
         <!-- Search, Filter, and Export in one row -->
-        <!-- Search, Filter, Reset, dan Export dalam satu baris -->
-<div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
-    <!-- Bagian kiri: Search + Filter + Reset -->
-    <form method="GET" action="{{ route('laporanbahanbaku.pemilikmebel') }}" id="searchForm" class="d-flex flex-column" style="max-width: 300px;">
-        <div class="input-group mb-3">
-            <input type="text" name="search" id="searchInput" class="form-control" placeholder="Search" value="{{ request('search') }}">
-            <input type="hidden" name="bulan" value="{{ request('bulan') }}">
-            <input type="hidden" name="tahun" value="{{ request('tahun') }}">
-            <input type="hidden" name="per_page" value="{{ request('per_page', 10) }}">
-            <div class="input-group-append">
-                <button class="btn btn-outline-secondary" type="submit" id="searchButton">
-                    <i class="mdi mdi-magnify"></i>
-                </button>
+        <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+            <!-- Bagian kiri: Search + Filter + Reset -->
+            <form method="GET" action="{{ route('laporanbahanbaku.pemilikmebel') }}" id="searchForm" class="d-flex flex-column" style="max-width: 300px;">
+                <div class="input-group mb-3">
+                    <input type="text" name="search" id="searchInput" class="form-control" placeholder="Search" value="{{ request('search') }}">
+                    <input type="hidden" name="bulan" value="{{ request('bulan') }}">
+                    <input type="hidden" name="tahun" value="{{ request('tahun') }}">
+                    <input type="hidden" name="id_bahan_baku" value="{{ request('id_bahan_baku') }}">
+                    <input type="hidden" name="per_page" value="{{ request('per_page', 10) }}">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="submit" id="searchButton">
+                            <i class="mdi mdi-magnify"></i>
+                        </button>
+                    </div>
+                </div>
+            
+                <!-- Tambahkan margin-top untuk jarak filter dan reset -->
+                <div class="d-flex" style="gap: 10px; margin-top: 10px;">
+                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#filterModal">
+                        <i class="mdi mdi-filter mr-1"></i> Filter
+                    </button>
+            
+                    <a href="{{ route('laporanbahanbaku.pemilikmebel') }}" class="btn btn-secondary btn-sm">
+                        <i class="mdi mdi-refresh"></i> Reset
+                    </a>
+                </div>
+            </form>
+
+            <!-- Bagian kanan: Export PDF -->
+            <div class="d-flex flex-wrap gap-2 mt-2">
+                <a href="{{ route('pdf.laporanbahanbaku.pemilikmebel', [
+                    'bulan' => request('bulan'),
+                    'tahun' => request('tahun'),
+                    'id_bahan_baku' => request('id_bahan_baku'),
+                    'search' => request('search'),
+                ]) }}" class="btn btn-danger btn-sm">
+                    <i class="fas fa-file-pdf"></i> Export PDF
+                </a>
+            
+                <a href="{{ route('excel.laporanbahanbaku.pemilikmebel', [
+                    'bulan' => request('bulan'),
+                    'tahun' => request('tahun'),
+                    'id_bahan_baku' => request('id_bahan_baku'),
+                    'search' => request('search'),
+                ]) }}" class="btn btn-success btn-sm">
+                    <i class="fas fa-file-excel"></i> Export Excel
+                </a>
             </div>
         </div>
-    
-        <!-- Tambahkan margin-top untuk jarak filter dan reset -->
-        <div class="d-flex" style="gap: 10px; margin-top: 10px;">
-            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#filterModal">
-                <i class="mdi mdi-filter mr-1"></i> Filter
-            </button>
-    
-            <a href="{{ route('laporanbahanbaku.pemilikmebel') }}" class="btn btn-secondary btn-sm">
-                <i class="mdi mdi-refresh"></i> Reset
-            </a>
-        </div>
-    </form>
-
-    <!-- Bagian kanan: Export PDF -->
-    <div class="d-flex flex-wrap gap-2 mt-2">
-        <a href="{{ route('pdf.laporanbahanbaku.pemilikmebel', [
-            'bulan' => request('bulan'),
-            'tahun' => request('tahun'),
-            'search' => request('search'),
-            'id_bahan_baku' => request('id_bahan_baku'),
-        ]) }}" class="btn btn-danger btn-sm">
-            <i class="fas fa-file-pdf"></i> Export PDF
-        </a>
-    
-        <a href="{{ route('excel.laporanbahanbaku.pemilikmebel', [
-            'bulan' => request('bulan'),
-            'tahun' => request('tahun'),
-            'search' => request('search'),
-            'id_bahan_baku' => request('id_bahan_baku'),
-        ]) }}" class="btn btn-success btn-sm">
-            <i class="fas fa-file-excel"></i> Export Excel
-        </a>
-    </div>
-    
-</div>
-
 
         <!-- Show Entries -->
         <div class="d-flex justify-content-end mb-3">
@@ -76,6 +74,7 @@
             <div class="ml-2">entries</div>
         </div>
 
+        @if($laporans->count() > 0)
         <!-- Table -->
         <div class="table-responsive">
             <table class="table table-striped">
@@ -84,43 +83,49 @@
                         <th width="5%">No.</th>
                         <th width="15%">Periode</th>
                         <th>Bahan Baku</th>
-                        <th width="10%">Satuan</th>
+                        <th width="10%">Ukuran (cm)</th>
                         <th width="10%">Stok Awal</th>
                         <th width="12%">Stok Masuk</th>
                         <th width="12%">Stok Keluar</th>
                         <th width="10%">Sisa Stok</th>
-                        {{-- <th width="15%">Status</th> --}}
+                        <th width="10%">Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @php
-                        $namaBulan = [
-                            1 => 'Januari', 2 => 'Februari', 3 => 'Maret',
-                            4 => 'April', 5 => 'Mei', 6 => 'Juni',
-                            7 => 'Juli', 8 => 'Agustus', 9 => 'September',
-                            10 => 'Oktober', 11 => 'November', 12 => 'Desember',
-                        ];
-                    @endphp
                     @foreach ($laporans as $index => $laporan)
-                        <tr>
-                            <td>{{ ($laporans->currentPage() - 1) * $laporans->perPage() + $loop->iteration }}</td>
-                            <td>{{ $namaBulan[$laporan->bulan] }} {{ $laporan->tahun }}</td>
-                            <td>{{ $laporan->bahanBaku->nama_bahan_baku }}</td>
-                            <td class="text-center">{{ $laporan->satuan }}</td>
-                            <td class="text-right">{{ $laporan->stok_awal }}</td>
-                            <td class="text-right">{{ $laporan->total_stok_masuk }}</td>
-                            <td class="text-right">{{ $laporan->total_stok_keluar }}</td>
-                            <td class="text-right font-weight-bold">{{ $laporan->sisa_stok }}</td>
-                            {{-- <td>
-                                <span class="badge badge-{{ $laporan->sisa_stok <= 10 ? 'danger' : 'success' }}">
-                                    {{ $laporan->sisa_stok <= 10 ? 'Kritis' : 'Aman' }}
-                                </span>
-                            </td> --}}
-                        </tr>
+                    <tr>
+                        <td>{{ ($laporans->currentPage() - 1) * $laporans->perPage() + $loop->iteration }}</td>
+                        <td>{{ $namaBulan[$laporan['bulan']] }} {{ $laporan['tahun'] }}</td>
+                        <td>{{ $laporan['nama_bahan_baku'] }}</td>
+                        <td class="text-center">{{ $laporan['ukuran'] }}</td>
+                        <td class="text-right">{{ number_format($laporan['stok_awal']) }}</td>
+                        <td class="text-right">{{ number_format($laporan['stok_masuk']) }}</td>
+                        <td class="text-right">{{ number_format($laporan['stok_keluar']) }}</td>
+                        <td class="text-right font-weight-bold">{{ number_format($laporan['sisa_stok']) }}</td>
+                        <td>
+                            <span class="badge badge-{{ $laporan['sisa_stok'] <= 10 ? 'danger' : 'success' }}">
+                                {{ $laporan['sisa_stok'] <= 10 ? 'Perlu Restock' : 'Aman' }}
+                            </span>
+                        </td>
+                    </tr>
                     @endforeach
                 </tbody>
+                {{-- <tfoot>
+                    <tr>
+                        <td colspan="4" class="text-right"><strong>Total</strong></td>
+                        <td class="text-right">{{ number_format($laporans->sum('stok_awal')) }}</td>
+                        <td class="text-right">{{ number_format($laporans->sum('stok_masuk')) }}</td>
+                        <td class="text-right">{{ number_format($laporans->sum('stok_keluar')) }}</td>
+                        <td class="text-right font-weight-bold">{{ number_format($laporans->sum('sisa_stok')) }}</td>
+                    </tr>
+                </tfoot> --}}
             </table>
         </div>
+    @else
+        <div class="alert alert-info">
+            Tidak ada data laporan stok bahan baku untuk periode {{ $namaBulan[$currentBulan] ?? '' }} {{ $currentTahun }}.
+        </div>
+    @endif
 
         <!-- Pagination -->
         <div class="d-flex justify-content-between align-items-center mt-3">
@@ -173,21 +178,23 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
-                <div class="form-group">
-                    <label for="modalBahanBakuFilter">Bahan Baku</label>
-                    <select class="form-control" id="modalBahanBakuFilter" name="id_bahan_baku">
-                        <option value="">Semua Bahan Baku</option>
-                        @foreach($daftarBahanBaku as $bahan)
-                            <option value="{{ $bahan->id }}" {{ request('id_bahan_baku') == $bahan->id ? 'selected' : '' }}>
-                                {{ $bahan->nama_bahan_baku }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>                
+                                {{-- Filter berdasarkan bahan baku --}}
+                                <div class="form-group">
+                                    <label for="modalBahanBakuFilter">Bahan Baku</label>
+                                    <select class="form-control" id="modalBahanBakuFilter" name="id_bahan_baku">
+                                        <option value="">Semua Bahan Baku</option>
+                                        @foreach($daftarBahanBaku as $bahan)
+                                            <option value="{{ $bahan->id }}" {{ request('id_bahan_baku') == $bahan->id ? 'selected' : '' }}>
+                                                {{ $bahan->nama_bahan_baku }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                {{-- Bulan (tidak ada opsi semua bulan) --}}
                 <div class="form-group">
                     <label for="modalMonthFilter">Bulan</label>
-                    <select class="form-control" id="modalMonthFilter" name="bulan">
-                        <option value="">Semua Bulan</option>
+                    <select class="form-control" id="modalMonthFilter" name="bulan" required>
                         @php
                             $bulanSekarang = request()->filled('bulan') ? request('bulan') : now()->month;
                         @endphp
@@ -195,13 +202,15 @@
                         @foreach($namaBulan as $num => $nama)
                             <option value="{{ $num }}" {{ (int)$bulanSekarang == (int)$num ? 'selected' : '' }}>{{ $nama }}</option>
                         @endforeach
-
                     </select>
                 </div>
+
+                {{-- Tahun --}}
                 <div class="form-group">
                     <label for="modalYearFilter">Tahun</label>
                     <input type="number" class="form-control" id="modalYearFilter" name="tahun" value="{{ request('tahun', now()->year) }}">
                 </div>
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
@@ -210,6 +219,7 @@
         </form>
     </div>
 </div>
+
 
 <script>
     function updatePerPage(value) {

@@ -34,4 +34,10 @@ class Supplier extends Model
     {
         return $this->hasMany(StokMasuk::class, 'id_supplier');
     }
+
+    
+    public function suratPemesanans()
+    {
+        return $this->hasMany(SuratPemesanan::class, 'id_supplier');
+    }
 }

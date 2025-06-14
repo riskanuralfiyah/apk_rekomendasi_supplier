@@ -13,6 +13,8 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Illuminate\Support\Collection;
 use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
+use App\Services\LaporanBahanBakuService;
 
 
 class LaporanBahanBakuController extends Controller
@@ -22,276 +24,292 @@ class LaporanBahanBakuController extends Controller
         5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
         9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
     ];
-
-    public function index(Request $request)
+    
+    public function index(Request $request, LaporanBahanBakuService $service)
     {
-        // ambil bulan dan tahun dari request, jika tidak ada pakai sekarang
-        $bulan = $request->input('bulan', Carbon::now()->month);
-        $tahun = $request->input('tahun', Carbon::now()->year);
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+
+        $bulan = (int) $request->input('bulan', $currentMonth);
+        $tahun = (int) $request->input('tahun', $currentYear);
+        $idBahanBaku = $request->input('id_bahan_baku', null);
         $searchTerm = $request->input('search', '');
         $perPage = $request->input('per_page', 10);
-        $bahanBakuId = $request->input('id_bahan_baku');
-    
-        $query = Laporan::with('bahanBaku');
-    
-        if ($bulan) {
-            $query->where('bulan', $bulan);
-        }
-    
-        if ($tahun) {
-            $query->where('tahun', $tahun);
-        }
-    
-        if ($bahanBakuId) {
-            $query->where('id_bahan_baku', $bahanBakuId);
-        }
-    
+
+        // Get raw data from service
+        $laporanData = $service->getLaporan($bulan, $tahun, $idBahanBaku);
+
+        // Apply search filter if exists
         if (!empty($searchTerm)) {
-            $query->where(function ($query) use ($searchTerm) {
-                $query->whereHas('bahanBaku', function ($q) use ($searchTerm) {
-                    $q->where('nama_bahan_baku', 'like', '%' . $searchTerm . '%')
-                        ->orWhere('satuan', 'like', '%' . $searchTerm . '%');
-                });
+            $laporanData = $laporanData->filter(function ($item) use ($searchTerm) {
+                return stripos($item['nama_bahan_baku'], $searchTerm) !== false 
+                    || stripos($item['ukuran'], $searchTerm) !== false;
+            });
+        }
+
+        // Paginate the results
+        $page = $request->input('page', 1);
+        $items = $laporanData->forPage($page, $perPage);
+        $laporanPaginated = new LengthAwarePaginator(
+            $items,
+            $laporanData->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        // Get bahan bakus for dropdown
+        $bahanBakus = BahanBaku::query()
+            ->when(!empty($searchTerm), function ($query) use ($searchTerm) {
+                $query->where('nama_bahan_baku', 'like', "%$searchTerm%")
+                      ->orWhere('ukuran', 'like', "%$searchTerm%");
+            })
+            ->orderBy('nama_bahan_baku')
+            ->paginate($perPage);
+
+        return view('pages.PemilikMebel.LaporanBahanBaku.index', [
+            'laporans' => $laporanPaginated,
+            'bahanBakus' => $bahanBakus,
+            'currentBulan' => $bulan,
+            'currentTahun' => $tahun,
+            'searchTerm' => $searchTerm,
+            'namaBulan' => $this->namaBulan,
+            'daftarBahanBaku' => BahanBaku::orderBy('nama_bahan_baku')->get(),
+            'idBahanBaku' => $idBahanBaku,
+        ]);
+    }
+
+    public function exportToPdf(Request $request, LaporanBahanBakuService $service)
+    {
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
     
-                if (is_numeric($searchTerm)) {
-                    $query->orWhere('bulan', (int)$searchTerm);
-                } else {
-                    $bulanNamaKeAngka = [
-                        'januari' => 1, 'februari' => 2, 'maret' => 3, 'april' => 4,
-                        'mei' => 5, 'juni' => 6, 'juli' => 7, 'agustus' => 8,
-                        'september' => 9, 'oktober' => 10, 'november' => 11, 'desember' => 12
-                    ];
-                    $searchLower = strtolower($searchTerm);
-                    if (isset($bulanNamaKeAngka[$searchLower])) {
-                        $query->orWhere('bulan', $bulanNamaKeAngka[$searchLower]);
-                    }
-                }
+        $bulan = (int) $request->input('bulan', $currentMonth);
+        $tahun = (int) $request->input('tahun', $currentYear);
+        $idBahanBaku = $request->input('id_bahan_baku', null);
+        $searchTerm = $request->input('search', '');
     
-                $query->orWhere('tahun', 'like', '%' . $searchTerm . '%');
+        // Get raw data from service with BOTH bulan and bahan baku filters
+        $laporanData = $service->getLaporan($bulan, $tahun, $idBahanBaku);
+    
+        // Apply search filter if exists
+        if (!empty($searchTerm)) {
+            $laporanData = $laporanData->filter(function ($item) use ($searchTerm) {
+                return stripos($item['nama_bahan_baku'], $searchTerm) !== false 
+                    || stripos($item['ukuran'], $searchTerm) !== false;
             });
         }
     
-        $laporans = $query->orderBy('id_bahan_baku')
-            ->paginate($perPage)
-            ->appends([
-                'bulan' => $bulan,
-                'tahun' => $tahun,
-                'id_bahan_baku' => $bahanBakuId,
-                'search' => $searchTerm,
-                'per_page' => $perPage
-            ]);
-    
-        return view('pages.PemilikMebel.LaporanBahanBaku.index', [
-            'laporans' => $laporans,
-            'currentBulan' => $bulan,
-            'currentTahun' => $tahun,
-            'currentBahanBakuId' => $bahanBakuId,
-            'namaBulan' => $this->namaBulan,
-            'searchTerm' => $searchTerm,
-            'daftarBahanBaku' => BahanBaku::orderBy('nama_bahan_baku')->get(),
-        ]);
-    }
-
-    public function exportToPdf(Request $request)
-    {
-        $bulan = $request->input('bulan');
-        $tahun = $request->input('tahun', date('Y'));
-        // $bulan = $request->input('bulan', Carbon::now()->month);
-        // $tahun = $request->input('tahun', Carbon::now()->year);
-        $bahanBakuId = $request->input('id_bahan_baku');
-    
-        $query = Laporan::with('bahanBaku');
-    
-        if ($bulan) {
-            $query->where('bulan', $bulan);
+        // Get bahan baku name if filtered
+        $bahanBakuNama = '';
+        if ($idBahanBaku) {
+            $bahanBaku = BahanBaku::find($idBahanBaku);
+            $bahanBakuNama = $bahanBaku->nama_bahan_baku ?? '';
         }
     
-        if ($tahun) {
-            $query->where('tahun', $tahun);
-        }
-    
-        if ($bahanBakuId) {
-            $query->where('id_bahan_baku', $bahanBakuId);
-        }
-    
-        $laporans = $query->orderBy('id_bahan_baku')->get();
-    
-        // Determine jenis laporan and max info
-        $jenisLaporan = '';
+        // Determine report type and prepare max info
+        $jenisLaporan = 'full';
         $maxInfo = [
             'masuk' => '-',
             'keluar' => '-',
+            'awal' => '-',
+            'sisa' => '-',
             'nilai_masuk' => 0,
             'nilai_keluar' => 0,
-            'satuan' => '',
-            'satuan_masuk' => '',
-            'satuan_keluar' => '',
+            'nilai_awal' => 0,
+            'nilai_sisa' => 0,
+            'ukuran' => '',
+            'ukuran_masuk' => '',
+            'ukuran_keluar' => '',
             'bulan' => $bulan,
             'tahun' => $tahun
         ];
-        
-        if ($bahanBakuId && !$bulan) {
-            $jenisLaporan = 'bulan';
+    
+        // Update logic for report type determination
+        if ($idBahanBaku) {
+            $jenisLaporan = $bulan ? 'bulan_dan_bahan' : 'bulan';
             
-            if ($laporans->isNotEmpty()) {
-                $maxStokMasuk = $laporans->sortByDesc('total_stok_masuk')->first();
-                $maxStokKeluar = $laporans->sortByDesc('total_stok_keluar')->first();
-                
+            if ($laporanData->isNotEmpty()) {
                 $maxInfo = [
-                    'masuk' => $maxStokMasuk ? $this->namaBulan[$maxStokMasuk->bulan] ?? '-' : '-',
-                    'keluar' => $maxStokKeluar ? $this->namaBulan[$maxStokKeluar->bulan] ?? '-' : '-',
-                    'nilai_masuk' => $maxStokMasuk->total_stok_masuk ?? 0,
-                    'nilai_keluar' => $maxStokKeluar->total_stok_keluar ?? 0,
-                    'satuan' => $maxStokMasuk->satuan ?? '',
+                    'masuk' => $this->getMaxInfo($laporanData, 'bulan'),
+                    'keluar' => $this->getMaxInfo($laporanData, 'bulan'),
+                    'awal' => $this->getMaxInfo($laporanData, 'stok_awal', 'bulan'),
+                    'sisa' => $this->getMaxInfo($laporanData, 'sisa_stok', 'bulan'),
+                    'nilai_masuk' => $laporanData->max('stok_masuk'),
+                    'nilai_keluar' => $laporanData->max('stok_keluar'),
+                    'nilai_awal' => $laporanData->max('stok_awal'),
+                    'nilai_sisa' => $laporanData->max('sisa_stok'),
+                    'ukuran' => $laporanData->first()['ukuran'] ?? '',
                     'bulan' => $bulan,
                     'tahun' => $tahun
                 ];
             }
-        } elseif (!$bahanBakuId && $bulan) {
+        } elseif ($bulan) {
             $jenisLaporan = 'bahan_baku';
-            
-            if ($laporans->isNotEmpty()) {
-                $maxStokMasuk = $laporans->sortByDesc('total_stok_masuk')->first();
-                $maxStokKeluar = $laporans->sortByDesc('total_stok_keluar')->first();
-                
+            if ($laporanData->isNotEmpty()) {
                 $maxInfo = [
-                    'masuk' => $maxStokMasuk->bahanBaku->nama_bahan_baku ?? '-',
-                    'keluar' => $maxStokKeluar->bahanBaku->nama_bahan_baku ?? '-',
-                    'nilai_masuk' => $maxStokMasuk->total_stok_masuk ?? 0,
-                    'nilai_keluar' => $maxStokKeluar->total_stok_keluar ?? 0,
-                    'satuan_masuk' => $maxStokMasuk->satuan ?? '',
-                    'satuan_keluar' => $maxStokKeluar->satuan ?? '',
+                    'masuk' => $this->getMaxInfo($laporanData,'nama_bahan_baku'),
+                    'keluar' => $this->getMaxInfo($laporanData, 'nama_bahan_baku'),
+                    'awal' => $this->getMaxInfo($laporanData, 'stok_awal', 'nama_bahan_baku'),
+                    'sisa' => $this->getMaxInfo($laporanData, 'sisa_stok', 'nama_bahan_baku'),
+                    'nilai_masuk' => $laporanData->max('stok_masuk'),
+                    'nilai_keluar' => $laporanData->max('stok_keluar'),
+                    'nilai_awal' => $laporanData->max('stok_awal'),
+                    'nilai_sisa' => $laporanData->max('sisa_stok'),
+                    'ukuran_masuk' => $laporanData->first()['ukuran'] ?? '',
+                    'ukuran_keluar' => $laporanData->first()['ukuran'] ?? '',
                     'bulan' => $bulan,
                     'tahun' => $tahun
                 ];
             }
-        } else {
-            $jenisLaporan = 'full';
         }
     
-        $pdf = Pdf::loadView('pages.PemilikMebel.LaporanBahanBaku.pdf', [
+        // Generate PDF
+        $pdf = PDF::loadView('pages.PemilikMebel.LaporanBahanBaku.pdf', [
             'currentBulan' => $bulan,
             'currentTahun' => $tahun,
-            'laporans' => $laporans,
+            'laporans' => $laporanData,
             'namaBulan' => $this->namaBulan,
             'jenisLaporan' => $jenisLaporan,
-            'maxInfo' => $maxInfo
+            'maxInfo' => $maxInfo,
+            'bahanBakuNama' => $bahanBakuNama,
+            'searchTerm' => $searchTerm
         ]);
     
+        // Generate filename
         $filename = "laporan_bahan_baku";
-        if ($bulan) $filename .= "_".($this->namaBulan[$bulan] ?? $bulan);
-        if ($tahun) $filename .= "_".$tahun;
-        if ($bahanBakuId) {
-            $bahanBaku = BahanBaku::find($bahanBakuId);
-            $filename .= "_".($bahanBaku->nama_bahan_baku ?? '');
-        }
-        
-        return $pdf->download($filename.".pdf");
+        if ($bulan) $filename .= "_" . ($this->namaBulan[$bulan] ?? $bulan);
+        if ($tahun) $filename .= "_" . $tahun;
+        if ($idBahanBaku) $filename .= "_" . str_replace(' ', '_', strtolower($bahanBakuNama));
+        if ($searchTerm) $filename .= "_search_" . str_replace(' ', '_', strtolower($searchTerm));
+    
+        return $pdf->download($filename . ".pdf");
     }
 
-    public function exportToExcel(Request $request)
+    private function getMaxInfo(Collection $data, string $field, string $groupBy = ''): string
     {
-        $bulan = $request->input('bulan');
-        $tahun = $request->input('tahun', date('Y'));
-        // $bulan = $request->input('bulan', Carbon::now()->month);
-        // $tahun = $request->input('tahun', Carbon::now()->year);
-        $bahanBakuId = $request->input('id_bahan_baku');
+        $maxItem = $data->sortByDesc($field)->first();
+        return $maxItem ? ($groupBy ? "{$maxItem[$groupBy]} ({$maxItem[$field]})" : "{$maxItem[$field]}") : '-';
+    }    
+    
 
-        $namaBulan = [
-            1 => 'Januari',
-            2 => 'Februari',
-            3 => 'Maret',
-            4 => 'April',
-            5 => 'Mei',
-            6 => 'Juni',
-            7 => 'Juli',
-            8 => 'Agustus',
-            9 => 'September',
-            10 => 'Oktober',
-            11 => 'November',
-            12 => 'Desember'
-        ];
+    public function exportToExcel(Request $request, LaporanBahanBakuService $service)
+    {
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
     
-        // Query data (sama seperti PDF)
-        $query = Laporan::with('bahanBaku');
+        $bulan = (int) $request->input('bulan', $currentMonth);
+        $tahun = (int) $request->input('tahun', $currentYear);
+        $idBahanBaku = $request->input('id_bahan_baku', null);
+        $searchTerm = $request->input('search', '');
     
-        if ($bulan) {
-            $query->where('bulan', $bulan);
+        // Get raw data from service with BOTH bulan and bahan baku filters
+        $laporanData = $service->getLaporan($bulan, $tahun, $idBahanBaku);
+    
+        // Apply search filter if exists
+        if (!empty($searchTerm)) {
+            $laporanData = $laporanData->filter(function ($item) use ($searchTerm) {
+                return stripos($item['nama_bahan_baku'], $searchTerm) !== false 
+                    || stripos($item['ukuran'], $searchTerm) !== false;
+            });
         }
     
-        if ($tahun) {
-            $query->where('tahun', $tahun);
+        // Get bahan baku name if filtered
+        $bahanBakuNama = '';
+        if ($idBahanBaku) {
+            $bahanBaku = BahanBaku::find($idBahanBaku);
+            $bahanBakuNama = $bahanBaku->nama_bahan_baku ?? '';
         }
     
-        if ($bahanBakuId) {
-            $query->where('id_bahan_baku', $bahanBakuId);
-        }
-    
-        $laporans = $query->orderBy('id_bahan_baku')->get();
-        
         // Generate judul file
         $judul = "Laporan Stok Bahan Baku";
-        if ($bulan) $judul .= " Bulan ".($this->namaBulan[$bulan] ?? $bulan);
-        if ($tahun) $judul .= " Tahun ".$tahun;
-        if ($bahanBakuId) {
-            $bahanBaku = BahanBaku::find($bahanBakuId);
-            $judul .= " - ".($bahanBaku->nama_bahan_baku ?? '');
+        if ($bulan) $judul .= " Bulan " . ($this->namaBulan[$bulan] ?? $bulan);
+        if ($tahun) $judul .= " Tahun " . $tahun;
+        if ($idBahanBaku) {
+            $judul .= " - " . $bahanBakuNama;
         }
-        
-        // Generate nama file
-        $filename = strtolower(str_replace(' ', '_', $judul));
-        
-        // Logika maxInfo (sama seperti PDF)
-        $jenisLaporan = '';
+    
+        // Determine report type and prepare max info
+        $jenisLaporan = 'full';
         $maxInfo = [
             'masuk' => '-',
             'keluar' => '-',
+            'awal' => '-',
+            'sisa' => '-',
             'nilai_masuk' => 0,
             'nilai_keluar' => 0,
-            'satuan' => '',
-            'satuan_masuk' => '',
-            'satuan_keluar' => ''
+            'nilai_awal' => 0,
+            'nilai_sisa' => 0,
+            'ukuran' => '',
+            'ukuran_masuk' => '',
+            'ukuran_keluar' => '',
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+            'nama_bahan_masuk' => '',
+            'nama_bahan_keluar' => ''
         ];
-        
-        if ($bahanBakuId && !$bulan) {
-            // Filter bahan baku + tahun (tampilkan bulan dengan stok terbanyak)
-            $jenisLaporan = 'bulan';
+    
+        // Update logic for report type determination
+        if ($idBahanBaku) {
+            $jenisLaporan = $bulan ? 'bulan_dan_bahan' : 'bulan';
             
-            if ($laporans->isNotEmpty()) {
-                $maxStokMasuk = $laporans->sortByDesc('total_stok_masuk')->first();
-                $maxStokKeluar = $laporans->sortByDesc('total_stok_keluar')->first();
-                
+            if ($laporanData->isNotEmpty()) {
                 $maxInfo = [
-                    'masuk' => $maxStokMasuk ? $this->namaBulan[$maxStokMasuk->bulan] ?? '-' : '-',
-                    'keluar' => $maxStokKeluar ? $this->namaBulan[$maxStokKeluar->bulan] ?? '-' : '-',
-                    'nilai_masuk' => $maxStokMasuk->total_stok_masuk ?? 0,
-                    'nilai_keluar' => $maxStokKeluar->total_stok_keluar ?? 0,
-                    'satuan' => $maxStokMasuk->satuan ?? '',
+                    'masuk' => $this->getMaxInfo($laporanData, 'stok_masuk', 'bulan'),
+                    'keluar' => $this->getMaxInfo($laporanData, 'stok_keluar', 'bulan'),
+                    'awal' => $this->getMaxInfo($laporanData, 'stok_awal', 'bulan'),
+                    'sisa' => $this->getMaxInfo($laporanData, 'sisa_stok', 'bulan'),
+                    'nilai_masuk' => $laporanData->max('stok_masuk'),
+                    'nilai_keluar' => $laporanData->max('stok_keluar'),
+                    'nilai_awal' => $laporanData->max('stok_awal'),
+                    'nilai_sisa' => $laporanData->max('sisa_stok'),
+                    'ukuran' => $laporanData->first()['ukuran'] ?? '',
+                    'bulan' => $bulan,
+                    'tahun' => $tahun,
+                    'nama_bahan_masuk' => $this->getMaxBahanBaku($laporanData, 'stok_masuk'),
+                    'nama_bahan_keluar' => $this->getMaxBahanBaku($laporanData, 'stok_keluar')
                 ];
             }
-        } elseif (!$bahanBakuId && $bulan) {
-            // Filter bulan + tahun (tampilkan bahan baku dengan stok terbanyak)
+        } elseif ($bulan) {
             $jenisLaporan = 'bahan_baku';
-            
-            if ($laporans->isNotEmpty()) {
-                $maxStokMasuk = $laporans->sortByDesc('total_stok_masuk')->first();
-                $maxStokKeluar = $laporans->sortByDesc('total_stok_keluar')->first();
-                
+            if ($laporanData->isNotEmpty()) {
                 $maxInfo = [
-                    'masuk' => $maxStokMasuk->bahanBaku->nama_bahan_baku ?? '-',
-                    'keluar' => $maxStokKeluar->bahanBaku->nama_bahan_baku ?? '-',
-                    'nilai_masuk' => $maxStokMasuk->total_stok_masuk ?? 0,
-                    'nilai_keluar' => $maxStokKeluar->total_stok_keluar ?? 0,
-                    'satuan_masuk' => $maxStokMasuk->satuan ?? '',
-                    'satuan_keluar' => $maxStokKeluar->satuan ?? '',
+                    'masuk' => $this->getMaxInfo($laporanData, 'stok_masuk', 'nama_bahan_baku'),
+                    'keluar' => $this->getMaxInfo($laporanData, 'stok_keluar', 'nama_bahan_baku'),
+                    'awal' => $this->getMaxInfo($laporanData, 'stok_awal', 'nama_bahan_baku'),
+                    'sisa' => $this->getMaxInfo($laporanData, 'sisa_stok', 'nama_bahan_baku'),
+                    'nilai_masuk' => $laporanData->max('stok_masuk'),
+                    'nilai_keluar' => $laporanData->max('stok_keluar'),
+                    'nilai_awal' => $laporanData->max('stok_awal'),
+                    'nilai_sisa' => $laporanData->max('sisa_stok'),
+                    'ukuran_masuk' => $laporanData->first()['ukuran'] ?? '',
+                    'ukuran_keluar' => $laporanData->first()['ukuran'] ?? '',
+                    'bulan' => $bulan,
+                    'tahun' => $tahun,
+                    'nama_bahan_masuk' => $this->getMaxBahanBaku($laporanData, 'stok_masuk'),
+                    'nama_bahan_keluar' => $this->getMaxBahanBaku($laporanData, 'stok_keluar')
                 ];
             }
         }
-        
+    
+        // Generate filename
+        $filename = "laporan_bahan_baku";
+        if ($bulan) $filename .= "_" . ($this->namaBulan[$bulan] ?? $bulan);
+        if ($tahun) $filename .= "_" . $tahun;
+        if ($idBahanBaku) $filename .= "_" . str_replace(' ', '_', strtolower($bahanBakuNama));
+        if ($searchTerm) $filename .= "_search_" . str_replace(' ', '_', strtolower($searchTerm));
+    
         return Excel::download(
-            new LaporanExcelExport($laporans, $judul, $maxInfo, $jenisLaporan),
-            $filename.'.xlsx'
+            new LaporanExcelExport($laporanData, $judul, $maxInfo, $jenisLaporan, $this->namaBulan),
+            $filename . '.xlsx'
         );
     }
+    
+    protected function getMaxBahanBaku($laporanData, $stokType)
+    {
+        $maxItem = $laporanData->sortByDesc($stokType)->first();
+        return $maxItem['nama_bahan_baku'] ?? null; // Return the name of the raw material
+    }
+    
 
 }

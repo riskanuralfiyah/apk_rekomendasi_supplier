@@ -22,7 +22,7 @@ class DataBahanBakuPemilikMebelController extends Controller
         if (!empty($searchTerm)) {
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('nama_bahan_baku', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('satuan', 'like', '%' . $searchTerm . '%');
+                  ->orWhere('ukuran', 'like', '%' . $searchTerm . '%');
             });
         }
     

@@ -57,9 +57,9 @@
                     <tr>
                         <th>No.</th>
                         <th>Nama Bahan Baku</th>
-                        <th>Satuan</th>
+                        <th>Ukuran (cm)</th>
                         <th>Stok Minimum</th>
-                        <th>Jumlah Stok</th>
+                        <th>Jumlah Stok (Batang)</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -68,7 +68,7 @@
                     <tr>
                         <td>{{ ($bahanbakus->currentPage() - 1) * $bahanbakus->perPage() + $loop->iteration }}</td>
                         <td>{{ $bahanbaku->nama_bahan_baku }}</td>
-                        <td>{{ $bahanbaku->satuan }}</td>
+                        <td>{{ $bahanbaku->ukuran }}</td>
                         <td>{{ $bahanbaku->stok_minimum }}</td>
                         <td>{{ $bahanbaku->jumlah_stok }}</td>
                         <td>

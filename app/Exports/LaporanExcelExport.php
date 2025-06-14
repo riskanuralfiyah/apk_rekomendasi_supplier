@@ -48,7 +48,6 @@ class LaporanExcelExport implements FromCollection, WithHeadings, WithMapping, W
                 'keluar' => $this->namaBulan[$maxStokKeluar->bulan] ?? 'Bulan ' . $maxStokKeluar->bulan,
                 'tahun_masuk' => $maxStokMasuk->tahun ?? '',
                 'tahun_keluar' => $maxStokKeluar->tahun ?? '',
-                // Data jumlah dan satuan tidak perlu disertakan jika tidak ditampilkan
             ];
         } elseif ($this->jenisLaporan !== 'bahan_baku') {
             if ($this->laporans->count() > 0 && isset($this->laporans[0]->bulan) && isset($this->laporans[0]->tahun)) { // Fixed missing parenthesis
@@ -68,7 +67,7 @@ class LaporanExcelExport implements FromCollection, WithHeadings, WithMapping, W
 
     public function headings(): array
     {
-        $headings = ['No.', 'Bahan Baku', 'Satuan', 'Stok Awal', 'Stok Masuk', 'Stok Keluar', 'Sisa Stok'];
+        $headings = ['No.', 'Bahan Baku', 'Ukuran', 'Stok Awal', 'Stok Masuk', 'Stok Keluar', 'Sisa Stok'];
         if ($this->jenisLaporan !== 'bahan_baku') {
             array_splice($headings, 1, 0, ['Periode']);
         }
@@ -79,27 +78,28 @@ class LaporanExcelExport implements FromCollection, WithHeadings, WithMapping, W
     {
         static $index = 0;
         $index++;
-
+    
         $rowData = [
             $index,
-            $item->bahanBaku->nama_bahan_baku ?? '-',
-            $item->satuan ?? '-',
-            number_format($item->stok_awal),
-            number_format($item->total_stok_masuk),
-            number_format($item->total_stok_keluar),
-            number_format($item->sisa_stok),
+            $item['nama_bahan_baku'] ?? '-', // Accessing as an array
+            $item['ukuran'] ?? '-', // Accessing as an array
+            number_format($item['stok_awal']), // Accessing as an array
+            number_format($item['stok_masuk']), // Accessing as an array
+            number_format($item['stok_keluar']), // Accessing as an array
+            number_format($item['sisa_stok']), // Accessing as an array
         ];
-
+    
         if ($this->jenisLaporan !== 'bahan_baku') {
             $itemPeriode = '-';
-            if (isset($item->bulan) && isset($item->tahun) && isset($this->namaBulan[$item->bulan])) {
-                $itemPeriode = $this->namaBulan[$item->bulan] . ' ' . $item->tahun;
+            if (isset($item['bulan']) && isset($item['tahun']) && isset($this->namaBulan[$item['bulan']])) {
+                $itemPeriode = $this->namaBulan[$item['bulan']] . ' ' . $item['tahun'];
             }
             array_splice($rowData, 1, 0, [$itemPeriode]);
         }
-
+    
         return $rowData;
     }
+    
 
     public function title(): string
     {
@@ -145,15 +145,21 @@ class LaporanExcelExport implements FromCollection, WithHeadings, WithMapping, W
                 
                 if ($this->jenisLaporan === 'bahan_baku') {
                     $sheet->setCellValue("A{$infoStartRow}", 'Informasi Tambahan:');
+                    
+                    // Bahan Baku dengan Stok Masuk Terbanyak
                     $sheet->setCellValue("A" . ($infoStartRow + 1), 'Bahan Baku dengan Stok Masuk Terbanyak:');
                     $sheet->mergeCells("A" . ($infoStartRow + 1) . ":C" . ($infoStartRow + 1)); // Merge cells for label
                     $sheet->setCellValue("C" . ($infoStartRow + 1), $this->maxInfo['masuk']); // Keep value in C
-                    $sheet->setCellValue("D" . ($infoStartRow + 1), number_format($this->maxInfo['nilai_masuk']) . ' ' . $this->maxInfo['satuan_masuk']); // Keep value in D
-                    
+                    $sheet->setCellValue("D" . ($infoStartRow + 1), $this->maxInfo['nama_bahan_masuk'] ?? '-'); // Add name of the raw material
+                    $sheet->setCellValue("E" . ($infoStartRow + 1), number_format($this->maxInfo['nilai_masuk']) . ' ' . $this->maxInfo['ukuran_masuk']); // Keep value in D
+                
+                    // Bahan Baku dengan Stok Keluar Terbanyak
                     $sheet->setCellValue("A" . ($infoStartRow + 2), 'Bahan Baku dengan Stok Keluar Terbanyak:');
                     $sheet->mergeCells("A" . ($infoStartRow + 2) . ":C" . ($infoStartRow + 2)); // Merge cells for label
                     $sheet->setCellValue("C" . ($infoStartRow + 2), $this->maxInfo['keluar']); // Keep value in C
-                    $sheet->setCellValue("D" . ($infoStartRow + 2), number_format($this->maxInfo['nilai_keluar']) . ' ' . $this->maxInfo['satuan_keluar']); // Keep value in D
+                    $sheet->setCellValue("D" . ($infoStartRow + 2), $this->maxInfo['nama_bahan_keluar'] ?? '-'); // Add name of the raw material
+                    $sheet->setCellValue("E" . ($infoStartRow + 2), number_format($this->maxInfo['nilai_keluar']) . ' ' . $this->maxInfo['ukuran_keluar']); // Keep value in D
+                
                 } elseif ($this->jenisLaporan === 'bulan') {
                     // Set label for "Bulan dengan Stok Masuk Terbanyak"
                     $sheet->setCellValue("A{$infoStartRow}", 'Informasi Tambahan:');
@@ -289,7 +295,7 @@ class LaporanExcelExport implements FromCollection, WithHeadings, WithMapping, W
                 'A' => 8,  // No.
                 'B' => 12, // Periode
                 'C' => 20, // Bahan Baku (reduced width)
-                'D' => 15, // Satuan
+                'D' => 15, // Ukuran
                 'E' => 15, // Stok Awal
                 'F' => 15, // Stok Masuk
                 'G' => 15, // Stok Keluar
@@ -300,7 +306,7 @@ class LaporanExcelExport implements FromCollection, WithHeadings, WithMapping, W
         return [
             'A' => 8,  // No.
             'B' => 20, // Bahan Baku (reduced width)
-            'C' => 15, // Satuan
+            'C' => 15, // Ukuran
             'D' => 15, // Stok Awal
             'E' => 15, // Stok Masuk
             'F' => 15, // Stok Keluar

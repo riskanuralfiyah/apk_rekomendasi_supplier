@@ -15,33 +15,45 @@ class AppServiceProvider extends ServiceProvider
         View::composer('*', function ($view) {
             $notifications = [];
             $user = Auth::user();
-        
+
             if ($user) {
                 $userId = $user->id;
-        
-                // cek stok rendah dan buat notifikasi baru jika belum ada
+
+                // 1. tandai notifikasi lama sebagai selesai jika stok sudah normal
+                $stokNormal = BahanBaku::whereColumn('jumlah_stok', '>', 'stok_minimum')->get();
+
+                foreach ($stokNormal as $bahan) {
+                    Notifikasi::where('id_user', $userId)
+                        ->where('message', 'like', '%'.$bahan->nama_bahan_baku.'%')
+                        ->where('is_deleted', false)
+                        ->update(['is_deleted' => true]);
+                }
+
+                // 2. buat notifikasi baru jika stok habis dan belum ada notifikasi aktif
                 $stokHabis = BahanBaku::whereColumn('jumlah_stok', '<=', 'stok_minimum')->get();
-        
+
                 foreach ($stokHabis as $bahan) {
                     $existing = Notifikasi::where('id_user', $userId)
                         ->where('message', 'like', '%'.$bahan->nama_bahan_baku.'%')
-                        ->first();
-        
+                        ->where('is_deleted', false)
+                        ->first(); // tanpa batasan waktu
+
                     if (!$existing) {
                         Notifikasi::create([
                             'id_user' => $userId,
                             'message' => "Jumlah stok {$bahan->nama_bahan_baku} hampir habis. Sisa stok {$bahan->jumlah_stok}.",
-                            'is_read' => false,
                             'is_toasted' => false,
+                            'is_deleted' => false,
                         ]);
                     }
                 }
-        
-                // ambil notifikasi yang belum di-toast, tapi jangan update status di sini
+
+                // 3. ambil notifikasi aktif yang belum di-toast
                 $toBeToasted = Notifikasi::where('id_user', $userId)
                     ->where('is_toasted', false)
+                    ->where('is_deleted', false)
                     ->get();
-        
+
                 $notifications = $toBeToasted->map(function ($notif) {
                     return [
                         'id' => $notif->id,
@@ -49,10 +61,9 @@ class AppServiceProvider extends ServiceProvider
                     ];
                 });
             }
-        
+
             $view->with('notifications', $notifications)
-             ->with('user', $user); 
+                ->with('user', $user);
         });
-        
     }
 }

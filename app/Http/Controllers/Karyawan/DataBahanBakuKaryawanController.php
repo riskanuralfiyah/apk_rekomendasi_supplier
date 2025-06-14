@@ -20,7 +20,7 @@ class DataBahanBakuKaryawanController extends Controller
         if (!empty($searchTerm)) {
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('nama_bahan_baku', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('satuan', 'like', '%' . $searchTerm . '%');
+                  ->orWhere('ukuran', 'like', '%' . $searchTerm . '%');
             });
         }
 
@@ -51,16 +51,16 @@ class DataBahanBakuKaryawanController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'nama_bahan_baku' => 'required|string|max:100',
-            'satuan' => 'required|string|max:20',
+            'ukuran' => 'required|string|max:20',
             'stok_minimum' => 'required|integer|min:0',
             'jumlah_stok' => 'required|integer|min:0',
         ], [
             'nama_bahan_baku.required' => 'Nama bahan baku harus diisi.',
             'nama_bahan_baku.string' => 'Nama bahan baku harus berupa teks.',
             'nama_bahan_baku.max' => 'Nama bahan baku maksimal 100 karakter.',
-            'satuan.required' => 'Satuan harus diisi.',
-            'satuan.string' => 'Satuan harus berupa teks.',
-            'satuan.max' => 'Satuan maksimal 20 karakter.',
+            'ukuran.required' => 'Ukuran harus diisi.',
+            'ukuran.string' => 'Ukuran harus berupa teks.',
+            'ukuran.max' => 'Ukuran maksimal 20 karakter.',
             'stok_minimum.required' => 'Stok minimum harus diisi.',
             'stok_minimum.integer' => 'Stok minimum harus berupa angka.',
             'stok_minimum.min' => 'Stok minimum tidak boleh negatif.',
@@ -78,6 +78,7 @@ class DataBahanBakuKaryawanController extends Controller
 
         // cek duplikat
         $existing = BahanBaku::where('nama_bahan_baku', $request->nama_bahan_baku)
+            ->where('ukuran', $request->ukuran)
             ->first();
     
         if ($existing) {
@@ -91,7 +92,7 @@ class DataBahanBakuKaryawanController extends Controller
         try {
             BahanBaku::create([
                 'nama_bahan_baku' => $request->nama_bahan_baku,
-                'satuan' => $request->satuan,
+                'ukuran' => $request->ukuran,
                 'stok_minimum' => $request->stok_minimum,
                 'jumlah_stok' => $request->jumlah_stok,
             ]);
@@ -122,16 +123,16 @@ class DataBahanBakuKaryawanController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'nama_bahan_baku' => 'required|string|max:100',
-            'satuan' => 'required|string|max:20',
+            'ukuran' => 'required|string|max:20',
             'stok_minimum' => 'required|integer|min:0',
             'jumlah_stok' => 'required|integer|min:0',
         ], [
             'nama_bahan_baku.required' => 'Nama bahan baku harus diisi.',
             'nama_bahan_baku.string' => 'Nama bahan baku harus berupa teks.',
             'nama_bahan_baku.max' => 'Nama bahan baku maksimal 100 karakter.',
-            'satuan.required' => 'Satuan harus diisi.',
-            'satuan.string' => 'Satuan harus berupa teks.',
-            'satuan.max' => 'Satuan maksimal 20 karakter.',
+            'ukuran.required' => 'Ukuran harus diisi.',
+            'ukuran.string' => 'Ukuran harus berupa teks.',
+            'ukuran.max' => 'Ukuran maksimal 20 karakter.',
             'stok_minimum.required' => 'Stok minimum harus diisi.',
             'stok_minimum.integer' => 'Stok minimum harus berupa angka.',
             'stok_minimum.min' => 'Stok minimum tidak boleh negatif.',
@@ -149,6 +150,7 @@ class DataBahanBakuKaryawanController extends Controller
         // cek duplikat
         $existing = BahanBaku::where('nama_bahan_baku', $request->nama_bahan_baku)
             ->where('id', '!=', $id)
+            ->where('ukuran', $request->ukuran)
             ->first();
     
         if ($existing) {
@@ -163,7 +165,7 @@ class DataBahanBakuKaryawanController extends Controller
             $bahanbaku = BahanBaku::findOrFail($id);
             $bahanbaku->update([
                 'nama_bahan_baku' => $request->nama_bahan_baku,
-                'satuan' => $request->satuan,
+                'ukuran' => $request->ukuran,
                 'stok_minimum' => $request->stok_minimum,
                 'jumlah_stok' => $request->jumlah_stok,
             ]);

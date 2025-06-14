@@ -26,11 +26,11 @@
             </div>
             
             <div class="form-group">
-                <label for="satuan">Satuan</label>
-                <input type="text" class="form-control @error('satuan') is-invalid @enderror" 
-                       id="satuan" name="satuan" 
-                       placeholder="Satuan (contoh: m³)" value="{{ old('satuan') }}">
-                @error('satuan')
+                <label for="ukuran">Ukuran (cm)</label>
+                <input type="text" class="form-control @error('ukuran') is-invalid @enderror" 
+                       id="ukuran" name="ukuran" 
+                       placeholder="Ukuran (contoh: 6x15)" value="{{ old('ukuran') }}">
+                @error('ukuran')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
@@ -46,7 +46,7 @@
             </div>
             
             <div class="form-group">
-                <label for="jumlah_stok">Jumlah Stok</label>
+                <label for="jumlah_stok">Jumlah Stok (Batang)</label>
                 <input type="number" class="form-control @error('jumlah_stok') is-invalid @enderror" 
                        id="jumlah_stok" name="jumlah_stok" 
                        placeholder="Jumlah Stok" value="{{ old('jumlah_stok') }}" min="0">

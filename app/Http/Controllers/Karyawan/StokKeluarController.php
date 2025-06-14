@@ -7,21 +7,63 @@ use App\Models\StokKeluar;
 use App\Models\BahanBaku;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class StokKeluarController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        $perPage = request('per_page', 10);
-        $stokKeluars = StokKeluar::with(['bahanBaku'])
-                        ->orderBy('created_at', 'desc')
-                        ->paginate($perPage);
 
+    public function index(Request $request)
+    {
+        $perPage = $request->input('per_page', 10);
+        $searchTerm = $request->input('search', '');
+    
+        $query = StokKeluar::with(['bahanBaku']);
+    
+        if (!empty($searchTerm)) {
+            $parsedDate = null;
+            $parsedMonthYear = null;
+    
+            // coba parse d-m-Y -> Y-m-d
+            try {
+                $parsedDate = Carbon::createFromFormat('d-m-Y', $searchTerm)->format('Y-m-d');
+            } catch (\Exception $e) {}
+    
+            // coba parse m-Y -> Y-m
+            try {
+                $parsedMonthYear = Carbon::createFromFormat('m-Y', $searchTerm)->format('Y-m');
+            } catch (\Exception $e) {}
+    
+            $query->where(function ($q) use ($searchTerm, $parsedDate, $parsedMonthYear) {
+                $q->whereHas('bahanBaku', function ($subQuery) use ($searchTerm) {
+                    $subQuery->where('nama_bahan_baku', 'like', '%' . $searchTerm . '%');
+                });
+    
+                if ($parsedDate) {
+                    $q->orWhereDate('tanggal', $parsedDate);
+                }
+    
+                if ($parsedMonthYear) {
+                    $q->orWhereRaw("DATE_FORMAT(tanggal, '%Y-%m') = ?", [$parsedMonthYear]);
+                }
+    
+                // kalau cuma input tahunnya saja (4 digit)
+                if (preg_match('/^\d{4}$/', $searchTerm)) {
+                    $q->orWhereRaw("YEAR(tanggal) = ?", [$searchTerm]);
+                }
+            });
+        }
+    
+        $stokKeluars = $query->orderBy('tanggal', 'desc')
+                             ->paginate($perPage)
+                             ->appends([
+                                 'per_page' => $perPage,
+                                 'search' => $searchTerm,
+                             ]);
+    
         return view('pages.Karyawan.StokKeluar.index', compact('stokKeluars'));
     }
+     
+    
 
     /**
      * Show the form for creating a new resource.
