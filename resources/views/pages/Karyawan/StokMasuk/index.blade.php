@@ -54,7 +54,8 @@
                             <th>No.</th>
                             <th>Tanggal</th>
                             <th>Nama Bahan Baku</th>
-                            <th>Jumlah Stok Masuk</th>
+                            <th>Ukuran (cm)</th>
+                            <th>Jumlah Stok Masuk (Batang)</th>
                             <th>Nama Supplier</th>
                             <th>Aksi</th>
                         </tr>
@@ -65,6 +66,7 @@
                             <td>{{ ($stokMasuks->currentPage() - 1) * $stokMasuks->perPage() + $loop->iteration }}</td>
                             <td>{{ \Carbon\Carbon::parse($stokMasuk->tanggal)->format('d-m-Y') }}</td>
                             <td>{{ $stokMasuk->bahanBaku->nama_bahan_baku }}</td>
+                            <td>{{ $stokMasuk->bahanBaku->ukuran }}</td>
                             <td>{{ $stokMasuk->jumlah_stok_masuk }}</td>
                             <td>{{ $stokMasuk->supplier->nama_supplier }}</td>
                             <td>

@@ -35,12 +35,14 @@
                         id="id_bahan_baku" name="id_bahan_baku" required>
                     <option value="">Pilih Bahan Baku</option>
                     @foreach($bahanBakus as $bahanBaku)
-                        <option value="{{ $bahanBaku->id }}" {{ old('id_bahan_baku') == $bahanBaku->id ? 'selected' : '' }}
-                            data-stok="{{ $bahanBaku->jumlah_stok }}"
-                            data-satuan="{{ $bahanBaku->satuan }}">
-                            {{ $bahanBaku->nama_bahan_baku }} ({{ $bahanBaku->satuan }})
-                        </option>
-                    @endforeach
+                    <option value="{{ $bahanBaku->id }}"
+                        data-stok="{{ $bahanBaku->jumlah_stok }}"
+                        data-ukuran="{{ $bahanBaku->ukuran }}"
+                        {{ old('id_bahan_baku') == $bahanBaku->id ? 'selected' : '' }}>
+                        {{ $bahanBaku->nama_bahan_baku }} - {{ $bahanBaku->ukuran }} (Stok: {{ $bahanBaku->jumlah_stok }})
+                    </option>
+                @endforeach
+                
                 </select>
                 @error('id_bahan_baku')
                     <div class="invalid-feedback">{{ $message }}</div>

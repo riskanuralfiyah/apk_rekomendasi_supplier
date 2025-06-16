@@ -40,9 +40,9 @@
                             <option value="{{ $bahanBaku->id }}" 
                                 {{ old('id_bahan_baku', $stokKeluar->id_bahan_baku) == $bahanBaku->id ? 'selected' : '' }}
                                 data-stok="{{ $bahanBaku->jumlah_stok }}"
-                                data-satuan="{{ $bahanBaku->satuan }}"
+                                data-ukuran="{{ $bahanBaku->ukuran }}"
                                 data-oldvalue="{{ $stokKeluar->id_bahan_baku == $bahanBaku->id ? $stokKeluar->jumlah_stok_keluar : 0 }}">
-                                {{ $bahanBaku->nama_bahan_baku }} ({{ $bahanBaku->satuan }})
+                                {{ $bahanBaku->nama_bahan_baku }} - {{ $bahanBaku->ukuran }} (Stok: {{ $bahanBaku->jumlah_stok }})
                             </option>
                         @endforeach
                     </select>

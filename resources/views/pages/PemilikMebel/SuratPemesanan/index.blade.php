@@ -38,20 +38,30 @@
                                         <input type="checkbox" class="custom-control-input bahan-checkbox" 
                                                name="bahan_baku[]" value="{{ $bahan->id }}" 
                                                id="hampirhabis{{ $bahan->id }}" checked>
-                                        <label class="custom-control-label font-weight-bold" for="hampirhabis{{ $bahan->id }}">
-                                            {{ $bahan->nama_bahan_baku }}
-                                        </label>
+                                               <label class="custom-control-label font-weight-bold" for="hampirhabis{{ $bahan->id }}">
+                                                {{ $bahan->nama_bahan_baku }}
+                                                <span class="text-muted small d-block">Ukuran: {{ $bahan->ukuran }}</span>
+                                            </label>
+                                            
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <span class="badge badge-info">Stok: {{ $bahan->jumlah_stok }}</span>
                                 </div>
-                                <div class="col-md-3 quantity-input-col">
-                                    <input type="number" class="form-control quantity-input" 
-                                           name="jumlah[{{ $bahan->id }}]" 
-                                           placeholder="Jumlah" min="1"
-                                           value="{{ old('jumlah.'.$bahan->id) }}">
-                                    <div class="invalid-feedback">Harap masukkan jumlah</div>
+                                <div class="col-md-3 quantity-input-col" style="margin-left: -28px;">
+                                    <div class="d-flex align-items-center">
+                                        <select class="custom-select me-2" name="satuan[{{ $bahan->id }}]" style="width: 120px;">
+                                            <option value="" disabled selected>Satuan</option>
+                                            <option value="kubik" {{ old('satuan.'.$bahan->id) == 'kubik' ? 'selected' : '' }}>Kubik</option>
+                                            <option value="batang" {{ old('satuan.'.$bahan->id) == 'batang' ? 'selected' : '' }}>Batang</option>
+                                        </select>
+                                        <input type="number" class="form-control quantity-input"
+                                            name="jumlah[{{ $bahan->id }}]"
+                                            placeholder="Jumlah" min="1"
+                                            value="{{ old('jumlah.'.$bahan->id) }}"
+                                            style="width: 140px;">
+                                    </div>
+                                    <div class="invalid-feedback d-block">Harap pilih satuan dan masukkan jumlahnya.</div>
                                 </div>
                             </div>
                         @empty
@@ -81,9 +91,10 @@
                                     <input type="checkbox" class="custom-control-input bahan-checkbox" 
                                         name="bahan_baku[]" value="{{ $bahan->id }}" 
                                         id="tambahan{{ $bahan->id }}">
-                                    <label class="custom-control-label" for="tambahan{{ $bahan->id }}">
-                                        {{ $bahan->nama_bahan_baku }}
-                                    </label>
+                                        <label class="custom-control-label" for="tambahan{{ $bahan->id }}">
+                                            {{ $bahan->nama_bahan_baku }}
+                                            <span class="text-muted small d-block">Ukuran: {{ $bahan->ukuran }}</span>
+                                        </label>                                        
                                 </div>
                             </div>
                             <div class="col-md-3">
@@ -91,7 +102,7 @@
                             </div>
                             <div class="col-md-3 quantity-input-col" style="margin-left: -28px;">
                                 <div class="d-flex align-items-center">
-                                    <select class="custom-select me-2" name="satuan[{{ $bahan->id }}]" style="width: 120px;">
+                                    <select class="custom-select me-2" name="satuan[{{ $bahan->id }}]" style="width: 140px;">
                                         <option value="" disabled selected>Satuan</option>
                                         <option value="kubik" {{ old('satuan.'.$bahan->id) == 'kubik' ? 'selected' : '' }}>Kubik</option>
                                         <option value="batang" {{ old('satuan.'.$bahan->id) == 'batang' ? 'selected' : '' }}>Batang</option>

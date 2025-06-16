@@ -34,7 +34,7 @@
                         @foreach($bahanBakus as $bahanBaku)
                             <option value="{{ $bahanBaku->id }}" 
                                 {{ old('id_bahan_baku', $stokMasuk->id_bahan_baku) == $bahanBaku->id ? 'selected' : '' }}>
-                                {{ $bahanBaku->nama_bahan_baku }} (Stok: {{ $bahanBaku->jumlah_stok }} {{ $bahanBaku->satuan }})
+                                {{ $bahanBaku->nama_bahan_baku }} - {{ $bahanBaku->ukuran }} (Stok: {{ $bahanBaku->jumlah_stok }})
                             </option>
                         @endforeach
                     </select>

@@ -30,10 +30,11 @@
                         id="id_bahan_baku" name="id_bahan_baku">
                     <option value="">Pilih Bahan Baku</option>
                     @foreach($bahanBakus as $bahanBaku)
-                        <option value="{{ $bahanBaku->id }}" {{ old('id_bahan_baku') == $bahanBaku->id ? 'selected' : '' }}>
-                            {{ $bahanBaku->nama_bahan_baku }} (Stok: {{ $bahanBaku->jumlah_stok }} {{ $bahanBaku->satuan }})
-                        </option>
-                    @endforeach
+                    <option value="{{ $bahanBaku->id }}" {{ old('id_bahan_baku') == $bahanBaku->id ? 'selected' : '' }}>
+                        {{ $bahanBaku->nama_bahan_baku }} - {{ $bahanBaku->ukuran }} (Stok: {{ $bahanBaku->jumlah_stok }})
+                    </option>
+                @endforeach
+                
                 </select>
                 @error('id_bahan_baku')
                     <div class="invalid-feedback">{{ $message }}</div>

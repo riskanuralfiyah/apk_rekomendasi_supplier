@@ -50,7 +50,8 @@
                             <th>No.</th>
                             <th>Tanggal</th>
                             <th>Nama Bahan Baku</th>
-                            <th>Jumlah Stok Keluar</th>
+                            <th>Ukuran (cm)</th>
+                            <th>Jumlah Stok Keluar (Batang)</th>
                             <th>Keterangan</th>
                             <th>Aksi</th>
                         </tr>
@@ -61,6 +62,7 @@
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ \Carbon\Carbon::parse($stokKeluar->tanggal)->format('d-m-Y') }}</td>
                             <td>{{ $stokKeluar->bahanBaku->nama_bahan_baku }}</td>
+                            <td>{{ $stokKeluar->bahanBaku->ukuran }}</td>
                             <td>{{ $stokKeluar->jumlah_stok_keluar }}</td>
                             <td>{{ $stokKeluar->keterangan }}</td>
                             <td>
