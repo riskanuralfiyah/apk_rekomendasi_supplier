@@ -176,7 +176,7 @@
                 <span class="highlight-info">
                     {{ $maxInfo['masuk'] }}
                     @if($maxInfo['masuk'] != '-')
-                        {{ ' ' . $maxInfo['ukuran_masuk'] }} ({{ number_format($maxInfo['nilai_masuk'] ?? 0) }})
+                        {{ ' ' . $maxInfo['ukuran_masuk'] }} ({{ number_format($maxInfo['nilai_masuk'] ?? 0) }} batang)
                     @endif
                 </span>
             </div>        
@@ -185,7 +185,7 @@
                 <span class="highlight-info">
                     {{ $maxInfo['keluar'] }}
                     @if($maxInfo['keluar'] != '-')
-                    {{ ' ' . $maxInfo['ukuran_keluar'] }} ({{ number_format($maxInfo['nilai_keluar'] ?? 0) }})
+                    {{ ' ' . $maxInfo['ukuran_keluar'] }} ({{ number_format($maxInfo['nilai_keluar'] ?? 0) }} batang)
                     @endif
                 </span>
             </div>

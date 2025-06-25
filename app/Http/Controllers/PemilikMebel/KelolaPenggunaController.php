@@ -45,7 +45,8 @@ class KelolaPenggunaController extends Controller
         $validator = Validator::make($request->all(), [
             'nama_pengguna' => 'required|string|max:100',
             'email' => 'required|email|unique:users,email',
-            'role' => 'required|in:pemilikmebel,karyawan'
+            'role' => 'required|in:pemilikmebel,karyawan',
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // maksimal 2MB
         ], [
             'nama_pengguna.required' => 'Nama pengguna harus diisi.',
             'nama_pengguna.string' => 'Nama pengguna harus berupa teks.',
@@ -54,16 +55,18 @@ class KelolaPenggunaController extends Controller
             'email.email' => 'Format email tidak valid.',
             'email.unique' => 'Email sudah terdaftar.',
             'role.required' => 'Role harus dipilih.',
-            'role.in' => 'Role hanya boleh pemilik mebel atau karyawan.'
+            'role.in' => 'Role hanya boleh pemilik mebel atau karyawan.',
+            'foto.image' => 'File harus berupa gambar.',
+            'foto.mimes' => 'Format gambar harus jpg, jpeg, atau png.',
+            'foto.max' => 'Ukuran gambar maksimal 2MB.'
         ]);
-        
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'errors' => $validator->errors()
-            ], 400); // status 400 bad request
+            ], 400);
         }
-
+    
         // cek duplikat
         $existing = User::where('nama_pengguna', $request->nama_pengguna)
             ->where('email', $request->email)
@@ -79,22 +82,32 @@ class KelolaPenggunaController extends Controller
         }
     
         try {
+            $fotoPath = null;
+            if ($request->hasFile('foto')) {
+                $fotoPath = $request->file('foto')->store('foto_pengguna', 'public');
+            }
+    
             User::create([
                 'nama_pengguna' => $request->nama_pengguna,
                 'email' => $request->email,
                 'role' => $request->role,
-                'password' => bcrypt('password123') // default password
+                'password' => bcrypt('password123'),
+                'foto' => $fotoPath,
+                'is_verified' => false, // default
+                'last_login_at' => null,
+                'email_verified_at' => null,
             ]);
     
             return response()->json([
-                'message' => 'Data pengguna berhasil ditambahkan'
-            ], 200); // OK
+                'message' => 'Data pengguna berhasil ditambahkan.'
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Gagal menambahkan data pengguna. Silakan coba lagi.'
-            ], 400); // Internal Server Error
+            ], 400);
         }
     }
+    
 
     public function show($id)
     {

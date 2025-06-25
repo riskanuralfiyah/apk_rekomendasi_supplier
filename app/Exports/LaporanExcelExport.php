@@ -128,13 +128,14 @@ class LaporanExcelExport implements FromCollection, WithHeadings, WithMapping, W
                 $sheet->getRowDimension(2)->setRowHeight(20); // Optional: Set row height for the blank row
     
                 $sheet->setCellValue('A3', 'Tanggal Export');
-                $sheet->mergeCells('A3:B3'); // merge cells for date label
-                $sheet->setCellValue('C3', now()->format('d F Y H:i'));
-                $sheet->mergeCells('C3:D3'); // merge cells for date value
+                $sheet->mergeCells('A3:B3');
+                \Carbon\Carbon::setLocale('id'); // set ke locale Indonesia
+                $sheet->setCellValue('C3', now()->translatedFormat('d F Y H:i'));
+                $sheet->mergeCells('C3:D3');
                 
-                $sheet->setCellValue('A4', 'Total Data');
-                $sheet->mergeCells('A4:B4'); // merge cells for total data label
-                $sheet->setCellValue('C4', count($this->laporans));
+                // $sheet->setCellValue('A4', 'Total Data');
+                // $sheet->mergeCells('A4:B4'); // merge cells for total data label
+                // $sheet->setCellValue('C4', count($this->laporans));
     
                 // Set horizontal alignment of the total data value to left
                 $sheet->getStyle('C4')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT);
@@ -150,15 +151,21 @@ class LaporanExcelExport implements FromCollection, WithHeadings, WithMapping, W
                     $sheet->setCellValue("A" . ($infoStartRow + 1), 'Bahan Baku dengan Stok Masuk Terbanyak:');
                     $sheet->mergeCells("A" . ($infoStartRow + 1) . ":C" . ($infoStartRow + 1)); // Merge cells for label
                     $sheet->setCellValue("C" . ($infoStartRow + 1), $this->maxInfo['masuk']); // Keep value in C
-                    $sheet->setCellValue("D" . ($infoStartRow + 1), $this->maxInfo['nama_bahan_masuk'] ?? '-'); // Add name of the raw material
-                    $sheet->setCellValue("E" . ($infoStartRow + 1), number_format($this->maxInfo['nilai_masuk']) . ' ' . $this->maxInfo['ukuran_masuk']); // Keep value in D
+                    $sheet->setCellValue("D" . ($infoStartRow + 1),
+                    ($this->maxInfo['nama_bahan_masuk'] ?? '-') . ' ' .
+                    ($this->maxInfo['ukuran_masuk'] ?? '')
+                );
+                    $sheet->setCellValue("E" . ($infoStartRow + 1), ' (' .number_format($this->maxInfo['nilai_masuk']). ' batang)' ); // Keep value in D
                 
                     // Bahan Baku dengan Stok Keluar Terbanyak
                     $sheet->setCellValue("A" . ($infoStartRow + 2), 'Bahan Baku dengan Stok Keluar Terbanyak:');
                     $sheet->mergeCells("A" . ($infoStartRow + 2) . ":C" . ($infoStartRow + 2)); // Merge cells for label
                     $sheet->setCellValue("C" . ($infoStartRow + 2), $this->maxInfo['keluar']); // Keep value in C
-                    $sheet->setCellValue("D" . ($infoStartRow + 2), $this->maxInfo['nama_bahan_keluar'] ?? '-'); // Add name of the raw material
-                    $sheet->setCellValue("E" . ($infoStartRow + 2), number_format($this->maxInfo['nilai_keluar']) . ' ' . $this->maxInfo['ukuran_keluar']); // Keep value in D
+                    $sheet->setCellValue("D" . ($infoStartRow + 2),
+                        ($this->maxInfo['nama_bahan_keluar'] ?? '-') . ' ' .
+                        ($this->maxInfo['ukuran_keluar'] ?? '')
+                    );
+                    $sheet->setCellValue("E" . ($infoStartRow + 2), ' (' .number_format($this->maxInfo['nilai_keluar']) . ' batang)'); // Keep value in D
                 
                 } elseif ($this->jenisLaporan === 'bulan') {
                     // Set label for "Bulan dengan Stok Masuk Terbanyak"
@@ -279,7 +286,7 @@ class LaporanExcelExport implements FromCollection, WithHeadings, WithMapping, W
         }
 
         // Auto filter
-        $sheet->setAutoFilter("A{$headerRow}:{$lastColumn}{$headerRow}");
+        // $sheet->setAutoFilter("A{$headerRow}:{$lastColumn}{$headerRow}");
 
         // Set column widths
         $columnWidths = $this->getColumnWidths();
