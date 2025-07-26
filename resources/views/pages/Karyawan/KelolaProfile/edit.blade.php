@@ -11,13 +11,29 @@
   <div class="card-body">
     <h5 class="mb-4 font-weight-bold">Ubah Profile</h5>
 
+    {{-- Pesan Berhasil --}}
+    @if (session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
+
+        {{-- Pesan Error Foto --}}
+        @if ($errors->has('foto'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <i class="fas fa-exclamation-triangle me-2"></i> {{ $errors->first('foto') }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        @endif
+
     {{-- Profile Header --}}
     <div class="bg-light px-3 py-2 mb-4"><strong>Profile</strong></div>
 
     <div class="row align-items-center mb-5">
       {{-- Foto & Change Picture --}}
       <div class="col-md-3 text-center">
-        <img src="{{ $user->foto ? asset('storage/' . $user->foto) : asset('image/profile1.png') }}"
+        <img src="{{ $user->foto ? asset('storage/' . $user->foto) : asset('image/profile.png') }}"
              class="rounded-circle mb-2"
              style="width:120px; height:120px; object-fit:cover;"
              alt="Foto Profil">

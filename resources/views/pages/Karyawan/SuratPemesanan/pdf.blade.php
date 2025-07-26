@@ -168,8 +168,9 @@
         <table>
             <thead>
                 <tr>
-                    <th width="15%">No</th>
-                    <th width="40%">Nama Bahan Baku</th>
+                    <th width="10%">No</th>
+                    <th width="35%">Nama Bahan Baku</th>
+                    <th width="25%">Ukuran</th>
                     <th width="30%">Jumlah Dipesan</th>
                 </tr>
             </thead>
@@ -178,14 +179,13 @@
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td>{{ $bahan->nama_bahan_baku }}</td>
-                        <td>
-                            {{ $bahan->jumlah ?? '-' }} 
-                            {{ $bahan->satuan ?? '-' }}
-                        </td>
+                        <td>{{ $bahan->ukuran ?? '-' }}</td>
+                        <td>{{ $bahan->jumlah ?? '-' }} {{ $bahan->satuan ?? '-' }}</td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
+        
         
         <div class="spacer"></div>
         

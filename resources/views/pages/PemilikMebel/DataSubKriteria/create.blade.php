@@ -46,16 +46,17 @@
                 <input type="number" class="form-control @error('nilai') is-invalid @enderror" 
                        id="nilai" name="nilai" 
                        value="{{ old('nilai') }}" 
-                       placeholder="Nilai Subkriteria" 
-                       min="1" step="1">
+                       placeholder="Nilai Subkriteria (1-100)" 
+                       min="1" max="100" step="1">
                 <small class="form-text text-muted">
-                  Benefit = Nilai besar lebih baik, Cost = Nilai kecil lebih baik.
+                  Beri nilai dari rentang 1–100. Benefit = Nilai besar lebih baik, Cost = Nilai kecil lebih baik.
                   <strong>Kategori: {{ ucfirst($kriteria->kategori) }}</strong>
                 </small>
                 @error('nilai')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
+            
             
             <button type="submit" class="btn btn-primary mr-2">Simpan</button>
             <a href="{{ route('datasubkriteria.pemilikmebel', $kriteria->id) }}" class="btn btn-light">Cancel</a>

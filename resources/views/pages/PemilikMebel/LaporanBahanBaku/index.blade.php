@@ -7,7 +7,7 @@
 @section('content')
 <div class="card">
     <div class="card-body">
-        <h3 class="mb-2 font-weight-bold">Laporan Stok Bahan Baku</h3>
+        <h3 class="mb-2 font-weight-bold">Laporan Bahan Baku</h3>
 
         <!-- Search, Filter, and Export in one row -->
         <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">

@@ -38,7 +38,8 @@ class StokMasukController extends Controller
     
             $query->where(function ($q) use ($searchTerm, $parsedDate, $parsedMonthYear) {
                 $q->whereHas('bahanBaku', function ($subQuery) use ($searchTerm) {
-                    $subQuery->where('nama_bahan_baku', 'like', '%' . $searchTerm . '%');
+                    $subQuery->where('nama_bahan_baku', 'like', '%' . $searchTerm . '%')
+                             ->orWhere('ukuran', 'like', '%' . $searchTerm . '%'); // ditambahkan
                 })->orWhereHas('supplier', function ($subQuery) use ($searchTerm) {
                     $subQuery->where('nama_supplier', 'like', '%' . $searchTerm . '%');
                 });

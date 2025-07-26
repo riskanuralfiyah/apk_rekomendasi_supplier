@@ -86,11 +86,9 @@
         .text-center { text-align: center; }
 
         .footer {
-            margin-top: 30px;
-            text-align: right;
+            margin-top: 20px;
             font-size: 8pt;
             color: #7f8c8d;
-            border-top: 1px solid #ddd;
             padding-top: 10px;
         }
         
@@ -116,7 +114,7 @@
         }
         
         .signature-name {
-            margin-top: 40px;
+            margin-top: 5px;
             font-weight: bold;
             text-decoration: underline;
         }
@@ -268,23 +266,30 @@
         </tbody>
     </table>
 
-    <div class="footer">
-        <p>Dokumen ini dicetak pada {{ now()->locale('id')->translatedFormat('d F Y H:i') }}</p>
-        <p>&copy; {{ date('Y') }} Riska Mebel. All rights reserved.</p>
-    </div>
-
-    <div class="footer">
-        <div class="signature-container">
+    <div class="footer" style="position: relative; height: 150px;">
+        <!-- waktu cetak -->
+        <p style="margin: 0; font-size: 8pt; color: #7f8c8d;">
+            Dokumen ini dicetak pada {{ now()->locale('id')->translatedFormat('d F Y H:i') }}
+        </p>
+    
+        <!-- tanda tangan di pojok kanan bawah, tapi lebih ke bawah dari teks -->
+        <div style="position: absolute; top: 35px; right: 0; text-align: center;">
             <div class="signature">
-                <div class="signature-place">Indramayu, {{ \Carbon\Carbon::now()->locale('id')->isoFormat('D MMMM Y') }}</div>
+                <div class="signature-place">
+                    Indramayu, {{ \Carbon\Carbon::now()->locale('id')->isoFormat('D MMMM Y') }}
+                </div>
                 <div class="signature-position">Pemilik Riska Mebel</div>
-                <div class="spacer"></div>
-                <div class="spacer"></div>
-                <div class="signature-name">{{ auth()->user()->name ?? '(_______________________)' }}</div>
-                {{-- <div class="signature-position">{{ auth()->user()->position ?? 'Pemilik Riska Mebel' }}</div> --}}
+                <div style="height: 10px;"></div>
+                <img src="{{ public_path('image/signature.png') }}" alt="Tanda Tangan"
+                    style="height: 80px; margin-bottom: 5px;">
+                <div class="signature-name">
+                    {{ auth()->user()->name ?? '(_______________________)' }}
+                </div>
             </div>
         </div>
-        <div style="clear: both;"></div>
     </div>
+    
+    
+       
 </body>
 </html>

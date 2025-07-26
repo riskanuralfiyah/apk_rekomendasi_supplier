@@ -29,19 +29,21 @@
         </div>
 
         <div class="form-group mb-3">
-          <label for="nilai" class="form-label">Nilai</label>
-          <input type="number" class="form-control @error('nilai') is-invalid @enderror"
-                 id="nilai" name="nilai"
-                 value="{{ old('nilai', $subkriteria->nilai) }}"
-                 placeholder="Nilai Sub Kriteria"
-                 min="1" step="1" required>
-          <small class="form-text text-muted">
-            Benefit = Nilai besar lebih baik, Cost = Nilai kecil lebih baik.
-          </small>
-          @error('nilai')
-              <div class="invalid-feedback">{{ $message }}</div>
-          @enderror
-        </div>
+            <label for="nilai" class="form-label">Nilai</label>
+            <input type="number" class="form-control @error('nilai') is-invalid @enderror"
+                   id="nilai" name="nilai"
+                   value="{{ old('nilai', $subkriteria->nilai) }}"
+                   placeholder="Nilai Sub Kriteria (1-100)"
+                   min="1" max="100" step="1" required>
+            <small class="form-text text-muted">
+              Beri nilai dari rentang 1–100. Benefit = Nilai besar lebih baik, Cost = Nilai kecil lebih baik.
+              <strong>Kategori: {{ ucfirst($subkriteria->kriteria->kategori ?? '-') }}</strong>
+            </small>
+            @error('nilai')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+          </div>
+          
 
         <button type="submit" class="btn btn-primary me-2">Update</button>
         <a href="{{ route('datasubkriteria.pemilikmebel', $subkriteria->kriteria->id) }}" class="btn btn-light">Cancel</a>

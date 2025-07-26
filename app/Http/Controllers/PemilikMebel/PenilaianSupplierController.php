@@ -50,6 +50,19 @@ class PenilaianSupplierController extends Controller
                 'kriteriaTanpaSub' => $kriteriaTanpaSub,
             ]);
         }
+
+        // ➕ Validasi tambahan: total bobot harus 100%
+        $totalBobot = Kriteria::sum('bobot');
+        if (round($totalBobot, 2) !== 1.00) {
+            return view('pages.PemilikMebel.PenilaianSupplier.index', [
+                'errorMessage' => 'Total bobot semua kriteria harus 100% sebelum melakukan penilaian.',
+                'supplier' => $supplier,
+                'penilaians' => collect(),
+                'jumlahKriteria' => $jumlahKriteria,
+                'jumlahSubkriteria' => $jumlahSubkriteria,
+                'kriteriaTanpaSub' => $kriteriaTanpaSub,
+            ]);
+        }
     
         $penilaians = $supplier->penilaians()
             ->with(['kriteria', 'subkriteria'])
@@ -65,7 +78,6 @@ class PenilaianSupplierController extends Controller
             'kriteriaTanpaSub' => $kriteriaTanpaSub,
         ]);
     }
-    
     
 
     public function create($supplierId)

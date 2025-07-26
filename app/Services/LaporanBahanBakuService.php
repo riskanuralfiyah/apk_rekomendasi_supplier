@@ -13,9 +13,8 @@ class LaporanBahanBakuService
     {
         $laporan = collect();
 
-        // Get bahan bakus based on filter
         $bahanBakusQuery = BahanBaku::query();
-        
+
         if (!empty($idBahanBaku)) {
             $bahanBakusQuery->where('id', $idBahanBaku);
         }
@@ -30,7 +29,7 @@ class LaporanBahanBakuService
             $tahunDataDibuat = (int) $createdAt->format('Y');
 
             if ($tahun < $tahunDataDibuat || ($tahun == $tahunDataDibuat && $bulan < $bulanDataDibuat)) {
-                continue; // lewati proses kalau datanya dibuat setelah bulan yang diminta
+                continue;
             }
 
             $sekarang = Carbon::now();
@@ -38,26 +37,10 @@ class LaporanBahanBakuService
             $tahunSekarang = (int) $sekarang->format('Y');
 
             if ($tahun > $tahunSekarang || ($tahun == $tahunSekarang && $bulan > $bulanSekarang)) {
-                continue; // lewati proses kalau bulan yang diminta belum terjadi
+                continue;
             }
 
-            $stokMasukSebelumnya = DB::table('stok_masuks')
-                ->where('id_bahan_baku', $id)
-                ->where('tanggal', '<', Carbon::createFromDate($tahun, $bulan, 1))
-                ->sum('jumlah_stok_masuk');
-
-            $stokKeluarSebelumnya = DB::table('stok_keluars')
-                ->where('id_bahan_baku', $id)
-                ->where('tanggal', '<', Carbon::createFromDate($tahun, $bulan, 1))
-                ->sum('jumlah_stok_keluar');
-
-            // tambahkan fallback stok awal jika tidak ada histori
-            if ($stokMasukSebelumnya == 0 && $stokKeluarSebelumnya == 0) {
-                $stokAwal = $bahan->jumlah_stok;
-            } else {
-                $stokAwal = $stokMasukSebelumnya - $stokKeluarSebelumnya;
-            }
-
+            // stok masuk & keluar bulan yang diminta
             $stokMasuk = DB::table('stok_masuks')
                 ->where('id_bahan_baku', $id)
                 ->whereYear('tanggal', $tahun)
@@ -69,6 +52,24 @@ class LaporanBahanBakuService
                 ->whereYear('tanggal', $tahun)
                 ->whereMonth('tanggal', $bulan)
                 ->sum('jumlah_stok_keluar');
+
+            // histori sebelumnya
+            $stokMasukSebelumnya = DB::table('stok_masuks')
+                ->where('id_bahan_baku', $id)
+                ->where('tanggal', '<', Carbon::createFromDate($tahun, $bulan, 1))
+                ->sum('jumlah_stok_masuk');
+
+            $stokKeluarSebelumnya = DB::table('stok_keluars')
+                ->where('id_bahan_baku', $id)
+                ->where('tanggal', '<', Carbon::createFromDate($tahun, $bulan, 1))
+                ->sum('jumlah_stok_keluar');
+
+            // fallback stok awal jika tidak ada histori
+            if ($stokMasukSebelumnya == 0 && $stokKeluarSebelumnya == 0) {
+                $stokAwal = $bahan->jumlah_stok - $stokMasuk + $stokKeluar;
+            } else {
+                $stokAwal = $stokMasukSebelumnya - $stokKeluarSebelumnya;
+            }
 
             $sisaStok = $stokAwal + $stokMasuk - $stokKeluar;
 

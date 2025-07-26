@@ -33,17 +33,35 @@
               <h4>Selamat Datang Kembali!</h4>
               <h6 class="font-weight-light">Login untuk melanjutkan.</h6>
 
+                {{-- ✅ tampilkan pesan error
+                @if ($errors->any())
+                <div class="alert alert-danger">
+                  <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                      <li>{{ $error }}</li>
+                    @endforeach
+                  </ul>
+                </div>
+              @endif --}}
+
               <!-- ✅ form login -->
               <form class="pt-3" method="POST" action="{{ route('login') }}">
                 @csrf
 
                 <div class="form-group">
-                  <input type="email" name="email" class="form-control form-control-lg" placeholder="Email" required>
+                  <input type="email" name="email" class="form-control form-control-lg @error('email') is-invalid @enderror" placeholder="Email" value="{{ old('email') }}">
+                  @error('email')
+                    <small class="text-danger">{{ $message }}</small>
+                  @enderror
                 </div>
-
+                
                 <div class="form-group">
-                  <input type="password" name="password" class="form-control form-control-lg" placeholder="Password" required>
+                  <input type="password" name="password" class="form-control form-control-lg @error('password') is-invalid @enderror" placeholder="Password">
+                  @error('password')
+                    <small class="text-danger">{{ $message }}</small>
+                  @enderror
                 </div>
+                
 
                 <div class="mt-3">
                   <button type="submit" class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn">LOGIN</button>
@@ -51,10 +69,10 @@
 
                 <div class="my-2 d-flex justify-content-between align-items-center">
                   <div class="form-check">
-                    <label class="form-check-label text-muted">
+                    {{-- <label class="form-check-label text-muted">
                       <input type="checkbox" class="form-check-input" name="remember">
                       Keep me signed in
-                    </label>
+                    </label> --}}
                   </div>
                   <a href="#" class="auth-link text-black">Lupa password?</a>
                 </div>

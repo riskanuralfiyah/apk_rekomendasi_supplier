@@ -42,14 +42,14 @@ class DataSubKriteriaController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'nama_subkriteria' => 'required|string|max:100',
-            'nilai' => 'required|numeric|min:1'
+            'nilai' => 'required|numeric|min:1|max:100'
         ], [
             'nama_subkriteria.required' => 'Nama subkriteria harus diisi.',
             'nama_subkriteria.string' => 'Nama subkriteria harus berupa teks.',
             'nama_subkriteria.max' => 'Nama subkriteria maksimal 100 karakter.',
             'nilai.required' => 'Nilai harus diisi.',
             'nilai.numeric' => 'Nilai harus berupa angka.',
-            'nilai.min' => 'Nilai minimal adalah 1.'
+            'nilai.max' => 'Nilai maksimal adalah 100.'
         ]);        
 
         if ($validator->fails()) {
@@ -117,14 +117,15 @@ class DataSubKriteriaController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'nama_subkriteria' => 'required|string|max:100',
-            'nilai' => 'required|numeric|min:1'
+            'nilai' => 'required|numeric|min:1|max:100'
         ], [
             'nama_subkriteria.required' => 'Nama subkriteria harus diisi.',
             'nama_subkriteria.string' => 'Nama subkriteria harus berupa teks.',
             'nama_subkriteria.max' => 'Nama subkriteria maksimal 100 karakter.',
             'nilai.required' => 'Nilai harus diisi.',
             'nilai.numeric' => 'Nilai harus berupa angka.',
-            'nilai.min' => 'Nilai minimal adalah 1.'
+            'nilai.min' => 'Nilai minimal adalah 1.',
+            'nilai.max' => 'Nilai maksimal adalah 100.'
         ]);  
 
         if ($validator->fails()) {

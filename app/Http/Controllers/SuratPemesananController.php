@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection; 
 use App\Models\BahanBaku;
 use App\Models\HasilRekomendasi;
 use App\Models\Supplier;
@@ -17,8 +18,15 @@ class SuratPemesananController extends Controller
 
         $bahanHampirHabis = BahanBaku::whereColumn('jumlah_stok', '<=', 'stok_minimum')->get();
         $bahanTambahan = BahanBaku::whereColumn('jumlah_stok', '>', 'stok_minimum')->get();
-        $supplierRekomendasi = HasilRekomendasi::where('peringkat', 1)->with('supplier')->get();
-        $supplierAlternatif = HasilRekomendasi::where('peringkat', '>', 1)->with('supplier')->get();
+        $supplierRekomendasi = HasilRekomendasi::whereBetween('peringkat', [1, 3])
+            ->with('supplier')
+            ->orderBy('peringkat') // optional: biar urut dari peringkat 1 ke 3
+            ->get();
+
+            $supplierAlternatif = HasilRekomendasi::where('peringkat', '>', 3)
+            ->with('supplier')
+            ->orderBy('peringkat')
+            ->get();        
 
         $view = match ($user->role) {
             'pemilikmebel' => 'pages.PemilikMebel.SuratPemesanan.index',
@@ -44,7 +52,14 @@ class SuratPemesananController extends Controller
         $supplierId = $request->input('supplier');
 
         if (empty($bahanDipilih) || !$supplierId) {
-            return back()->with('error', 'Silakan pilih minimal satu bahan baku dan supplier terlebih dahulu.');
+            return back()->with('error', 'Silahkan pilih minimal satu bahan baku dan supplier terlebih dahulu.');
+        }
+
+         // === Validasi jumlah dan satuan harus diisi ===
+        foreach ($bahanDipilih as $idBahan) {
+            if (empty($jumlahBahan[$idBahan]) || empty($satuanBahan[$idBahan])) {
+                return back()->with('error', 'Jumlah dan satuan harus diisi untuk setiap bahan baku yang dipilih.');
+            }
         }
 
         $bahanList = BahanBaku::whereIn('id', $bahanDipilih)->get();

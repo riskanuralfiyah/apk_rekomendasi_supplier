@@ -84,7 +84,7 @@ class DataBahanBakuKaryawanController extends Controller
         if ($existing) {
             return response()->json([
                 'errors' => [
-                    'duplicate' => ['Data bahan baku dengan nama yang sama sudah ada.']
+                    'duplicate' => ['Data bahan baku dengan nama dan ukuran yang sama sudah ada.']
                 ]
             ], 400);
         }
@@ -156,7 +156,7 @@ class DataBahanBakuKaryawanController extends Controller
         if ($existing) {
             return response()->json([
                 'errors' => [
-                    'duplicate' => ['Data bahan baku dengan nama yang sama sudah ada.']
+                    'duplicate' => ['Data bahan baku dengan nama dan ukuran yang sama sudah ada.']
                 ]
             ], 400);
         }

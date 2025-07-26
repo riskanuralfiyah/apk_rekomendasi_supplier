@@ -121,14 +121,14 @@
         }
         
         .signature-name {
-            margin-top: 30px;
+            margin-top: 10px;
             font-weight: bold;
             text-decoration: underline;
         }
         
         .signature-position {
             font-size: 11px;
-            margin-top: 3px;
+            margin-top: 2px;
         }
         
         .spacer {
@@ -168,8 +168,9 @@
         <table>
             <thead>
                 <tr>
-                    <th width="15%">No</th>
-                    <th width="40%">Nama Bahan Baku</th>
+                    <th width="10%">No</th>
+                    <th width="35%">Nama Bahan Baku</th>
+                    <th width="25%">Ukuran</th>
                     <th width="30%">Jumlah Dipesan</th>
                 </tr>
             </thead>
@@ -178,14 +179,13 @@
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td>{{ $bahan->nama_bahan_baku }}</td>
-                        <td>
-                            {{ $bahan->jumlah ?? '-' }} 
-                            {{ $bahan->satuan ?? '-' }}
-                        </td>
+                        <td>{{ $bahan->ukuran ?? '-' }}</td>
+                        <td>{{ $bahan->jumlah ?? '-' }} {{ $bahan->satuan ?? '-' }}</td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
+        
         
         <div class="spacer"></div>
         
@@ -201,7 +201,11 @@
                 <div class="signature-place">Indramayu, {{ \Carbon\Carbon::now()->locale('id')->isoFormat('D MMMM Y') }}</div>
                 <div class="signature-position">Hormat kami,</div>
                 <div class="spacer"></div>
-                <div class="signature-name">{{ auth()->user()->name ?? '(_______________________)' }}</div>
+
+                 {{-- gambar tanda tangan --}}
+                <img src="{{ public_path('image/signature.png') }}" alt="Tanda Tangan" style="height: 80px; margin-bottom: 5px;">
+
+                {{-- <div class="signature-name">{{ auth()->user()->name ?? '(_______________________)' }}</div> --}}
                 <div class="signature-position">{{ auth()->user()->position ?? 'Pemilik Riska Mebel' }}</div>
             </div>
         </div>

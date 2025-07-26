@@ -18,7 +18,7 @@ class DataPerhitunganController extends Controller
         // jika data kriteria belum lengkap
         if ($jumlahKriteria == 0) {
             return view('pages.PemilikMebel.DataPerhitungan.index', [
-                'errorMessage' => 'Tidak dapat menampilkan data perhitungan karena belum adanya kriteria..',
+                'errorMessage' => 'Tidak dapat menampilkan data perhitungan karena belum adanya kriteria.',
                 'hasil' => [],
                 'suppliers' => collect(),
                 'kriterias' => collect(),
