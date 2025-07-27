@@ -41,7 +41,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
 });
 
-
 Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
 // tampilan form OTP
 Route::get('/otp-verifikasi', [AuthenticatedSessionController::class, 'showOtpForm'])->name('auth.otp.form');

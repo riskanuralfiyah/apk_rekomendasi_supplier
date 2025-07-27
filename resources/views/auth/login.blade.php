@@ -74,7 +74,7 @@
                       Keep me signed in
                     </label> --}}
                   </div>
-                  <a href="#" class="auth-link text-black">Lupa password?</a>
+                  <a href="{{ route('password.request') }}" class="auth-link text-black">Lupa password?</a>
                 </div>
 
               </form>

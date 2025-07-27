@@ -14,45 +14,63 @@
         }
         
         .header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #2c3e50;
-        }
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #2c3e50;
+}
 
-        .header .logo {
-            margin-right: 15px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-        }
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #2c3e50;
+}
 
-        .header .logo img {
-            height: 100%;
-            width: auto;
-        }
+.header-left {
+    flex: 0 0 auto;
+}
 
-        .header .header-center {
-            flex-grow: 1;
-            text-align: center;
-        }
+.header-left img {
+    height: 70px;
+    width: auto;
+}
 
-        .header .header-center h1 {
-            color: #2c3e50;
-            font-size: 18px;
-            margin: 0;
-            padding: 0;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            line-height: 1.2;
-        }
+.header-center {
+    flex: 1;
+    text-align: center;
+    line-height: 1.2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-top: -10px; /* geser ke atas */
+}
 
-        .header .header-center .address {
-            font-size: 11px;
-            color: #555;
-            margin-top: 3px;
-        }
+.header-center h1 {
+    color: #2c3e50;
+    font-size: 22px;
+    margin: 0;
+    padding: 0;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.header-center .address {
+    font-size: 12px;
+    color: #555;
+    margin-top: 4px;
+    white-space: nowrap;
+}
+
+
+.header-right {
+    flex: 0 0 70px; /* agar seimbang dengan logo kiri */
+}
+
         
         .content {
             margin: 20px 0;
@@ -138,14 +156,19 @@
 </head>
 <body>
     <div class="header">
-        <div class="logo">
+        <div class="header-left">
             <img src="{{ public_path('image/logo.png') }}" alt="logo">
         </div>
         <div class="header-center">
             <h1>RISKA MEBEL</h1>
-            <div class="address">Rambatan Wetan, Kec. Sindang, Kab. Indramayu, Jawa Barat (+62 81946883325)</div>
+            <div class="address">
+                Rambatan Wetan, Kec. Sindang, Kab. Indramayu, Jawa Barat – Telp: +62 819 4688 3325
+            </div>
         </div>
-    </div>    
+        <div class="header-right"></div> <!-- kosong untuk seimbangkan agar center -->
+    </div>
+    
+      
     
     <div class="content">
         {{-- info tanggal dan nomor surat --}}
@@ -190,8 +213,9 @@
         <div class="spacer"></div>
         
         <div class="closing">
-            <p>Kami berharap bahan baku tersebut dapat dipenuhi sesuai dengan pesanan di atas untuk segera disiapkan.</p>
-            <p>Demikian surat pemesanan ini kami buat dengan sebenar-benarnya. Atas perhatian dan kerjasama yang baik, kami mengucapkan terima kasih.</p>
+            <p>Pesanan bahan baku ini kami sampaikan dengan harapan dapat dipenuhi sesuai dengan rincian di atas dan segera disiapkan. Apabila terdapat kendala atau bahan yang tidak tersedia, mohon segera menghubungi kami melalui nomor yang tertera.</p>
+            <p>Adapun pembayaran akan dilakukan secara langsung pada saat pengambilan barang oleh pihak kami.</p>
+            <p>Demikian surat ini kami buat. Atas perhatian dan kerjasama yang baik, kami mengucapkan terima kasih.</p>
         </div>
     </div>
     
