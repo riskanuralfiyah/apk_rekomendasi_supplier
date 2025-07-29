@@ -1,4 +1,4 @@
-@extends('layouts.pemilikmebel')
+@extends('layouts.karyawan')
 
 @section('breadcrumb')
     <li class="breadcrumb-item active" aria-current="page">Buat Surat Pemesanan</li>
@@ -18,7 +18,7 @@
         <div class="card-body">
             <h4 class="mb-4 text-primary">Form Pemesanan Bahan Baku</h4>
 
-            <form method="POST" action="{{ route('pdf.suratpemesanan.pemilikmebel') }}" class="needs-validation" novalidate>
+            <form method="POST" action="{{ route('pdf.suratpemesanan.karyawan') }}" class="needs-validation" novalidate>
                 @csrf
 
                 {{-- Bahan Baku Hampir Habis --}}

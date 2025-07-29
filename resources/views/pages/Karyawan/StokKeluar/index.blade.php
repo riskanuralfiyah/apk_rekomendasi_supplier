@@ -132,7 +132,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    Apakah Anda yakin ingin menghapus data stok masuk ini?
+                    Apakah Anda yakin ingin menghapus data ini?
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Batal</button>

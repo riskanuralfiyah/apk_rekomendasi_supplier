@@ -19,11 +19,11 @@
         <p>Tidak ada notifikasi.</p>
     @endforelse
 
-    <div class="mt-4 d-flex justify-content-start">
+    {{-- <div class="mt-4 d-flex justify-content-start">
         <a href="{{ route('suratpemesanan.pemilikmebel') }}" class="btn btn-outline-primary">
             Buat Surat Pemesanan
         </a>
-    </div>    
+    </div>     --}}
 </div>
 
 <!-- Modal Konfirmasi Hapus -->
